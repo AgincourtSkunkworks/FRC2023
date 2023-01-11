@@ -64,15 +64,16 @@ public class Robot extends TimedRobot {
         double stickLeft = joystick.getRawAxis(1);
         double stickRight = -joystick.getRawAxis(3);
         for (TalonSRX motor: leftMotors)
-        motor.set(ControlMode.PercentOutput, stickLeft);
-        for (TalonSRX motor: rightMotors)
-        motor.set(ControlMode.PercentOutput, stickRight);
+            motor.set(ControlMode.PercentOutput, stickLeft);
+        // for (TalonSRX motor: rightMotors)
+        //     motor.set(ControlMode.PercentOutput, stickRight);
+        shooterMotor1.set(ControlMode.PercentOutput, stickRight);
 
-        if (joystick.getRawButton(7)) {
-            shooterMotor1.set(ControlMode.PercentOutput, 0.6);
-        } else {
-            shooterMotor1.set(ControlMode.PercentOutput, 0);
-        }
+        // if (joystick.getRawButton(0)) {
+        //     shooterMotor1.set(ControlMode.PercentOutput, 0.6);
+        // } else {
+        //     shooterMotor1.set(ControlMode.PercentOutput, 0);
+        // }
     }
 
 
