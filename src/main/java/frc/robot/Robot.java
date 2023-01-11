@@ -24,12 +24,9 @@ public class Robot extends TimedRobot {
     TalonSRX leftMotor2 = new TalonSRX(1);
     TalonSRX leftMotor3 = new TalonSRX(2);
 
-    TalonSRX shooterMotor1 = new TalonSRX(3);
-    // TalonSRX shooterMotor2 = new TalonSRX(4);
-
     TalonSRX[] leftMotors = {leftMotor1, leftMotor2, leftMotor3};
     TalonSRX[] rightMotors = {rightMotor1, rightMotor2, rightMotor3};
-    TalonSRX[] motors = {leftMotor1, leftMotor2, leftMotor3, rightMotor1, rightMotor2, rightMotor3, shooterMotor1};
+    TalonSRX[] motors = {leftMotor1, leftMotor2, leftMotor3, rightMotor1, rightMotor2, rightMotor3};
 
     Joystick joystick = new Joystick(0);
 
@@ -65,15 +62,8 @@ public class Robot extends TimedRobot {
         double stickRight = -joystick.getRawAxis(3);
         for (TalonSRX motor: leftMotors)
             motor.set(ControlMode.PercentOutput, stickLeft);
-        // for (TalonSRX motor: rightMotors)
-        //     motor.set(ControlMode.PercentOutput, stickRight);
-        shooterMotor1.set(ControlMode.PercentOutput, stickRight);
-
-        // if (joystick.getRawButton(0)) {
-        //     shooterMotor1.set(ControlMode.PercentOutput, 0.6);
-        // } else {
-        //     shooterMotor1.set(ControlMode.PercentOutput, 0);
-        // }
+        for (TalonSRX motor: rightMotors)
+            motor.set(ControlMode.PercentOutput, stickRight);
     }
 
 
