@@ -25,8 +25,9 @@ public class Robot extends TimedRobot {
   TalonSRX leftMotor2 = new TalonSRX(1);
   TalonSRX leftMotor3 = new TalonSRX(2);
 
-  TalonSRX[] motors = { rightMotor1, rightMotor2, rightMotor3, leftMotor1, leftMotor3, leftMotor2};
-  // TalonSRX[] leftmotors = {leftMotor1, leftMotor2, leftMotor3}
+  TalonSRX[] leftMotors = {leftMotor1, leftMotor2, leftMotor3};
+  TalonSRX[] rightMotors = {rightMotor1, rightMotor2, rightMotor3};
+  TalonSRX[] motors = {leftMotor1, leftMotor2, leftMotor3, rightMotor1, rightMotor2, rightMotor3};
 
   Joystick j = new Joystick(0);
 
@@ -60,12 +61,10 @@ public class Robot extends TimedRobot {
   public void teleopPeriodic() {
     double stickLeft = j.getRawAxis(1);
     double stickRight = -j.getRawAxis(3);
-    leftMotor1.set(ControlMode.PercentOutput, stickLeft);
-    leftMotor2.set(ControlMode.PercentOutput, stickLeft);
-    leftMotor3.set(ControlMode.PercentOutput, stickLeft);
-    rightMotor1.set(ControlMode.PercentOutput, stickRight);
-    rightMotor2.set(ControlMode.PercentOutput, stickRight);
-    rightMotor3.set(ControlMode.PercentOutput, stickRight);
+    for (TalonSRX motor: leftMotors)
+      motor.set(ControlMode.PercentOutput, stickLeft);
+    for (TalonSRX motor: rightMotors)
+      motor.set(ControlMode.PercentOutput, stickRight);
   }
 
 
