@@ -17,72 +17,80 @@ import edu.wpi.first.wpilibj.Joystick;
  * project.
  */
 public class Robot extends TimedRobot {
+    TalonSRX rightMotor1 = new TalonSRX(8);
+    TalonSRX rightMotor2 = new TalonSRX(7);
+    TalonSRX rightMotor3 = new TalonSRX(6);
+    TalonSRX leftMotor1 = new TalonSRX(0);
+    TalonSRX leftMotor2 = new TalonSRX(1);
+    TalonSRX leftMotor3 = new TalonSRX(2);
 
-  TalonSRX rightMotor1 = new TalonSRX(8);
-  TalonSRX rightMotor2 = new TalonSRX(7);
-  TalonSRX rightMotor3 = new TalonSRX(6);
-  TalonSRX leftMotor1 = new TalonSRX(0);
-  TalonSRX leftMotor2 = new TalonSRX(1);
-  TalonSRX leftMotor3 = new TalonSRX(2);
+    TalonSRX shooterMotor1 = new TalonSRX(3);
+    // TalonSRX shooterMotor2 = new TalonSRX(4);
 
-  TalonSRX[] leftMotors = {leftMotor1, leftMotor2, leftMotor3};
-  TalonSRX[] rightMotors = {rightMotor1, rightMotor2, rightMotor3};
-  TalonSRX[] motors = {leftMotor1, leftMotor2, leftMotor3, rightMotor1, rightMotor2, rightMotor3};
+    TalonSRX[] leftMotors = {leftMotor1, leftMotor2, leftMotor3};
+    TalonSRX[] rightMotors = {rightMotor1, rightMotor2, rightMotor3};
+    TalonSRX[] motors = {leftMotor1, leftMotor2, leftMotor3, rightMotor1, rightMotor2, rightMotor3, shooterMotor1};
 
-  Joystick j = new Joystick(0);
+    Joystick joystick = new Joystick(0);
 
-  /**
-   * This function is run when the robot is first started up and should be used for any
-   * initialization code.
-   */
-  @Override
-  public void robotInit() {
-    for (TalonSRX motor : motors) {
-      motor.configPeakCurrentLimit(45); // once at 60 (40 previously) amps, limit current
-      motor.configPeakCurrentDuration(80); // for 80ms
-      motor.configContinuousCurrentLimit(25); // set to 35 (20 previously) amps which will make robot slower
-      motor.enableCurrentLimit(true); // enable
+    /**
+     * This function is run when the robot is first started up and should be used for any
+     * initialization code.
+     */
+    @Override
+    public void robotInit() {
+        for (TalonSRX motor : motors) {
+            motor.configPeakCurrentLimit(45); // once at 60 (40 previously) amps, limit current
+            motor.configPeakCurrentDuration(80); // for 80ms
+            motor.configContinuousCurrentLimit(25); // set to 35 (20 previously) amps which will make robot slower
+            motor.enableCurrentLimit(true); // enable
+        }
     }
-  }
 
-  @Override
-  public void robotPeriodic() {}
+    @Override
+    public void robotPeriodic() {}
 
-  @Override
-  public void autonomousInit() {}
+    @Override
+    public void autonomousInit() {}
 
-  @Override
-  public void autonomousPeriodic() {}
+    @Override
+    public void autonomousPeriodic() {}
 
-  @Override
-  public void teleopInit() {}
+    @Override
+    public void teleopInit() {}
 
-  @Override
-  public void teleopPeriodic() {
-    double stickLeft = j.getRawAxis(1);
-    double stickRight = -j.getRawAxis(3);
-    for (TalonSRX motor: leftMotors)
-      motor.set(ControlMode.PercentOutput, stickLeft);
-    for (TalonSRX motor: rightMotors)
-      motor.set(ControlMode.PercentOutput, stickRight);
-  }
+    @Override
+    public void teleopPeriodic() {
+        double stickLeft = joystick.getRawAxis(1);
+        double stickRight = -joystick.getRawAxis(3);
+        for (TalonSRX motor: leftMotors)
+        motor.set(ControlMode.PercentOutput, stickLeft);
+        for (TalonSRX motor: rightMotors)
+        motor.set(ControlMode.PercentOutput, stickRight);
+
+        if (joystick.getRawButton(7)) {
+            shooterMotor1.set(ControlMode.PercentOutput, 0.6);
+        } else {
+            shooterMotor1.set(ControlMode.PercentOutput, 0);
+        }
+    }
 
 
-  @Override
-  public void disabledInit() {}
+    @Override
+    public void disabledInit() {}
 
-  @Override
-  public void disabledPeriodic() {}
+    @Override
+    public void disabledPeriodic() {}
 
-  @Override
-  public void testInit() {}
+    @Override
+    public void testInit() {}
 
-  @Override
-  public void testPeriodic() {}
+    @Override
+    public void testPeriodic() {}
 
-  @Override
-  public void simulationInit() {}
+    @Override
+    public void simulationInit() {}
 
-  @Override
-  public void simulationPeriodic() {}
+    @Override
+    public void simulationPeriodic() {}
 }
