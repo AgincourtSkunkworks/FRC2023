@@ -39,7 +39,7 @@ public class Robot extends TimedRobot {
 
     Joystick joystick = new Joystick(0);
 
-    Compressor pcmCompressor = new Compressor(PneumaticsModuleType.CTREPCM);
+    Compressor pcmCompressor = new Compressor(2, PneumaticsModuleType.CTREPCM);
     
 
     /**
