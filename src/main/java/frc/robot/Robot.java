@@ -8,6 +8,8 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.PneumaticsModuleType;
+import edu.wpi.first.wpilibj.Compressor;
 
 
 /**
@@ -16,6 +18,8 @@ import edu.wpi.first.wpilibj.Joystick;
  * the package after creating this project, you must also update the build.gradle file in the
  * project.
  */
+
+
 public class Robot extends TimedRobot {
     TalonSRX rightMotor1 = new TalonSRX(8);
     TalonSRX rightMotor2 = new TalonSRX(7);
@@ -24,11 +28,18 @@ public class Robot extends TimedRobot {
     TalonSRX leftMotor2 = new TalonSRX(1);
     TalonSRX leftMotor3 = new TalonSRX(2);
 
+    TalonSRX shooterMotor1 = new TalonSRX(4);
+    TalonSRX shooterMotor2 = new TalonSRX(3);
+
+    
     TalonSRX[] leftMotors = {leftMotor1, leftMotor2, leftMotor3};
     TalonSRX[] rightMotors = {rightMotor1, rightMotor2, rightMotor3};
     TalonSRX[] motors = {leftMotor1, leftMotor2, leftMotor3, rightMotor1, rightMotor2, rightMotor3};
 
     Joystick joystick = new Joystick(0);
+
+    Compressor pcmCompressor = new Compressor(PneumaticsModuleType.CTREPCM);
+    
 
     /**
      * This function is run when the robot is first started up and should be used for any
@@ -64,6 +75,19 @@ public class Robot extends TimedRobot {
             motor.set(ControlMode.PercentOutput, stickLeft);
         for (TalonSRX motor: rightMotors)
             motor.set(ControlMode.PercentOutput, stickRight);
+<<<<<<< HEAD
+=======
+        // Button 8 = R2
+        if (joystick.getRawButton(8)) {
+            shooterMotor1.set(ControlMode.PercentOutput, 0.6);
+            shooterMotor2.set(ControlMode.PercentOutput, -0.6);
+
+        } else {
+            shooterMotor1.set(ControlMode.PercentOutput, 0);
+            shooterMotor2.set(ControlMode.PercentOutput, 0);
+
+        }
+>>>>>>> d0d30aff5becea269d3cab1dda9022069a584444
     }
 
 
