@@ -8,8 +8,8 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.PneumaticsModuleType;
-import edu.wpi.first.wpilibj.Compressor;
+// import edu.wpi.first.wpilibj.PneumaticsModuleType;
+// import edu.wpi.first.wpilibj.Compressor;
 
 
 /**
@@ -39,7 +39,9 @@ public class Robot extends TimedRobot {
 
     Joystick joystick = new Joystick(0);
 
-    Compressor pcmCompressor = new Compressor(2, PneumaticsModuleType.CTREPCM);
+    // This code works (initializes compressor and turns it on), however pressure is being lost in 
+    // the physical system making it unable to hold pressure, which means we can't continue testing.
+    // Compressor pcmCompressor = new Compressor(2, PneumaticsModuleType.CTREPCM);
     
 
     /**
