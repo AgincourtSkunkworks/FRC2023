@@ -223,7 +223,7 @@ public class Robot extends TimedRobot {
         }
 
         if (debugMode)
-            System.out.printf("===%nPitch: %f%nYaw: %f%nRoll: %f%nCompass Heading: %f%n", ahrs.getPitch(), ahrs.getYaw(), ahrs.getRoll(), ahrs.getCompassHeading());
+            System.out.printf("===%nPitch: %f%nYaw: %f%nRoll: %f%n", ahrs.getPitch(), ahrs.getYaw(), ahrs.getRoll());
     }
 
 
