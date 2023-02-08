@@ -172,11 +172,11 @@ public class Robot extends TimedRobot {
                     double pitchDegrees = ahrs.getPitch();
                     lastRunTime = curTime;
                     if (onFloorMin > pitchDegrees || pitchDegrees > onFloorMax) {
-                        if (debugMode) System.out.printf("Pitch OUT of floor range (%f out of %d-%d)%n", pitchDegrees, onFloorMin, onFloorMax);
+                        if (debugMode) System.out.printf("Pitch OUT of floor range (%f out of %f-%f)%n", pitchDegrees, onFloorMin, onFloorMax);
                         waiting = false;
                         state = 4; // Start docking
                         lastRunTime = 0;
-                    } else if (debugMode) System.out.printf("Pitch IN floor range (%d <= %f <= %d)%n", onFloorMin, pitchDegrees, onFloorMax);
+                    } else if (debugMode) System.out.printf("Pitch IN floor range (%f <= %f <= %f)%n", onFloorMin, pitchDegrees, onFloorMax);
                 }
             case 4: // Dock with Charging Station
                 if (!waiting) {
@@ -187,11 +187,11 @@ public class Robot extends TimedRobot {
                     double pitchDegrees = ahrs.getPitch();
                     lastRunTime = curTime;
                     if (dockedMin <= pitchDegrees && pitchDegrees <= dockedMax) {
-                        if (debugMode) System.out.printf("Dock IN range (%d <= %f <= %d)%n", dockedMin, pitchDegrees, dockedMax);
+                        if (debugMode) System.out.printf("Dock IN range (%f <= %f <= %f)%n", dockedMin, pitchDegrees, dockedMax);
                         waiting = false;
                         state = 5; // Finished docking
                         lastRunTime = 0;
-                    } else if (debugMode) System.out.printf("Dock OUT of range (%f out of %d-%d)", pitchDegrees, dockedMin, dockedMax);
+                    } else if (debugMode) System.out.printf("Dock OUT of range (%f out of %f-%f)", pitchDegrees, dockedMin, dockedMax);
                 }
         }
     }
