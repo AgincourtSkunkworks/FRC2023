@@ -4,9 +4,11 @@
 
 package frc.robot;
 
-import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.SPI;
+import edu.wpi.first.wpilibj.TimedRobot;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 
@@ -44,6 +46,7 @@ public class Robot extends TimedRobot {
     Joystick joystick = new Joystick(0);
 
     AHRS ahrs = new AHRS(SPI.Port.kMXP);
+    AnalogInput ultrasonic = new AnalogInput(0);
 
     // Configuraton Variables
     final int startPosOverride = -2; // -2 = None; -1 = Left; 0 = Center; 1 = Right
@@ -101,6 +104,16 @@ public class Robot extends TimedRobot {
     }
 
     /**
+     * Convert the raw value from the ultrasound sensor to distance
+     * @param rawValue Raw value from the Analog Input from the ultrasound censor (0 - 4095)
+     * @return Distance in centimeters
+     */
+    private double getUltrasonicDistance(double rawValue) {
+        double voltageScaleFactor = 5 / RobotController.getVoltage5V();
+        return rawValue * voltageScaleFactor * 0.125;
+    }
+
+    /**
      * This function is run when the robot is first started up and should be used for any
      * initialization code.
      */
@@ -147,6 +160,7 @@ public class Robot extends TimedRobot {
                 ahrs.zeroYaw();
                 state = 1;
             case 1: // Post-Initialization
+                double ultrasoundReading = getUltrasonicDistance(ultrasonic.getValue());
                 if (startPosOverride != -2)
                     startPos = startPosOverride;
                 else {
@@ -223,7 +237,7 @@ public class Robot extends TimedRobot {
         }
 
         if (debugMode)
-            System.out.printf("===%nPitch: %f%nYaw: %f%nRoll: %f%n", ahrs.getPitch(), ahrs.getYaw(), ahrs.getRoll());
+            System.out.printf("===%nPitch: %f%nYaw: %f%nRoll: %f%nUltrasonic Raw: %f%nUltrasonic Parsed: %f%n", ahrs.getPitch(), ahrs.getYaw(), ahrs.getRoll(), ultrasonic.getValue(), getUltrasonicDistance(ultrasonic.getValue()));
     }
 
 
