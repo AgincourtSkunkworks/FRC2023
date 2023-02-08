@@ -55,13 +55,15 @@ public class Robot extends TimedRobot {
     final double autonomousMoveSpeed = 0.5; // Speed to move at normally while in automous
     final double autonomousTurnSpeed = 0.3; // Speed to turn at while in autonomous mode
     final double autonomousDockSpeed = 0.1; // Speed to move forward while attempting to dock
-    final long autonomousFloorCheckInterval = 100; // Interval to check gryo at to determine if we're at the docking station
-    final long autonomousDockCheckInterval = 100; // Interval to check gyro at while attempting to dock
+    final long autonomousFloorCheckInterval = 100; // Interval to check gryo at to determine if we're at the docking station (in milliseconds)
+    final long autonomousDockCheckInterval = 100; // Interval to check gyro at while attempting to dock (in milliseconds)
     final boolean debugMode = false; // Debug mode is used to print certain values used for debugging purposes.
 
     // Runtime Variables
     int state, startPos;
     double pitchDegrees;
+    long lastRunTime;
+    boolean waiting;
 
     // This code works (initializes compressor and turns it on), however pressure is being lost in 
     // the physical system making it unable to hold pressure, which means we can't continue testing.
@@ -128,6 +130,8 @@ public class Robot extends TimedRobot {
          * -1 - Error State
          */
         state = initialState;
+        lastRunTime = 0;
+        waiting = false;
         if (debugMode)
             System.out.println("Autonomous Initialization Complete");
     }
@@ -137,6 +141,7 @@ public class Robot extends TimedRobot {
         if (!ahrs.isConnected()) return; // If gyro is not connected, return
         if (debugMode) System.out.printf("Current Autonomous State: %d%n", state);
 
+        long curTime = System.currentTimeMillis();
         switch (state) {
             case 0: // Initialization
                 ahrs.zeroYaw();
@@ -159,31 +164,35 @@ public class Robot extends TimedRobot {
                 // Can probably use gyro to figure out once docking station is reached. Timings/turns need to be hard coded
                 state = 3;
             case 3: // Moving Forward to Charging Station
-                pitchDegrees = ahrs.getPitch();
-                setMotorSpeed(autonomousMoveSpeed);
-                while (!(onFloorMin <= pitchDegrees && pitchDegrees <= onFloorMax)) {
-                    try {
-                        wait(autonomousFloorCheckInterval);
-                    } catch (InterruptedException e) {
-                        state = -1;
-                        return;
-                    }
-                    pitchDegrees = ahrs.getPitch();
+                if (!waiting) {
+                    setMotorSpeed(autonomousMoveSpeed);
+                    waiting = true;
                 }
-                state = 4;
+                if (curTime - lastRunTime >= autonomousFloorCheckInterval) {
+                    double pitchDegrees = ahrs.getPitch();
+                    lastRunTime = curTime;
+                    if (onFloorMin > pitchDegrees || pitchDegrees > onFloorMax) {
+                        if (debugMode) System.out.printf("Pitch OUT of floor range (%f out of %d-%d)%n", pitchDegrees, onFloorMin, onFloorMax);
+                        waiting = false;
+                        state = 4; // Start docking
+                        lastRunTime = 0;
+                    } else if (debugMode) System.out.printf("Pitch IN floor range (%d <= %f <= %d)%n", onFloorMin, pitchDegrees, onFloorMax);
+                }
             case 4: // Dock with Charging Station
-                pitchDegrees = ahrs.getPitch();
-                setMotorSpeed(autonomousDockSpeed);
-                while (!(dockedMin <= pitchDegrees && pitchDegrees <= dockedMax)) {
-                    try {
-                        wait(autonomousDockCheckInterval);
-                    } catch (InterruptedException e) {
-                        state = -1;
-                        return;
-                    }
-                    pitchDegrees = ahrs.getPitch();
+                if (!waiting) {
+                    setMotorSpeed(autonomousDockSpeed);
+                    waiting = true;
                 }
-                state = 5; // Finished docking (hopefully?)
+                if (curTime - lastRunTime >= autonomousDockCheckInterval) {
+                    double pitchDegrees = ahrs.getPitch();
+                    lastRunTime = curTime;
+                    if (dockedMin <= pitchDegrees && pitchDegrees <= dockedMax) {
+                        if (debugMode) System.out.printf("Dock IN range (%d <= %f <= %d)%n", dockedMin, pitchDegrees, dockedMax);
+                        waiting = false;
+                        state = 5; // Finished docking
+                        lastRunTime = 0;
+                    } else if (debugMode) System.out.printf("Dock OUT of range (%f out of %d-%d)", pitchDegrees, dockedMin, dockedMax);
+                }
         }
     }
 
