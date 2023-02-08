@@ -47,6 +47,7 @@ public class Robot extends TimedRobot {
 
     // Configuraton Variables
     final int startPosOverride = -2; // -2 = None; -1 = Left; 0 = Center; 1 = Right
+    final int initialState = 0; // Initial state when autonomous is enabled (used for debugging usually)
     final float onFloorMin = -3; // Pitch degrees to be considered on floor
     final float onFloorMax = 3; // Pitch degrees to be considered on floor
     final float dockedMin = -3; // Pitch degrees to be considered docked (minimum range)
@@ -56,6 +57,7 @@ public class Robot extends TimedRobot {
     final double autonomousDockSpeed = 0.1; // Speed to move forward while attempting to dock
     final long autonomousFloorCheckInterval = 100; // Interval to check gryo at to determine if we're at the docking station
     final long autonomousDockCheckInterval = 100; // Interval to check gyro at while attempting to dock
+    final boolean debugMode = false; // Debug mode is used to print certain values used for debugging purposes.
 
     // Runtime Variables
     int state, startPos;
@@ -125,12 +127,15 @@ public class Robot extends TimedRobot {
          * 5 - Done Docking (in theory)
          * -1 - Error State
          */
-        state = 0;
+        state = initialState;
+        if (debugMode)
+            System.out.println("Autonomous Initialization Complete");
     }
 
     @Override
     public void autonomousPeriodic() {
         if (!ahrs.isConnected()) return; // If gyro is not connected, return
+        if (debugMode) System.out.printf("Current Autonomous State: %d%n", state);
 
         switch (state) {
             case 0: // Initialization
@@ -183,7 +188,12 @@ public class Robot extends TimedRobot {
     }
 
     @Override
-    public void teleopInit() {}
+    public void teleopInit() {
+        if (debugMode) {
+            ahrs.zeroYaw();
+            System.out.println("Teleoperator Mode Initialized, set gyro to zero Yaw");
+        }
+    }
 
     @Override
     public void teleopPeriodic() {
@@ -200,6 +210,9 @@ public class Robot extends TimedRobot {
             for (TalonSRX motor : shooterMotors)
                 motor.set(ControlMode.PercentOutput, 0);
         }
+
+        if (debugMode)
+            System.out.printf("===%nPitch: %f%nYaw: %f%nRoll: %f%nCompass Heading: %f%n", ahrs.getPitch(), ahrs.getYaw(), ahrs.getRoll(), ahrs.getCompassHeading());
     }
 
 
