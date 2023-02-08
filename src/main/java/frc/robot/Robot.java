@@ -54,7 +54,7 @@ public class Robot extends TimedRobot {
     final float dockedMax = 3; // Pitch degrees to be considered docked (maximum range)
     final double autonomousMoveSpeed = 0.6; // Speed to move at normally while in automous
     final double autonomousTurnSpeed = 0.4; // Speed to turn at while in autonomous mode
-    final double autonomousDockSpeed = 0.3; // Speed to move forward while attempting to dock
+    final double autonomousDockSpeed = 0.24; // Speed to move forward while attempting to dock
     final long autonomousFloorCheckInterval = 100; // Interval to check gryo at to determine if we're at the docking station (in milliseconds)
     final long autonomousDockCheckInterval = 100; // Interval to check gyro at while attempting to dock (in milliseconds)
     final boolean debugMode = false; // Debug mode is used to print certain values used for debugging purposes.
