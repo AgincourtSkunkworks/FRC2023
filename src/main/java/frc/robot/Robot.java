@@ -51,10 +51,10 @@ public class Robot extends TimedRobot {
     // Configuraton Variables
     final int startPosOverride = -2; // -2 = None; -1 = Left; 0 = Center; 1 = Right
     final int initialState = 0; // Initial state when autonomous is enabled (used for debugging usually)
-    final float onFloorMin = -3; // Pitch degrees to be considered on floor
-    final float onFloorMax = 3; // Pitch degrees to be considered on floor
-    final float dockedMin = -3; // Pitch degrees to be considered docked (minimum range)
-    final float dockedMax = 3; // Pitch degrees to be considered docked (maximum range)
+    final double onFloorMin = -3; // Pitch degrees to be considered on floor
+    final double onFloorMax = 3; // Pitch degrees to be considered on floor
+    final double dockedMin = -3; // Pitch degrees to be considered docked (minimum range)
+    final double dockedMax = 3; // Pitch degrees to be considered docked (maximum range)
     final double autonomousMoveSpeed = 0.6; // Speed to move at normally while in automous
     final double autonomousTurnSpeed = 0.4; // Speed to turn at while in autonomous mode
     final double autonomousDockSpeed = 0.24; // Speed to move forward while attempting to dock
