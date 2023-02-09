@@ -51,6 +51,8 @@ public class Robot extends TimedRobot {
     // Configuraton Variables
     final int startPosOverride = -2; // -2 = None; -1 = Left; 0 = Center; 1 = Right
     final int initialState = 0; // Initial state when autonomous is enabled (used for debugging usually)
+    final double leftMotorSpeedOffset = 0; // Percent offset (0-1) for left motor speed (to ensure that it can drive straight)
+    final double rightMotorSpeedOffset = 0; // Percent offset (0-1) for right motor speed (to ensure that it can drive straight)
     final double onFloorMin = -3; // Pitch degrees to be considered on floor
     final double onFloorMax = 3; // Pitch degrees to be considered on floor
     final double dockedMin = -3; // Pitch degrees to be considered docked (minimum range)
@@ -80,7 +82,7 @@ public class Robot extends TimedRobot {
      */
     private void setLeftMotorSpeed(double speed) {
         for (TalonSRX motor : leftMotors)
-            motor.set(ControlMode.PercentOutput, speed);
+            motor.set(ControlMode.PercentOutput, speed + speed * leftMotorSpeedOffset);
     }
 
     /**
@@ -90,7 +92,7 @@ public class Robot extends TimedRobot {
      */
     private void setRightMotorSpeed(double speed) {
         for (TalonSRX motor : rightMotors)
-            motor.set(ControlMode.PercentOutput, speed);
+            motor.set(ControlMode.PercentOutput, speed + speed * rightMotorSpeedOffset);
     }
 
     /**
