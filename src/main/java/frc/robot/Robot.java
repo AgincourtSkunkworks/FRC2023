@@ -79,6 +79,7 @@ public class Robot extends TimedRobot {
 
     /**
      * Set Left Motor Speeds
+     * Note: Left motors are reversed (a negative value will go forward, positive will go backwards)
      * 
      * @param speed Percent of maximum motor speed (1 being max)
      */
@@ -89,6 +90,7 @@ public class Robot extends TimedRobot {
 
     /**
      * Set Right Motor Speeds
+     * Note: Right motors are proper (a positive value will go forward, negative will go backwards)
      * 
      * @param speed Percent of maximum motor speed (1 being max)
      */
@@ -108,12 +110,35 @@ public class Robot extends TimedRobot {
     }
 
     /**
-     * Set All Motor Speeds w/ Direction Correction
+     * Set All Motor Speeds w/ Motor Direction Correction
      * @param speed Percent of maximum motor speed (1 being max)
      */
     private void setMotorSpeedCorrected(double speed) {
         setLeftMotorSpeed(-speed);
         setRightMotorSpeed(speed);
+    }
+
+    /**
+     * Turn the robot automatically. Call this function periodically while trying to turn.
+     * @param speed Speed to turn at,
+     * @param degrees Amount of degrees to turn, not 100% precise. Do not do more than 180 degree turns (this isn't made for it -- at least not yet)
+     * @param initial Whether this is the first time the function is called
+     * @return True if turning is complete, false otherwise
+     */
+    private boolean turnRobot(double speed, int degrees, boolean initial) {
+        if (initial) {
+            setMotorSpeedCorrected(0); // Stop moving, to ensure proper zeroYaw() placement
+            ahrs.zeroYaw(); // Reset YAW to current face
+            if (degrees < 0) { // Left turn
+                setLeftMotorSpeed(speed);
+                setRightMotorSpeed(speed);
+            } else if (degrees > 0) { // Right turn
+                setLeftMotorSpeed(-speed);
+                setRightMotorSpeed(-speed);
+            }
+        }
+        
+        return (degrees < 0) ? degrees - ahrs.getYaw() < 0 : ahrs.getYaw() - degrees < 0;
     }
 
     /**
@@ -149,10 +174,11 @@ public class Robot extends TimedRobot {
          * State (used to determine operations in periodic)
          * 0 - Initialization
          * 1 - Post-Initialization (Unmoved)
-         * 2 - Turning (if needed)
-         * 3 - Moving to Charging
-         * 4 - Charging Station Docking
-         * 5 - Done Docking (in theory)
+         * 2 - Turning Stage 1 (turn toward center, perpendicular to docking station)
+         * 3 - Turning Stage 2 (turn toward docking station)
+         * 4 - Moving to Charging
+         * 5 - Charging Station Docking
+         * 6 - Done Docking (in theory)
          * -1 - Error State
          */
         state = initialState;
@@ -171,7 +197,7 @@ public class Robot extends TimedRobot {
         switch (state) {
             case 0: // Initialization
                 ahrs.zeroYaw();
-                state = 1;
+                state = 1; // Done Initializing
             case 1: // Post-Initialization
                 // double ultrasoundReading = getUltrasonicDistance(ultrasonic.getValue());
                 if (startPosOverride != -2)
@@ -179,18 +205,27 @@ public class Robot extends TimedRobot {
                 else {
                     // TODO: Implement left/center/right starting position detection
                 }
-                state = (startPos != 0) ? 2 : 3; // Reminder: Only set state when startPos has been successfully determined
-            case 2: // Turning (if needed)
-                switch (startPos) {
-                    case -1: // Left
-                        ;
-                    case 1: // Right
-                        ;
+                if (startPos == -2) state = -1; // Unexpected
+                else state = (startPos != 0) ? 2 : 3; // Reminder: Only set state when startPos has been successfully determined
+            case 2: // Turning Stage 1 (if needed) -- turn 90 to face center (perpendicular to docking)
+                if (!waiting) {
+                    turnRobot(autonomousTurnSpeed, (startPos == -1) ? 90 : -90, true);
+                    waiting = true;
                 }
-                // Reminder: Only set state when movement for 2 has been completed
-                // Can probably use gyro to figure out once docking station is reached. Timings/turns need to be hard coded
-                state = 3;
-            case 3: // Moving Forward to Charging Station
+                if (turnRobot(autonomousTurnSpeed, (startPos == -1) ? 90 : -90, false)) {
+                    waiting = false;
+                    state = 3; // Turning stage 2
+                }
+            case 3: // Turning Stage 2 (if needed) -- turn 90 to face docking station
+                if (!waiting) {
+                    turnRobot(autonomousTurnSpeed, (startPos == -1) ? -90 : 90, true);
+                    waiting = true;
+                }
+                if (turnRobot(autonomousTurnSpeed, (startPos == -1) ? -90 : 90, false)) {
+                    waiting = false;
+                    state = 4; // Move to docking station
+                }
+            case 4: // Moving Forward to Charging Station
                 if (!waiting) {
                     setMotorSpeedCorrected(autonomousMoveSpeed);
                     waiting = true;
@@ -201,12 +236,12 @@ public class Robot extends TimedRobot {
                     if (onFloorMin > pitchDegrees || pitchDegrees > onFloorMax) {
                         if (debugMode) System.out.printf("Pitch OUT of floor range (%f out of %f-%f)%n", pitchDegrees, onFloorMin, onFloorMax);
                         setMotorSpeedCorrected(0);
-                        state = 4; // Start docking
+                        state = 5; // Start docking
                         waiting = false;
                         lastRunTime = 0;
                     } else if (debugMode) System.out.printf("Pitch IN floor range (%f <= %f <= %f)%n", onFloorMin, pitchDegrees, onFloorMax);
                 }
-            case 4: // Dock with Charging Station
+            case 5: // Dock with Charging Station
                 if (!waiting) {
                     setMotorSpeedCorrected(autonomousDockSpeed);
                     waiting = true;
@@ -217,7 +252,7 @@ public class Robot extends TimedRobot {
                     if (dockedMin <= pitchDegrees && pitchDegrees <= dockedMax) {
                         if (debugMode) System.out.printf("Dock IN range (%f <= %f <= %f)%n", dockedMin, pitchDegrees, dockedMax);
                         setMotorSpeedCorrected(0);
-                        state = 5; // Finished docking
+                        state = 6; // Finished docking
                         waiting = false;
                         lastRunTime = 0;
                     } else if (debugMode) System.out.printf("Dock OUT of range (%f out of %f-%f)%n", pitchDegrees, dockedMin, dockedMax);
