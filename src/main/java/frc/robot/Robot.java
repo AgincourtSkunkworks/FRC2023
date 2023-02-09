@@ -51,15 +51,17 @@ public class Robot extends TimedRobot {
     // Configuraton Variables
     final int startPosOverride = -2; // -2 = None; -1 = Left; 0 = Center; 1 = Right
     final int initialState = 0; // Initial state when autonomous is enabled (used for debugging usually)
+    final double teleopMoveScale = 0.7; // Percent to scale the controller input by when moving (forward or backward)
+    final double teleopTurnScale = 0.5; // Percent to scale the controller input by when turning (controllers aren't in same direction [0 is considered no direction])
     final double leftMotorSpeedOffset = 0; // Percent offset (0-1) for left motor speed (to ensure that it can drive straight)
     final double rightMotorSpeedOffset = 0; // Percent offset (0-1) for right motor speed (to ensure that it can drive straight)
     final double onFloorMin = -3; // Pitch degrees to be considered on floor
     final double onFloorMax = 3; // Pitch degrees to be considered on floor
     final double dockedMin = -3; // Pitch degrees to be considered docked (minimum range)
     final double dockedMax = 3; // Pitch degrees to be considered docked (maximum range)
-    final double autonomousMoveSpeed = 0.6; // Speed to move at normally while in automous
-    final double autonomousTurnSpeed = 0.4; // Speed to turn at while in autonomous mode
-    final double autonomousDockSpeed = 0.24; // Speed to move forward while attempting to dock
+    final double autonomousMoveSpeed = 0.4; // Speed to move at normally while in automous
+    final double autonomousTurnSpeed = 0.3; // Speed to turn at while in autonomous mode
+    final double autonomousDockSpeed = 0.2; // Speed to move forward while attempting to dock
     final long autonomousFloorCheckInterval = 100; // Interval to check gryo at to determine if we're at the docking station (in milliseconds)
     final long autonomousDockCheckInterval = 100; // Interval to check gyro at while attempting to dock (in milliseconds)
     final boolean debugMode = false; // Debug mode is used to print certain values used for debugging purposes.
@@ -102,6 +104,15 @@ public class Robot extends TimedRobot {
      */
     private void setMotorSpeed(double speed) {
         setLeftMotorSpeed(speed);
+        setRightMotorSpeed(speed);
+    }
+
+    /**
+     * Set All Motor Speeds w/ Direction Correction
+     * @param speed Percent of maximum motor speed (1 being max)
+     */
+    private void setMotorSpeedCorrected(double speed) {
+        setLeftMotorSpeed(-speed);
         setRightMotorSpeed(speed);
     }
 
@@ -181,7 +192,7 @@ public class Robot extends TimedRobot {
                 state = 3;
             case 3: // Moving Forward to Charging Station
                 if (!waiting) {
-                    setMotorSpeed(autonomousMoveSpeed);
+                    setMotorSpeedCorrected(autonomousMoveSpeed);
                     waiting = true;
                 }
                 if (curTime - lastRunTime >= autonomousFloorCheckInterval) {
@@ -189,7 +200,7 @@ public class Robot extends TimedRobot {
                     lastRunTime = curTime;
                     if (onFloorMin > pitchDegrees || pitchDegrees > onFloorMax) {
                         if (debugMode) System.out.printf("Pitch OUT of floor range (%f out of %f-%f)%n", pitchDegrees, onFloorMin, onFloorMax);
-                        setMotorSpeed(0);
+                        setMotorSpeedCorrected(0);
                         state = 4; // Start docking
                         waiting = false;
                         lastRunTime = 0;
@@ -197,7 +208,7 @@ public class Robot extends TimedRobot {
                 }
             case 4: // Dock with Charging Station
                 if (!waiting) {
-                    setMotorSpeed(autonomousDockSpeed);
+                    setMotorSpeedCorrected(autonomousDockSpeed);
                     waiting = true;
                 }
                 if (curTime - lastRunTime >= autonomousDockCheckInterval) {
@@ -205,7 +216,7 @@ public class Robot extends TimedRobot {
                     lastRunTime = curTime;
                     if (dockedMin <= pitchDegrees && pitchDegrees <= dockedMax) {
                         if (debugMode) System.out.printf("Dock IN range (%f <= %f <= %f)%n", dockedMin, pitchDegrees, dockedMax);
-                        setMotorSpeed(0);
+                        setMotorSpeedCorrected(0);
                         state = 5; // Finished docking
                         waiting = false;
                         lastRunTime = 0;
@@ -226,8 +237,13 @@ public class Robot extends TimedRobot {
     public void teleopPeriodic() {
         double stickLeft = joystick.getRawAxis(1);
         double stickRight = -joystick.getRawAxis(3);
-        setLeftMotorSpeed(Math.pow(stickLeft, 3));
-        setRightMotorSpeed(Math.pow(stickRight, 3));
+        if (stickLeft > 0.05 && stickRight < 0.05 || stickLeft < 0.05 && stickRight > 0.05) { // no movement is ~+-0.007, not absolute zero
+            setLeftMotorSpeed(stickLeft * teleopMoveScale);
+            setRightMotorSpeed(stickRight * teleopMoveScale);
+        } else {
+            setLeftMotorSpeed(stickLeft * teleopTurnScale);
+            setRightMotorSpeed(stickRight * teleopTurnScale);
+        }
         // Button 8 = R2
         if (joystick.getRawButton(8)) {
             shooterMotor1.set(ControlMode.PercentOutput, 0.6);
@@ -239,8 +255,8 @@ public class Robot extends TimedRobot {
         }
 
         if (debugMode)
-            // System.out.printf("===%nPitch: %f%nYaw: %f%nRoll: %f%nUltrasonic Raw: %f%nUltrasonic Parsed: %f%n", ahrs.getPitch(), ahrs.getYaw(), ahrs.getRoll(), ultrasonic.getValue(), getUltrasonicDistance(ultrasonic.getValue()));
-            System.out.printf("===%nPitch: %f%nYaw: %f%nRoll: %f%n", ahrs.getPitch(), ahrs.getYaw(), ahrs.getRoll());
+            // System.out.printf("===%nPitch: %f%nYaw: %f%nRoll: %f%nUltrasonic Raw: %f%nUltrasonic Parsed: %f%nController Left: %f%nController Right: %f%n", ahrs.getPitch(), ahrs.getYaw(), ahrs.getRoll(), ultrasonic.getValue(), getUltrasonicDistance(ultrasonic.getValue()), stickLeft, stickRight);
+            System.out.printf("===%nPitch: %f%nYaw: %f%nRoll: %f%nController Left: %f%nController Right: %f%n", ahrs.getPitch(), ahrs.getYaw(), ahrs.getRoll(), stickLeft, stickRight);
     }
 
 
