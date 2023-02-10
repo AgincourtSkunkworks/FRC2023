@@ -80,7 +80,7 @@ public class Robot extends TimedRobot {
 
     /**
      * Set Left Motor Speeds
-     * Note) { Left motors are reversed (a negative value will go forward, positive will go backwards)
+     * Note: Left motors are reversed (a negative value will go forward, positive will go backwards)
      * 
      * @param speed Percent of maximum motor speed (1 being max)
      */
@@ -91,7 +91,7 @@ public class Robot extends TimedRobot {
 
     /**
      * Set Right Motor Speeds
-     * Note) { Right motors are proper (a positive value will go forward, negative will go backwards)
+     * Note: Right motors are proper (a positive value will go forward, negative will go backwards)
      * 
      * @param speed Percent of maximum motor speed (1 being max)
      */
@@ -193,7 +193,7 @@ public class Robot extends TimedRobot {
     @Override
     public void autonomousPeriodic() {
         if (!ahrs.isConnected()) return; // If gyro is not connected, return
-        if (debugMode) System.out.printf("Current Autonomous State) { %d%n", state);
+        if (debugMode) System.out.printf("Current Autonomous State: %d%n", state);
 
         long curTime = System.currentTimeMillis();
 
@@ -206,10 +206,10 @@ public class Robot extends TimedRobot {
             if (startPosOverride != -2)
                 startPos = startPosOverride;
             else {
-                // TODO) { Implement left/center/right starting position detection
+                // TODO: Implement left/center/right starting position detection
             }
             if (startPos < -1 || startPos > 1) state = -1; // Unexpected
-            else state = (startPos != 0) ? 2 : 5; // Reminder) { Only set state when startPos has been successfully determined
+            else state = (startPos != 0) ? 2 : 5; // Reminder: Only set state when startPos has been successfully determined
         } else if (state == 2) { // Turning Stage 1 (if needed) -- turn 90 to face center (perpendicular to docking)
             if (curTime - lastRunTime < autonomousTurnCheckInterval) {}
             else if (turnRobot(autonomousTurnSpeed, (startPos == -1) ? 90 : -90, !waiting)) {
@@ -307,8 +307,8 @@ public class Robot extends TimedRobot {
         }
 
         if (debugMode)
-            // System.out.printf("===%nPitch) { %f%nYaw) { %f%nRoll) { %f%nUltrasonic Raw) { %f%nUltrasonic Parsed) { %f%nController Left) { %f%nController Right) { %f%n", ahrs.getPitch(), ahrs.getYaw(), ahrs.getRoll(), ultrasonic.getValue(), getUltrasonicDistance(ultrasonic.getValue()), stickLeft, stickRight);
-            System.out.printf("===%nPitch) { %f%nYaw) { %f%nRoll) { %f%nController Left) { %f%nController Right) { %f%n", ahrs.getPitch(), ahrs.getYaw(), ahrs.getRoll(), stickLeft, stickRight);
+            // System.out.printf("===%nPitch: %f%nYaw: %f%nRoll: %f%nUltrasonic Raw: %f%nUltrasonic Parsed: %f%nController Left: %f%nController Right: %f%n", ahrs.getPitch(), ahrs.getYaw(), ahrs.getRoll(), ultrasonic.getValue(), getUltrasonicDistance(ultrasonic.getValue()), stickLeft, stickRight);
+            System.out.printf("===%nPitch: %f%nYaw: %f%nRoll: %f%nController Left: %f%nController Right: %f%n", ahrs.getPitch(), ahrs.getYaw(), ahrs.getRoll(), stickLeft, stickRight);
     }
 
 
