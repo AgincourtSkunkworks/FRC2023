@@ -48,7 +48,7 @@ public class Robot extends TimedRobot {
     AHRS ahrs = new AHRS(SPI.Port.kMXP);
     // AnalogInput ultrasonic = new AnalogInput(0);
 
-    // Configuraton Variables
+    // Configuration Variables
     final int startPosOverride = -2; // -2 = None; -1 = Left; 0 = Center; 1 = Right
     final int initialState = 0; // Initial state when autonomous is enabled (used for debugging usually)
     final double teleopMoveScale = 0.7; // Percent to scale the controller input by when moving (forward or backward)
@@ -59,9 +59,11 @@ public class Robot extends TimedRobot {
     final double onFloorMax = 3; // Pitch degrees to be considered on floor
     final double dockedMin = -3; // Pitch degrees to be considered docked (minimum range)
     final double dockedMax = 3; // Pitch degrees to be considered docked (maximum range)
+    final double timeToCenter = 0; // Time in milliseconds to drive from one of the side spawn points to the center
     final double autonomousMoveSpeed = 0.4; // Speed to move at normally while in automous
     final double autonomousTurnSpeed = 0.3; // Speed to turn at while in autonomous mode
     final double autonomousDockSpeed = 0.2; // Speed to move forward while attempting to dock
+    final long autonomousTurnCheckInterval = 50; // Interval to check gyro while turning
     final long autonomousFloorCheckInterval = 100; // Interval to check gryo at to determine if we're at the docking station (in milliseconds)
     final long autonomousDockCheckInterval = 100; // Interval to check gyro at while attempting to dock (in milliseconds)
     final boolean debugMode = false; // Debug mode is used to print certain values used for debugging purposes.
@@ -175,10 +177,11 @@ public class Robot extends TimedRobot {
          * 0 - Initialization
          * 1 - Post-Initialization (Unmoved)
          * 2 - Turning Stage 1 (turn toward center, perpendicular to docking station)
-         * 3 - Turning Stage 2 (turn toward docking station)
-         * 4 - Moving to Charging
-         * 5 - Charging Station Docking
-         * 6 - Done Docking (in theory)
+         * 3 - Turning Stage 2 (driving to center)
+         * 4 - Turning Stage 3 (turn toward docking station)
+         * 5 - Moving to Charging
+         * 6 - Charging Station Docking
+         * 7 - Done Docking (in theory)
          * -1 - Error State
          */
         state = initialState;
@@ -208,24 +211,38 @@ public class Robot extends TimedRobot {
                 if (startPos == -2) state = -1; // Unexpected
                 else state = (startPos != 0) ? 2 : 3; // Reminder: Only set state when startPos has been successfully determined
             case 2: // Turning Stage 1 (if needed) -- turn 90 to face center (perpendicular to docking)
-                if (!waiting) {
-                    turnRobot(autonomousTurnSpeed, (startPos == -1) ? 90 : -90, true);
-                    waiting = true;
-                }
-                if (turnRobot(autonomousTurnSpeed, (startPos == -1) ? 90 : -90, false)) {
+                if (curTime - lastRunTime < autonomousTurnCheckInterval) {}
+                else if (turnRobot(autonomousTurnSpeed, (startPos == -1) ? 90 : -90, !waiting)) {
                     waiting = false;
+                    lastRunTime = 0;
                     state = 3; // Turning stage 2
-                }
-            case 3: // Turning Stage 2 (if needed) -- turn 90 to face docking station
-                if (!waiting) {
-                    turnRobot(autonomousTurnSpeed, (startPos == -1) ? -90 : 90, true);
+                } else {
                     waiting = true;
+                    lastRunTime = curTime;   
                 }
-                if (turnRobot(autonomousTurnSpeed, (startPos == -1) ? -90 : 90, false)) {
+            case 3: // Turning Stage 2 (if needed) -- drive to center
+                if (!waiting) {
+                    setMotorSpeedCorrected(autonomousMoveSpeed);
+                    waiting = true;
+                    lastRunTime = curTime;
+                }
+                if (curTime - lastRunTime >= timeToCenter) {
+                    setMotorSpeedCorrected(0);
+                    lastRunTime = 0;
                     waiting = false;
-                    state = 4; // Move to docking station
+                    state = 4;
                 }
-            case 4: // Moving Forward to Charging Station
+            case 4: // Turning Stage 3 (if needed) -- turn 90 to face docking station
+                if (curTime - lastRunTime < autonomousTurnCheckInterval) {}
+                else if (turnRobot(autonomousTurnSpeed, (startPos == -1) ? -90 : 90, !waiting)) {
+                    waiting = false;
+                    lastRunTime = 0;
+                    state = 5; // Move to docking station
+                } else {
+                    waiting = true;
+                    lastRunTime = curTime;
+                }
+            case 5: // Moving Forward to Charging Station
                 if (!waiting) {
                     setMotorSpeedCorrected(autonomousMoveSpeed);
                     waiting = true;
@@ -236,12 +253,12 @@ public class Robot extends TimedRobot {
                     if (onFloorMin > pitchDegrees || pitchDegrees > onFloorMax) {
                         if (debugMode) System.out.printf("Pitch OUT of floor range (%f out of %f-%f)%n", pitchDegrees, onFloorMin, onFloorMax);
                         setMotorSpeedCorrected(0);
-                        state = 5; // Start docking
+                        state = 6; // Start docking
                         waiting = false;
                         lastRunTime = 0;
                     } else if (debugMode) System.out.printf("Pitch IN floor range (%f <= %f <= %f)%n", onFloorMin, pitchDegrees, onFloorMax);
                 }
-            case 5: // Dock with Charging Station
+            case 6: // Dock with Charging Station
                 if (!waiting) {
                     setMotorSpeedCorrected(autonomousDockSpeed);
                     waiting = true;
@@ -252,7 +269,7 @@ public class Robot extends TimedRobot {
                     if (dockedMin <= pitchDegrees && pitchDegrees <= dockedMax) {
                         if (debugMode) System.out.printf("Dock IN range (%f <= %f <= %f)%n", dockedMin, pitchDegrees, dockedMax);
                         setMotorSpeedCorrected(0);
-                        state = 6; // Finished docking
+                        state = 7; // Finished docking
                         waiting = false;
                         lastRunTime = 0;
                     } else if (debugMode) System.out.printf("Dock OUT of range (%f out of %f-%f)%n", pitchDegrees, dockedMin, dockedMax);
