@@ -80,7 +80,7 @@ public class Robot extends TimedRobot {
 
     /**
      * Set Left Motor Speeds
-     * Note: Left motors are reversed (a negative value will go forward, positive will go backwards)
+     * Note) { Left motors are reversed (a negative value will go forward, positive will go backwards)
      * 
      * @param speed Percent of maximum motor speed (1 being max)
      */
@@ -91,7 +91,7 @@ public class Robot extends TimedRobot {
 
     /**
      * Set Right Motor Speeds
-     * Note: Right motors are proper (a positive value will go forward, negative will go backwards)
+     * Note) { Right motors are proper (a positive value will go forward, negative will go backwards)
      * 
      * @param speed Percent of maximum motor speed (1 being max)
      */
@@ -131,11 +131,11 @@ public class Robot extends TimedRobot {
             setMotorSpeedCorrected(0); // Stop moving, to ensure proper zeroYaw() placement
             ahrs.zeroYaw(); // Reset YAW to current face
             if (degrees < 0) { // Left turn
-                setLeftMotorSpeed(speed);
-                setRightMotorSpeed(speed);
-            } else if (degrees > 0) { // Right turn
                 setLeftMotorSpeed(-speed);
                 setRightMotorSpeed(-speed);
+            } else if (degrees > 0) { // Right turn
+                setLeftMotorSpeed(speed);
+                setRightMotorSpeed(speed);
             }
         }
         
@@ -193,86 +193,87 @@ public class Robot extends TimedRobot {
     @Override
     public void autonomousPeriodic() {
         if (!ahrs.isConnected()) return; // If gyro is not connected, return
-        if (debugMode) System.out.printf("Current Autonomous State: %d%n", state);
+        if (debugMode) System.out.printf("Current Autonomous State) { %d%n", state);
 
         long curTime = System.currentTimeMillis();
-        switch (state) {
-            case 0: // Initialization
-                ahrs.zeroYaw();
-                state = 1; // Done Initializing
-            case 1: // Post-Initialization
-                // double ultrasoundReading = getUltrasonicDistance(ultrasonic.getValue());
-                if (startPosOverride != -2)
-                    startPos = startPosOverride;
-                else {
-                    // TODO: Implement left/center/right starting position detection
-                }
-                if (startPos < -1 || startPos > 1) state = -1; // Unexpected
-                else state = (startPos != 0) ? 2 : 5; // Reminder: Only set state when startPos has been successfully determined
-            case 2: // Turning Stage 1 (if needed) -- turn 90 to face center (perpendicular to docking)
-                if (curTime - lastRunTime < autonomousTurnCheckInterval) {}
-                else if (turnRobot(autonomousTurnSpeed, (startPos == -1) ? 90 : -90, !waiting)) {
-                    waiting = false;
-                    lastRunTime = 0;
-                    state = 3; // Turning stage 2
-                } else {
-                    waiting = true;
-                    lastRunTime = curTime;   
-                }
-            case 3: // Turning Stage 2 (if needed) -- drive to center
-                if (!waiting) {
-                    setMotorSpeedCorrected(autonomousMoveSpeed);
-                    waiting = true;
-                    lastRunTime = curTime;
-                }
-                if (curTime - lastRunTime >= timeToCenter) {
+
+        // NOTE: Using a switch statement here causes the god of all confusing bugs to appear. Literally no idea why.
+        if (state == 0) { // Initialization
+            ahrs.zeroYaw();
+            state = 1; // Done Initializing
+        } else if (state == 1) { // Post-Initialization
+            // double ultrasoundReading = getUltrasonicDistance(ultrasonic.getValue());
+            if (startPosOverride != -2)
+                startPos = startPosOverride;
+            else {
+                // TODO) { Implement left/center/right starting position detection
+            }
+            if (startPos < -1 || startPos > 1) state = -1; // Unexpected
+            else state = (startPos != 0) ? 2 : 5; // Reminder) { Only set state when startPos has been successfully determined
+        } else if (state == 2) { // Turning Stage 1 (if needed) -- turn 90 to face center (perpendicular to docking)
+            if (curTime - lastRunTime < autonomousTurnCheckInterval) {}
+            else if (turnRobot(autonomousTurnSpeed, (startPos == -1) ? 90 : -90, !waiting)) {
+                waiting = false;
+                lastRunTime = 0;
+                state = 3; // Turning stage 2
+            } else {
+                waiting = true;
+                lastRunTime = curTime;   
+            }
+        } else if (state == 3) { // Turning Stage 2 (if needed) -- drive to center
+            if (!waiting) {
+                setMotorSpeedCorrected(autonomousMoveSpeed);
+                waiting = true;
+                lastRunTime = curTime;
+            }
+            if (curTime - lastRunTime >= timeToCenter) {
+                setMotorSpeedCorrected(0);
+                lastRunTime = 0;
+                waiting = false;
+                state = 4;
+            }
+        } else if (state == 4) { // Turning Stage 3 (if needed) -- turn 90 to face docking station
+            if (curTime - lastRunTime < autonomousTurnCheckInterval) {}
+            else if (turnRobot(autonomousTurnSpeed, (startPos == -1) ? -90 : 90, !waiting)) {
+                waiting = false;
+                lastRunTime = 0;
+                state = 5; // Move to docking station
+            } else {
+                waiting = true;
+                lastRunTime = curTime;
+            }
+        } else if (state == 5) { // Moving Forward to Charging Station
+            if (!waiting) {
+                setMotorSpeedCorrected(autonomousMoveSpeed);
+                waiting = true;
+            }
+            if (curTime - lastRunTime >= autonomousFloorCheckInterval) {
+                double pitchDegrees = ahrs.getPitch();
+                lastRunTime = curTime;
+                if (onFloorMin > pitchDegrees || pitchDegrees > onFloorMax) {
+                    if (debugMode) System.out.printf("Pitch OUT of floor range (%f out of %f-%f)%n", pitchDegrees, onFloorMin, onFloorMax);
                     setMotorSpeedCorrected(0);
-                    lastRunTime = 0;
-                    waiting = false;
-                    state = 4;
-                }
-            case 4: // Turning Stage 3 (if needed) -- turn 90 to face docking station
-                if (curTime - lastRunTime < autonomousTurnCheckInterval) {}
-                else if (turnRobot(autonomousTurnSpeed, (startPos == -1) ? -90 : 90, !waiting)) {
+                    state = 6; // Start docking
                     waiting = false;
                     lastRunTime = 0;
-                    state = 5; // Move to docking station
-                } else {
-                    waiting = true;
-                    lastRunTime = curTime;
-                }
-            case 5: // Moving Forward to Charging Station
-                if (!waiting) {
-                    setMotorSpeedCorrected(autonomousMoveSpeed);
-                    waiting = true;
-                }
-                if (curTime - lastRunTime >= autonomousFloorCheckInterval) {
-                    double pitchDegrees = ahrs.getPitch();
-                    lastRunTime = curTime;
-                    if (onFloorMin > pitchDegrees || pitchDegrees > onFloorMax) {
-                        if (debugMode) System.out.printf("Pitch OUT of floor range (%f out of %f-%f)%n", pitchDegrees, onFloorMin, onFloorMax);
-                        setMotorSpeedCorrected(0);
-                        state = 6; // Start docking
-                        waiting = false;
-                        lastRunTime = 0;
-                    } else if (debugMode) System.out.printf("Pitch IN floor range (%f <= %f <= %f)%n", onFloorMin, pitchDegrees, onFloorMax);
-                }
-            case 6: // Dock with Charging Station
-                if (!waiting) {
-                    setMotorSpeedCorrected(autonomousDockSpeed);
-                    waiting = true;
-                }
-                if (curTime - lastRunTime >= autonomousDockCheckInterval) {
-                    double pitchDegrees = ahrs.getPitch();
-                    lastRunTime = curTime;
-                    if (dockedMin <= pitchDegrees && pitchDegrees <= dockedMax) {
-                        if (debugMode) System.out.printf("Dock IN range (%f <= %f <= %f)%n", dockedMin, pitchDegrees, dockedMax);
-                        setMotorSpeedCorrected(0);
-                        state = 7; // Finished docking
-                        waiting = false;
-                        lastRunTime = 0;
-                    } else if (debugMode) System.out.printf("Dock OUT of range (%f out of %f-%f)%n", pitchDegrees, dockedMin, dockedMax);
-                }
+                } else if (debugMode) System.out.printf("Pitch IN floor range (%f <= %f <= %f)%n", onFloorMin, pitchDegrees, onFloorMax);
+            }
+        } else if (state == 6) { // Dock with Charging Station
+            if (!waiting) {
+                setMotorSpeedCorrected(autonomousDockSpeed);
+                waiting = true;
+            }
+            if (curTime - lastRunTime >= autonomousDockCheckInterval) {
+                double pitchDegrees = ahrs.getPitch();
+                lastRunTime = curTime;
+                if (dockedMin <= pitchDegrees && pitchDegrees <= dockedMax) {
+                    if (debugMode) System.out.printf("Dock IN range (%f <= %f <= %f)%n", dockedMin, pitchDegrees, dockedMax);
+                    setMotorSpeedCorrected(0);
+                    state = 7; // Finished docking
+                    waiting = false;
+                    lastRunTime = 0;
+                } else if (debugMode) System.out.printf("Dock OUT of range (%f out of %f-%f)%n", pitchDegrees, dockedMin, dockedMax);
+            }
         }
     }
 
@@ -306,8 +307,8 @@ public class Robot extends TimedRobot {
         }
 
         if (debugMode)
-            // System.out.printf("===%nPitch: %f%nYaw: %f%nRoll: %f%nUltrasonic Raw: %f%nUltrasonic Parsed: %f%nController Left: %f%nController Right: %f%n", ahrs.getPitch(), ahrs.getYaw(), ahrs.getRoll(), ultrasonic.getValue(), getUltrasonicDistance(ultrasonic.getValue()), stickLeft, stickRight);
-            System.out.printf("===%nPitch: %f%nYaw: %f%nRoll: %f%nController Left: %f%nController Right: %f%n", ahrs.getPitch(), ahrs.getYaw(), ahrs.getRoll(), stickLeft, stickRight);
+            // System.out.printf("===%nPitch) { %f%nYaw) { %f%nRoll) { %f%nUltrasonic Raw) { %f%nUltrasonic Parsed) { %f%nController Left) { %f%nController Right) { %f%n", ahrs.getPitch(), ahrs.getYaw(), ahrs.getRoll(), ultrasonic.getValue(), getUltrasonicDistance(ultrasonic.getValue()), stickLeft, stickRight);
+            System.out.printf("===%nPitch) { %f%nYaw) { %f%nRoll) { %f%nController Left) { %f%nController Right) { %f%n", ahrs.getPitch(), ahrs.getYaw(), ahrs.getRoll(), stickLeft, stickRight);
     }
 
 
