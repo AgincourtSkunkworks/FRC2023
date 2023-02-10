@@ -44,7 +44,6 @@ public class Robot extends TimedRobot {
     TalonSRX[] motors = {leftMotor1, leftMotor2, leftMotor3, rightMotor1, rightMotor2, rightMotor3, shooterMotor1, shooterMotor2};
 
     Joystick joystick = new Joystick(0);
-
     AHRS ahrs = new AHRS(SPI.Port.kMXP);
     // AnalogInput ultrasonic = new AnalogInput(0);
 
