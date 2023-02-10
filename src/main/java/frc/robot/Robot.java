@@ -53,13 +53,13 @@ public class Robot extends TimedRobot {
     final int turnRadius = 78; // Amount to turn when trying to do a 90 degree turn. Generally to account for drift.
     final double teleopMoveScale = 0.7; // Percent to scale the controller input by when moving (forward or backward)
     final double teleopTurnScale = 0.5; // Percent to scale the controller input by when turning (controllers aren't in same direction [0 is considered no direction])
-    final double leftMotorSpeedOffset = 0.08; // Percent offset (0-1) for left motor speed (to ensure that it can drive straight)
+    final double leftMotorSpeedOffset = 0.14; // Percent offset (0-1) for left motor speed (to ensure that it can drive straight)
     final double rightMotorSpeedOffset = 0; // Percent offset (0-1) for right motor speed (to ensure that it can drive straight)
     final double onFloorMin = -3; // Pitch degrees to be considered on floor
     final double onFloorMax = 3; // Pitch degrees to be considered on floor
     final double dockedMin = -3; // Pitch degrees to be considered docked (minimum range)
     final double dockedMax = 3; // Pitch degrees to be considered docked (maximum range)
-    final double timeToCenter = 0; // Time in milliseconds to drive from one of the side spawn points to the center
+    final double timeToCenter = 4000; // Time in milliseconds to drive from one of the side spawn points to the center
     final double autonomousMoveSpeed = 0.4; // Speed to move at normally while in automous
     final double autonomousTurnSpeed = 0.3; // Speed to turn at while in autonomous mode
     final double autonomousDockSpeed = 0.2; // Speed to move forward while attempting to dock
