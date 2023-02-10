@@ -208,11 +208,11 @@ public class Robot extends TimedRobot {
         } else if (state == 2) { // Turning Stage 1 (if needed) -- turn 90 to face center (perpendicular to docking)
             if (curTime - lastRunTime < autonomousTurnCheckInterval) {}
             else if (turnRobot(autonomousTurnSpeed, (startPos == -1) ? turnRadius : -turnRadius, !waiting)) {
+                setMotorSpeedCorrected(0);
                 waiting = false;
                 lastRunTime = 0;
                 state = 3; // Turning stage 2
             } else {
-                setMotorSpeedCorrected(0);
                 waiting = true;
                 lastRunTime = curTime;   
             }
@@ -226,7 +226,7 @@ public class Robot extends TimedRobot {
                 setMotorSpeedCorrected(0);
                 lastRunTime = 0;
                 waiting = false;
-                state = 4;
+                state = 4; // Post-turn wait
             }
         } else if (state == 4) { // Turning Stage 3 (if needed) -- wait a while before turning to face docking station
             if (!waiting) {
@@ -241,11 +241,11 @@ public class Robot extends TimedRobot {
         } else if (state == 5) { // Turning Stage 4 (if needed) -- turn 90 to face docking station
             if (curTime - lastRunTime < autonomousTurnCheckInterval) {}
             else if (turnRobot(autonomousTurnSpeed, (startPos == -1) ? -turnRadius : turnRadius, !waiting)) {
+                setMotorSpeedCorrected(0);
                 waiting = false;
                 lastRunTime = 0;
                 state = 6; // Move to docking station
             } else {
-                setMotorSpeedCorrected(0);
                 waiting = true;
                 lastRunTime = curTime;
             }
