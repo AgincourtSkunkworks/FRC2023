@@ -139,7 +139,7 @@ public class Robot extends TimedRobot {
             }
         }
         
-        return (degrees < 0) ? degrees - ahrs.getYaw() < 0 : ahrs.getYaw() - degrees < 0;
+        return (degrees < 0) ? degrees - ahrs.getYaw() >= 0 : ahrs.getYaw() - degrees >= 0;
     }
 
     /**
