@@ -208,7 +208,7 @@ public class Robot extends TimedRobot {
                     // TODO: Implement left/center/right starting position detection
                 }
                 if (startPos < -1 || startPos > 1) state = -1; // Unexpected
-                else state = (startPos != 0) ? 2 : 3; // Reminder: Only set state when startPos has been successfully determined
+                else state = (startPos != 0) ? 2 : 5; // Reminder: Only set state when startPos has been successfully determined
             case 2: // Turning Stage 1 (if needed) -- turn 90 to face center (perpendicular to docking)
                 if (curTime - lastRunTime < autonomousTurnCheckInterval) {}
                 else if (turnRobot(autonomousTurnSpeed, (startPos == -1) ? 90 : -90, !waiting)) {
