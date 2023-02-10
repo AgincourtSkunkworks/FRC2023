@@ -2,11 +2,11 @@
 So that future me, or whoever does this next year isn't absolutely clueless.
 
 ## Table of Contents
-[Documentation](#documentation)
-[Mounting](#mounting)
-[Calibration](#calibration)
-[Libraries](#libraries)
-[\[Code\] Setup](#setup)
+[Documentation](#documentation)  
+[Mounting](#mounting)  
+[Calibration](#calibration)  
+[Libraries](#libraries)  
+[\[Code\] Setup](#setup)  
 [Method Reference](#method-reference)
 
 ## Documentation
