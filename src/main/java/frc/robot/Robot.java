@@ -62,7 +62,7 @@ public class Robot extends TimedRobot {
     final double autonomousMoveSpeed = 0.4; // Speed to move at normally while in automous
     final double autonomousTurnSpeed = 0.3; // Speed to turn at while in autonomous mode
     final double autonomousDockSpeed = 0.2; // Speed to move forward while attempting to dock
-    final long autonomousTurnCheckInterval = 50; // Interval to check gyro while turning
+    final long autonomousTurnCheckInterval = 25; // Interval to check gyro while turning
     final long autonomousFloorCheckInterval = 100; // Interval to check gryo at to determine if we're at the docking station (in milliseconds)
     final long autonomousDockCheckInterval = 100; // Interval to check gyro at while attempting to dock (in milliseconds)
     final boolean debugMode = false; // Debug mode is used to print certain values used for debugging purposes.
@@ -131,11 +131,11 @@ public class Robot extends TimedRobot {
             setMotorSpeedCorrected(0); // Stop moving, to ensure proper zeroYaw() placement
             ahrs.zeroYaw(); // Reset YAW to current face
             if (degrees < 0) { // Left turn
-                setLeftMotorSpeed(-speed);
-                setRightMotorSpeed(-speed);
-            } else if (degrees > 0) { // Right turn
                 setLeftMotorSpeed(speed);
                 setRightMotorSpeed(speed);
+            } else if (degrees > 0) { // Right turn
+                setLeftMotorSpeed(-speed);
+                setRightMotorSpeed(-speed);
             }
         }
         
@@ -197,7 +197,9 @@ public class Robot extends TimedRobot {
 
         long curTime = System.currentTimeMillis();
 
-        // NOTE: Using a switch statement here causes the god of all confusing bugs to appear. Literally no idea why.
+        // READ THIS vv
+        // WARNING: Using a switch statement here causes the god of all confusing bugs to appear. Literally no idea why.
+        // READ THIS ^^
         if (state == 0) { // Initialization
             ahrs.zeroYaw();
             state = 1; // Done Initializing
