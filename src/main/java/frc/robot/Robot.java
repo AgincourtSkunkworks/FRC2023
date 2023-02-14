@@ -50,23 +50,24 @@ public class Robot extends TimedRobot {
     // Configuration Variables
     final int startPosOverride = -2; // -2 = None; -1 = Left; 0 = Center; 1 = Right
     final int initialState = 0; // Initial state when autonomous is enabled (used for debugging usually)
-    final int turnRadius = 78; // Amount to turn when trying to do a 90 degree turn. Generally to account for drift.
+    final int turnRadius = 75; // Amount to turn when trying to do a 90 degree turn. Generally to account for drift.
     final double teleopMoveScale = 0.7; // Percent to scale the controller input by when moving (forward or backward)
     final double teleopTurnScale = 0.5; // Percent to scale the controller input by when turning (controllers aren't in same direction [0 is considered no direction])
-    final double leftMotorSpeedOffset = 0.14; // Percent offset (0-1) for left motor speed (to ensure that it can drive straight)
+    final double leftMotorSpeedOffset = 0.13; // Percent offset (0-1) for left motor speed (to ensure that it can drive straight)
     final double rightMotorSpeedOffset = 0; // Percent offset (0-1) for right motor speed (to ensure that it can drive straight)
     final double onFloorMin = -3; // Pitch degrees to be considered on floor
     final double onFloorMax = 3; // Pitch degrees to be considered on floor
     final double dockedMin = -3; // Pitch degrees to be considered docked (minimum range)
     final double dockedMax = 3; // Pitch degrees to be considered docked (maximum range)
-    final double timeToCenter = 4000; // Time in milliseconds to drive from one of the side spawn points to the center
+    final double timeToCenter = 4100; // Time in milliseconds to drive from one of the side spawn points to the center
     final double autonomousMoveSpeed = 0.4; // Speed to move at normally while in automous
     final double autonomousTurnSpeed = 0.3; // Speed to turn at while in autonomous mode
-    final double autonomousDockSpeed = 0.2; // Speed to move forward while attempting to dock
+    final double autonomousDockSpeed = 0.35; // Speed to move forward while attempting to dock
     final long autonomousPostDriveDelay = 500; // Delay (in milliseconds) after driving to the center, so we don't carry energy into the turn and overshoot it.
     final long autonomousTurnCheckInterval = 25; // Interval to check gyro while turning
     final long autonomousFloorCheckInterval = 100; // Interval to check gryo at to determine if we're at the docking station (in milliseconds)
-    final long autonomousDockCheckInterval = 100; // Interval to check gyro at while attempting to dock (in milliseconds)
+    final long autonomousDockCheckInterval = 0; // Interval to check gyro at while attempting to dock (in milliseconds)
+    final boolean useRoll = true; // Whether to use roll instead of pitch for pitch related operations
     final boolean debugMode = false; // Debug mode is used to print certain values used for debugging purposes.
 
     // Runtime Variables
@@ -255,7 +256,7 @@ public class Robot extends TimedRobot {
                 waiting = true;
             }
             if (curTime - lastRunTime >= autonomousFloorCheckInterval) {
-                double pitchDegrees = ahrs.getPitch();
+                double pitchDegrees = (useRoll) ? ahrs.getRoll() : ahrs.getPitch();
                 lastRunTime = curTime;
                 if (onFloorMin > pitchDegrees || pitchDegrees > onFloorMax) {
                     if (debugMode) System.out.printf("Pitch OUT of floor range (%f out of %f-%f)%n", pitchDegrees, onFloorMin, onFloorMax);
@@ -271,7 +272,7 @@ public class Robot extends TimedRobot {
                 waiting = true;
             }
             if (curTime - lastRunTime >= autonomousDockCheckInterval) {
-                double pitchDegrees = ahrs.getPitch();
+                double pitchDegrees = (useRoll) ? ahrs.getRoll() : ahrs.getPitch();
                 lastRunTime = curTime;
                 if (dockedMin <= pitchDegrees && pitchDegrees <= dockedMax) {
                     if (debugMode) System.out.printf("Dock IN range (%f <= %f <= %f)%n", dockedMin, pitchDegrees, dockedMax);
