@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.RobotController;
@@ -157,6 +158,8 @@ public class Robot extends TimedRobot {
             motor.configContinuousCurrentLimit(25); // set to 35 (20 previously) amps which will make robot slower
             motor.enableCurrentLimit(true); // enable
         }
+
+        CameraServer.startAutomaticCapture(); // Start the webcam
     }
 
     @Override
