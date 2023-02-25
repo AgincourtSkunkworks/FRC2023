@@ -10,7 +10,7 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.TimedRobot;
-import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 
 import com.kauailabs.navx.frc.AHRS;
@@ -28,21 +28,17 @@ import com.kauailabs.navx.frc.AHRS;
 
 public class Robot extends TimedRobot {
     // Initialize objects
-    TalonSRX rightMotor1 = new TalonSRX(8);
-    TalonSRX rightMotor2 = new TalonSRX(7);
-    TalonSRX rightMotor3 = new TalonSRX(6);
-    TalonSRX leftMotor1 = new TalonSRX(0);
-    TalonSRX leftMotor2 = new TalonSRX(1);
-    TalonSRX leftMotor3 = new TalonSRX(2);
-
-    TalonSRX shooterMotor1 = new TalonSRX(4);
-    TalonSRX shooterMotor2 = new TalonSRX(3);
+    TalonFX rightMotor1 = new TalonFX(8);
+    TalonFX rightMotor2 = new TalonFX(7);
+    TalonFX rightMotor3 = new TalonFX(6);
+    TalonFX leftMotor1 = new TalonFX(0);
+    TalonFX leftMotor2 = new TalonFX(1);
+    TalonFX leftMotor3 = new TalonFX(2);
 
     
-    TalonSRX[] leftMotors = {leftMotor1, leftMotor2, leftMotor3};
-    TalonSRX[] rightMotors = {rightMotor1, rightMotor2, rightMotor3};
-    TalonSRX[] shooterMotors = {shooterMotor1, shooterMotor2};
-    TalonSRX[] motors = {leftMotor1, leftMotor2, leftMotor3, rightMotor1, rightMotor2, rightMotor3, shooterMotor1, shooterMotor2};
+    TalonFX[] leftMotors = {leftMotor1, leftMotor2, leftMotor3};
+    TalonFX[] rightMotors = {rightMotor1, rightMotor2, rightMotor3};
+    TalonFX[] motors = {leftMotor1, leftMotor2, leftMotor3, rightMotor1, rightMotor2, rightMotor3};
 
     Joystick joystick = new Joystick(0);
     AHRS ahrs = new AHRS(SPI.Port.kMXP);
@@ -89,7 +85,7 @@ public class Robot extends TimedRobot {
      * @param speed Percent of maximum motor speed (1 being max)
      */
     private void setLeftMotorSpeed(double speed) {
-        for (TalonSRX motor : leftMotors)
+        for (TalonFX motor : leftMotors)
             motor.set(ControlMode.PercentOutput, speed + speed * leftMotorSpeedOffset);
     }
 
@@ -100,7 +96,7 @@ public class Robot extends TimedRobot {
      * @param speed Percent of maximum motor speed (1 being max)
      */
     private void setRightMotorSpeed(double speed) {
-        for (TalonSRX motor : rightMotors)
+        for (TalonFX motor : rightMotors)
             motor.set(ControlMode.PercentOutput, speed + speed * rightMotorSpeedOffset);
     }
 
@@ -152,13 +148,6 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void robotInit() {
-        for (TalonSRX motor : motors) {
-            motor.configPeakCurrentLimit(45); // once at 60 (40 previously) amps, limit current
-            motor.configPeakCurrentDuration(80); // for 80ms
-            motor.configContinuousCurrentLimit(25); // set to 35 (20 previously) amps which will make robot slower
-            motor.enableCurrentLimit(true); // enable
-        }
-
         CameraServer.startAutomaticCapture(); // Start the webcam
     }
 
@@ -309,12 +298,7 @@ public class Robot extends TimedRobot {
         }
         // Button 8 = R2
         if (joystick.getRawButton(8)) {
-            shooterMotor1.set(ControlMode.PercentOutput, 0.6);
-            shooterMotor2.set(ControlMode.PercentOutput, -0.6);
-
         } else {
-            for (TalonSRX motor : shooterMotors)
-                motor.set(ControlMode.PercentOutput, 0);
         }
 
         if (debugMode)
