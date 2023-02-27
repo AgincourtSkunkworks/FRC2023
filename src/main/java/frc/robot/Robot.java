@@ -132,6 +132,15 @@ public class Robot extends TimedRobot {
     }
 
     /**
+     * Turn a motor a certain number of degrees automatically. Call this function periodically while trying to turn.
+     * @param degrees Amount of degrees to turn, not 100% precise.
+     * @return True if turning is complete, false otherwise
+     */
+    private boolean turnMotor(int degrees) {
+        return true;
+    }
+
+    /**
      * Convert the raw value from the ultrasound sensor to distance
      * @param rawValue Raw value from the Analog Input from the ultrasound censor (0 - 4095)
      * @return Distance in centimeters
@@ -306,7 +315,7 @@ public class Robot extends TimedRobot {
         }
 
         if (debugMode)
-            System.out.printf("===%nPitch: %f%nYaw: %f%nRoll: %f%nUltrasonic Raw: %d%nUltrasonic Parsed: %f%nController Left: %f%nController Right: %f%n", ahrs.getPitch(), ahrs.getYaw(), ahrs.getRoll(), ultrasonic.getValue(), getUltrasonicDistance(ultrasonic.getValue()), stickLeft, stickRight);
+            System.out.printf("===%nPitch: %f%nYaw: %f%nRoll: %f%nUltrasonic Raw: %d%nUltrasonic Parsed: %f%nController Left: %f%nController Right: %f%nArm Motor Pos: %f%nArm Motor Pos Conversion Factor: %f%n", ahrs.getPitch(), ahrs.getYaw(), ahrs.getRoll(), ultrasonic.getValue(), getUltrasonicDistance(ultrasonic.getValue()), stickLeft, stickRight, armMotor.getEncoder().getPosition(), armMotor.getEncoder().getPositionConversionFactor());
     }
 
 
