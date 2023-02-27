@@ -35,6 +35,7 @@ public class Robot extends TimedRobot {
     TalonFX leftMotor1 = new TalonFX(14);
     TalonFX leftMotor2 = new TalonFX(15);
 
+    Compressor pcmCompressor;
     
     TalonFX[] leftMotors = {leftMotor1, leftMotor2};
     TalonFX[] rightMotors = {rightMotor1, rightMotor2};
@@ -68,17 +69,13 @@ public class Robot extends TimedRobot {
     final long autonomousDockCheckInterval = 0; // Interval to check gyro at while attempting to dock (in milliseconds)
     final boolean useRoll = true; // Whether to use roll instead of pitch for pitch related operations
     final boolean debugMode = false; // Debug mode is used to print certain values used for debugging purposes.
+    final boolean enableCompressor = false; // Whether to enable the compressor or not
 
     // Runtime Variables
     int state, startPos;
     double pitchDegrees;
     long lastRunTime;
     boolean waiting;
-
-    // This code works (initializes compressor and turns it on), however pressure is being lost in 
-    // the physical system making it unable to hold pressure, which means we can't continue testing.
-    Compressor pcmCompressor = new Compressor(2, PneumaticsModuleType.CTREPCM);
-    
 
     /**
      * Set Left Motor Speeds
@@ -150,6 +147,8 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void robotInit() {
+        if (enableCompressor)
+            pcmCompressor = new Compressor(2, PneumaticsModuleType.CTREPCM);
         CameraServer.startAutomaticCapture(); // Start the webcam
     }
 
