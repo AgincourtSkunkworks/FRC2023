@@ -10,9 +10,11 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.motorcontrol.Spark;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.ControlMode;
-
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.kauailabs.navx.frc.AHRS;
 // import edu.wpi.first.wpilibj.PneumaticsModuleType;
 // import edu.wpi.first.wpilibj.Compressor;
@@ -28,17 +30,17 @@ import com.kauailabs.navx.frc.AHRS;
 
 public class Robot extends TimedRobot {
     // Initialize objects
-    TalonFX rightMotor1 = new TalonFX(8);
-    TalonFX rightMotor2 = new TalonFX(7);
-    TalonFX rightMotor3 = new TalonFX(6);
-    TalonFX leftMotor1 = new TalonFX(0);
-    TalonFX leftMotor2 = new TalonFX(1);
-    TalonFX leftMotor3 = new TalonFX(2);
+    TalonFX rightMotor1 = new TalonFX(12);
+    TalonFX rightMotor2 = new TalonFX(13);
+    TalonFX leftMotor1 = new TalonFX(14);
+    TalonFX leftMotor2 = new TalonFX(15);
 
     
-    TalonFX[] leftMotors = {leftMotor1, leftMotor2, leftMotor3};
-    TalonFX[] rightMotors = {rightMotor1, rightMotor2, rightMotor3};
-    TalonFX[] motors = {leftMotor1, leftMotor2, leftMotor3, rightMotor1, rightMotor2, rightMotor3};
+    TalonFX[] leftMotors = {leftMotor1, leftMotor2};
+    TalonFX[] rightMotors = {rightMotor1, rightMotor2};
+    TalonFX[] motors = {leftMotor1, leftMotor2, rightMotor1, rightMotor2};
+
+    CANSparkMax armMotor = new CANSparkMax(7, MotorType.kBrushed);
 
     Joystick joystick = new Joystick(0);
     AHRS ahrs = new AHRS(SPI.Port.kMXP);
@@ -50,7 +52,7 @@ public class Robot extends TimedRobot {
     final int turnRadius = 75; // Amount to turn when trying to do a 90 degree turn. Generally to account for drift.
     final double teleopMoveScale = 0.7; // Percent to scale the controller input by when moving (forward or backward)
     final double teleopTurnScale = 0.5; // Percent to scale the controller input by when turning (controllers aren't in same direction [0 is considered no direction])
-    final double leftMotorSpeedOffset = 0.13; // Percent offset (0-1) for left motor speed (to ensure that it can drive straight)
+    final double leftMotorSpeedOffset = 0; // Percent offset (0-1) for left motor speed (to ensure that it can drive straight)
     final double rightMotorSpeedOffset = 0; // Percent offset (0-1) for right motor speed (to ensure that it can drive straight)
     final double onFloorMin = -3; // Pitch degrees to be considered on floor
     final double onFloorMax = 3; // Pitch degrees to be considered on floor
@@ -105,8 +107,8 @@ public class Robot extends TimedRobot {
      * @param speed Percent of maximum motor speed (1 being max)
      */
     private void setMotorSpeedCorrected(double speed) {
-        setLeftMotorSpeed(-speed);
-        setRightMotorSpeed(speed);
+        setLeftMotorSpeed(speed);
+        setRightMotorSpeed(-speed);
     }
 
     /**
@@ -121,11 +123,11 @@ public class Robot extends TimedRobot {
             setMotorSpeedCorrected(0); // Stop moving, to ensure proper zeroYaw() placement
             ahrs.zeroYaw(); // Reset YAW to current face
             if (degrees < 0) { // Left turn
-                setLeftMotorSpeed(speed);
-                setRightMotorSpeed(speed);
-            } else if (degrees > 0) { // Right turn
                 setLeftMotorSpeed(-speed);
                 setRightMotorSpeed(-speed);
+            } else if (degrees > 0) { // Right turn
+                setLeftMotorSpeed(speed);
+                setRightMotorSpeed(speed);
             }
         }
         
@@ -287,8 +289,8 @@ public class Robot extends TimedRobot {
 
     @Override
     public void teleopPeriodic() {
-        double stickLeft = joystick.getRawAxis(1);
-        double stickRight = -joystick.getRawAxis(3);
+        double stickLeft = -joystick.getRawAxis(1);
+        double stickRight = joystick.getRawAxis(3);
         if (stickLeft > 0.05 && stickRight < 0.05 || stickLeft < 0.05 && stickRight > 0.05) { // no movement is ~+-0.007, not absolute zero
             setLeftMotorSpeed(stickLeft * teleopMoveScale);
             setRightMotorSpeed(stickRight * teleopMoveScale);
@@ -297,8 +299,11 @@ public class Robot extends TimedRobot {
             setRightMotorSpeed(stickRight * teleopTurnScale);
         }
         // Button 8 = R2
+        // TODO: Adapt arm motors to be automatically rotate correct increment
         if (joystick.getRawButton(8)) {
+            armMotor.set(0.6);
         } else {
+            armMotor.set(0);
         }
 
         if (debugMode)
