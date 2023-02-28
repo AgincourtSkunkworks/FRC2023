@@ -162,7 +162,7 @@ public class Robot extends TimedRobot {
     @Override
     public void robotInit() {
         if (enableCompressor)
-            pcmCompressor = new Compressor(2, PneumaticsModuleType.CTREPCM);
+            pcmCompressor = new Compressor(PneumaticsModuleType.CTREPCM);
         CameraServer.startAutomaticCapture(); // Start the webcam
     }
 
