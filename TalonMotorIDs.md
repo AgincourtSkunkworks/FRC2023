@@ -1,5 +1,4 @@
 # Motors
-Note: For old, 2020 Robot. IDs unknown for new.
-- **Left Drive Motors**: `0`, `1`, `2`
-- **Right Drive Motors**: `8`, `7`, `6`
-- **Shooter Motors**: `3`, `4`
+- **Left Drive Motors**: `14`, `15`
+- **Right Drive Motors**: `12`, `13`
+- **Arm Motor**: `7`
