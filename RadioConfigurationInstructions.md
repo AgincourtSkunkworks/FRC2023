@@ -4,6 +4,7 @@ So that future me, or whoever does this next year isn't absolutely clueless.
 ## Table of Contents
 [Documentation](#documentation)  
 [Downloading Radio Configuration Utility](#downloading-radio-configuration-utility)  
+[Configuring the Radio](#configuring-the-radio)  
 [Loading Firmware](#loading-firmware)  
 [Troubleshooting](#troubleshooting)
 
@@ -45,4 +46,4 @@ As the documentation says, we'll need to disable all network adapters other than
 9. Try to Load Firmware again
 
 ### Verification Issues
-<!-- TODO: Add instructions for verification issues -->
+If you needed to disable your network adapters previously, you may need to re-enable them for verification to work. If during the verification process, an error occurs, try to re-enable your network adapters and try again. If this doesn't work, restart the program and try again -- it may take a couple of tries.
