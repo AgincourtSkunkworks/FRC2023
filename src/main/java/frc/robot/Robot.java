@@ -52,6 +52,7 @@ public class Robot extends TimedRobot {
     final double teleopTurnScale = 0.5; // Percent to scale the controller input by when turning (controllers aren't in same direction [0 is considered no direction])
     final double leftMotorSpeedOffset = 0; // Percent offset (0-1) for left motor speed (to ensure that it can drive straight)
     final double rightMotorSpeedOffset = 0; // Percent offset (0-1) for right motor speed (to ensure that it can drive straight)
+    final double armMotorFullRotationIncrements = 50000; // Number of encoder ticks for a full rotation of the arm motor
     final double onFloorMin = -3; // Pitch degrees to be considered on floor
     final double onFloorMax = 3; // Pitch degrees to be considered on floor
     final double dockedMin = -3; // Pitch degrees to be considered docked (minimum range)
@@ -137,12 +138,12 @@ public class Robot extends TimedRobot {
     }
 
     /**
-     * Turn a motor a certain number of degrees automatically. Call this function periodically while trying to turn.
-     * @param degrees Amount of degrees to turn, not 100% precise.
-     * @return True if turning is complete, false otherwise
+     * Turn a motor a certain number of degrees automatically.
+     * @param motor TalonFX motor to turn
+     * @param degrees Amount of degrees to turn
      */
-    private boolean turnMotor(int degrees) {
-        return true;
+    private void turnMotor(TalonFX motor, int degrees) {
+        motor.set(ControlMode.Position, motor.getSelectedSensorPosition() + degrees / 360 * armMotorFullRotationIncrements);
     }
 
     /**
