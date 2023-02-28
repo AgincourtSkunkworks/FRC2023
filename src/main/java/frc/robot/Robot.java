@@ -7,8 +7,6 @@ package frc.robot;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.kauailabs.navx.frc.AHRS;
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.AnalogInput;
@@ -34,14 +32,13 @@ public class Robot extends TimedRobot {
     TalonFX rightMotor2 = new TalonFX(13);
     TalonFX leftMotor1 = new TalonFX(14);
     TalonFX leftMotor2 = new TalonFX(15);
+    TalonFX armMotor = new TalonFX(0); // TODO: Find ID
 
     Compressor pcmCompressor;
     
     TalonFX[] leftMotors = {leftMotor1, leftMotor2};
     TalonFX[] rightMotors = {rightMotor1, rightMotor2};
     TalonFX[] motors = {leftMotor1, leftMotor2, rightMotor1, rightMotor2};
-
-    CANSparkMax armMotor = new CANSparkMax(7, MotorType.kBrushed);
 
     Joystick joystick = new Joystick(0);
     AHRS ahrs = new AHRS(SPI.Port.kMXP);
@@ -97,6 +94,14 @@ public class Robot extends TimedRobot {
     private void setRightMotorSpeed(double speed) {
         for (TalonFX motor : rightMotors)
             motor.set(ControlMode.PercentOutput, speed + speed * rightMotorSpeedOffset);
+    }
+
+    /**
+     * Set Arm Motor Speed
+     * @param speed Percent of maximum motor speed (1 being max)
+     */
+    private void setArmMotorSpeed(double speed) {
+        armMotor.set(ControlMode.PercentOutput, speed);
     }
 
     /**
@@ -309,13 +314,13 @@ public class Robot extends TimedRobot {
         // Button 8 = R2
         // TODO: Adapt arm motors to be automatically rotate correct increment
         if (joystick.getRawButton(8)) {
-            armMotor.set(0.6);
+            setArmMotorSpeed(0.6);
         } else {
-            armMotor.set(0);
+            setArmMotorSpeed(0);
         }
 
         if (debugMode)
-            System.out.printf("===%nPitch: %f%nYaw: %f%nRoll: %f%nUltrasonic Raw: %d%nUltrasonic Parsed: %f%nController Left: %f%nController Right: %f%nArm Motor Pos: %f%nArm Motor Pos Conversion Factor: %f%n", ahrs.getPitch(), ahrs.getYaw(), ahrs.getRoll(), ultrasonic.getValue(), getUltrasonicDistance(ultrasonic.getValue()), stickLeft, stickRight, armMotor.getEncoder().getPosition(), armMotor.getEncoder().getPositionConversionFactor());
+            System.out.printf("===%nPitch: %f%nYaw: %f%nRoll: %f%nUltrasonic Raw: %d%nUltrasonic Parsed: %f%nController Left: %f%nController Right: %f%nArm Motor Pos: %f%n", ahrs.getPitch(), ahrs.getYaw(), ahrs.getRoll(), ultrasonic.getValue(), getUltrasonicDistance(ultrasonic.getValue()), stickLeft, stickRight, armMotor.getSelectedSensorPosition());
     }
 
 
