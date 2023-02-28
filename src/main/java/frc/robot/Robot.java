@@ -7,6 +7,8 @@ package frc.robot;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.kauailabs.navx.frc.AHRS;
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.AnalogInput;
@@ -32,7 +34,7 @@ public class Robot extends TimedRobot {
     TalonFX rightMotor2 = new TalonFX(13);
     TalonFX leftMotor1 = new TalonFX(14);
     TalonFX leftMotor2 = new TalonFX(15);
-    TalonFX armMotor = new TalonFX(0); // TODO: Find ID
+    CANSparkMax armMotor = new CANSparkMax(7, MotorType.kBrushed);
 
     Compressor pcmCompressor;
     
@@ -102,7 +104,7 @@ public class Robot extends TimedRobot {
      * @param speed Percent of maximum motor speed (1 being max)
      */
     private void setArmMotorSpeed(double speed) {
-        armMotor.set(ControlMode.PercentOutput, speed);
+        armMotor.set(speed);
     }
 
     /**
@@ -135,15 +137,6 @@ public class Robot extends TimedRobot {
         }
         
         return (degrees < 0) ? degrees - ahrs.getYaw() >= 0 : ahrs.getYaw() - degrees >= 0;
-    }
-
-    /**
-     * Turn a motor a certain number of degrees automatically.
-     * @param motor TalonFX motor to turn
-     * @param degrees Amount of degrees to turn
-     */
-    private void turnMotor(TalonFX motor, int degrees) {
-        motor.set(ControlMode.Position, motor.getSelectedSensorPosition() + armMotorFullRotationIncrements/360 * degrees);
     }
 
     /**
