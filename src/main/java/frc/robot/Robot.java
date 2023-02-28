@@ -72,7 +72,7 @@ public class Robot extends TimedRobot {
     // Runtime Variables
     int state, startPos;
     double pitchDegrees;
-    long lastRunTime;
+    long lastRunTime, lastDebugOutputTime;
     boolean waiting;
 
     /**
@@ -143,7 +143,7 @@ public class Robot extends TimedRobot {
      * @param degrees Amount of degrees to turn
      */
     private void turnMotor(TalonFX motor, int degrees) {
-        motor.set(ControlMode.Position, motor.getSelectedSensorPosition() + degrees / 360 * armMotorFullRotationIncrements);
+        motor.set(ControlMode.Position, motor.getSelectedSensorPosition() + armMotorFullRotationIncrements/360 * degrees);
     }
 
     /**
@@ -193,6 +193,7 @@ public class Robot extends TimedRobot {
     }
 
     @Override
+    @SuppressWarnings("all") // I'm not wrong, you're wrong. Get rid of squiggly lines from config variables ("dead code", "unused code", "redundant check")
     public void autonomousPeriodic() {
         if (!ahrs.isConnected()) return; // If gyro is not connected, return
         if (debugMode) System.out.printf("Current Autonomous State: %d%n", state);
@@ -299,9 +300,11 @@ public class Robot extends TimedRobot {
             ahrs.zeroYaw();
             System.out.println("Teleoperator Mode Initialized, set gyro to zero Yaw");
         }
+        lastDebugOutputTime = 0;
     }
 
     @Override
+    @SuppressWarnings("unused") // I'm not wrong, you're wrong. Get rid of squiggly lines from config variables ("dead code", "unused code", "redundant check")
     public void teleopPeriodic() {
         double stickLeft = -joystick.getRawAxis(1);
         double stickRight = joystick.getRawAxis(3);
@@ -320,8 +323,10 @@ public class Robot extends TimedRobot {
             setArmMotorSpeed(0);
         }
 
-        if (debugMode)
+        if (debugMode && System.currentTimeMillis() - lastDebugOutputTime >= 500) {
             System.out.printf("===%nPitch: %f%nYaw: %f%nRoll: %f%nUltrasonic Raw: %d%nUltrasonic Parsed: %f%nController Left: %f%nController Right: %f%nArm Motor Pos: %f%n", ahrs.getPitch(), ahrs.getYaw(), ahrs.getRoll(), ultrasonic.getValue(), getUltrasonicDistance(ultrasonic.getValue()), stickLeft, stickRight, armMotor.getSelectedSensorPosition());
+            lastDebugOutputTime = System.currentTimeMillis();
+        }
     }
 
 
