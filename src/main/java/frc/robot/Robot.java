@@ -4,7 +4,7 @@
 
 package frc.robot;
 
-import static edu.wpi.first.wpilibj.DoubleSolenoid.Value.*;
+import static edu.wpi.first.wpilibj.DoubleSolenoid.Value.kReverse;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
@@ -162,6 +162,8 @@ public class Robot extends TimedRobot {
     public void robotInit() {
         if (enableCompressor)
             pcmCompressor = new Compressor(PneumaticsModuleType.CTREPCM);
+        leftGearBox.set(kReverse);
+        rightGearBox.set(kReverse);
         CameraServer.startAutomaticCapture(); // Start the webcam
     }
 
