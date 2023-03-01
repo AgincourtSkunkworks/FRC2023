@@ -350,7 +350,10 @@ public class Robot extends TimedRobot {
             rightPressed = false;
 
         if (debugMode && System.currentTimeMillis() - lastDebugOutputTime >= 500) {
-            System.out.printf("===%nPitch: %f%nYaw: %f%nRoll: %f%nUltrasonic Raw: %d%nUltrasonic Parsed: %f%nController Left: %f%nController Right: %f%n", ahrs.getPitch(), ahrs.getYaw(), ahrs.getRoll(), ultrasonic.getValue(), getUltrasonicDistance(ultrasonic.getValue()), stickLeft, stickRight);
+            System.out.printf(
+                "===%nPitch: %f%nYaw: %f%nRoll: %f%nUltrasonic Raw: %d%nUltrasonic Parsed: %f%nController Left: %f%nController Right: %f%n",
+                ahrs.getPitch(), ahrs.getYaw(), ahrs.getRoll(), ultrasonic.getValue(), getUltrasonicDistance(ultrasonic.getValue()), stickLeft, stickRight
+            );
             lastDebugOutputTime = System.currentTimeMillis();
         }
     }
