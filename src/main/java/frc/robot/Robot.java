@@ -15,6 +15,7 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.Compressor;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
@@ -37,7 +38,7 @@ public class Robot extends TimedRobot {
     TalonFX rightMotor2 = new TalonFX(13);
     TalonFX leftMotor1 = new TalonFX(14);
     TalonFX leftMotor2 = new TalonFX(15);
-    CANSparkMax armMotor = new CANSparkMax(7, MotorType.kBrushed);
+    CANSparkMax armMotor = new CANSparkMax(7, MotorType.kBrushed); // TODO: Try (and hope and pray) turning the motor type to kBrushless
 
     Compressor pcmCompressor;
     DoubleSolenoid leftGearBox = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 3, 2);
@@ -50,6 +51,8 @@ public class Robot extends TimedRobot {
     Joystick joystick = new Joystick(0);
     AHRS ahrs = new AHRS(SPI.Port.kMXP);
     AnalogInput ultrasonic = new AnalogInput(0);
+    DigitalInput lowerLimitSwitch = new DigitalInput(0); // Lower limit switch for determining arm/tray position
+    DigitalInput upperLimitSwitch = new DigitalInput(1); // Upper limit switch for determining arm/tray position
 
     // Configuration Variables
     final int startPosOverride = -2; // -2 = None; -1 = Left; 0 = Center; 1 = Right
@@ -77,10 +80,10 @@ public class Robot extends TimedRobot {
     final boolean enableCompressor = false; // Whether to enable the compressor or not
 
     // Runtime Variables
-    int state, startPos;
+    int state, startPos, armPos;
     double pitchDegrees;
     long lastRunTime, lastDebugOutputTime;
-    boolean waiting, r1Pressed, leftPressed, rightPressed;
+    boolean waiting, armTransition, r1Pressed, r2Pressed, l1Pressed, l2Pressed, leftPressed, rightPressed;
 
     /**
      * Set Left Motor Speeds
@@ -304,11 +307,16 @@ public class Robot extends TimedRobot {
         r1Pressed = false;
         leftPressed = false;
         rightPressed = false;
+
+        // 0 = Lowered, 1 = Middle, 2 = Raised, -1 = Unknown -- May or may not be accurate
+        armPos = 0;
+        armTransition = false;
     }
 
     @Override
     @SuppressWarnings("unused") // I'm not wrong, you're wrong. Get rid of squiggly lines from config variables ("dead code", "unused code", "redundant check")
     public void teleopPeriodic() {
+        // DRIVE
         double stickLeft = -joystick.getRawAxis(1);
         double stickRight = joystick.getRawAxis(3);
         if (stickLeft > 0.05 && stickRight < 0.05 || stickLeft < 0.05 && stickRight > 0.05) { // no movement is ~+-0.007, not absolute zero
@@ -318,39 +326,51 @@ public class Robot extends TimedRobot {
             setLeftMotorSpeed(stickLeft * teleopTurnScale);
             setRightMotorSpeed(stickRight * teleopTurnScale);
         }
-        // Button 8 = R2
-        // TODO: Adapt arm motors to be automatically rotate correct increment
-        if (joystick.getRawButton(8)) {
-            setArmMotorSpeed(0.6);
-        } else {
+
+        // ARM
+        if (armPos != -1) {
+            // R2 - Low
+            if (joystick.getRawButtonPressed(8) && armPos != 0) {
+                        
+            }
+            // L2 - Mid
+            if (joystick.getRawButtonPressed(7) && armPos != 1) {
+
+            }
+            // L1 - High
+            if (joystick.getRawButtonPressed(5) && armPos != 2) {
+
+            }
+        }
+        // X - Manual Override/Motor Control
+        if (joystick.getRawButton(1)) {
+            armPos = -1; // Arm position is no longer known, do not allow automatic movement
+            setArmMotorSpeed(0.3);
+            if (debugMode) System.out.println("Arm Manual Override Activated - Auto Movement Disabled");
+        } else if (armPos == -1) {
             setArmMotorSpeed(0);
         }
-        // Button 6 = R1
-        if (joystick.getRawButton(6)) {
-            if (!r1Pressed) {
-                r1Pressed = true;
-                leftGearBox.toggle();
-                rightGearBox.toggle();
-            }
-        } else
-            r1Pressed = false;
-        // Button 9 = Left
-        if (joystick.getRawButton(9)) {
-            if (!leftPressed) {
-                leftPressed = true;
-                leftGearBox.toggle();
-            }
-        } else
-            leftPressed = false;
-        // Button 10 = Right
-        if (joystick.getRawButton(10)) {
-            if (!rightPressed) {
-                rightPressed = true;
-                rightGearBox.toggle();
-            }
-        } else
-            rightPressed = false;
+        // A - Reset Arm Position (also disables manual override) - only use if arm is at the bottom (low)
+        if (joystick.getRawButtonPressed(2)) {
+            setArmMotorSpeed(0);
+            armPos = 0;
+            if (debugMode) System.out.println("Arm Position Reset - Auto Movement Enabled");
+        }
 
+        // GEARBOXES
+        // R1 - Both Gearboxes
+        if (joystick.getRawButtonPressed(6)) {
+            leftGearBox.toggle();
+            rightGearBox.toggle();
+        }
+        // Back - Left Gearbox Manual Override
+        if (joystick.getRawButtonPressed(9))
+            leftGearBox.toggle();
+        // Start - Right Gearbox Manual Override
+        if (joystick.getRawButtonPressed(10))
+            rightGearBox.toggle();
+
+        // DEBUG
         if (debugMode && System.currentTimeMillis() - lastDebugOutputTime >= 500) {
             System.out.printf(
                 "===%nPitch: %f%nYaw: %f%nRoll: %f%nUltrasonic Raw: %d%nUltrasonic Parsed: %f%nController Left: %f%nController Right: %f%n",
