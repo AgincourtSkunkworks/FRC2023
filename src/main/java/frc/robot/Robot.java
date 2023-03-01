@@ -4,7 +4,7 @@
 
 package frc.robot;
 
-import static edu.wpi.first.wpilibj.DoubleSolenoid.Value.kOff;
+import static edu.wpi.first.wpilibj.DoubleSolenoid.Value.*;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
