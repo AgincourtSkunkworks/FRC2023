@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import static edu.wpi.first.wpilibj.DoubleSolenoid.Value.kOff;
+
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.kauailabs.navx.frc.AHRS;
@@ -13,6 +15,7 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.Compressor;
+import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.RobotController;
@@ -37,6 +40,8 @@ public class Robot extends TimedRobot {
     CANSparkMax armMotor = new CANSparkMax(7, MotorType.kBrushed);
 
     Compressor pcmCompressor;
+    DoubleSolenoid leftGearBox = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 4, 5);
+    DoubleSolenoid rightGearBox = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 2, 3);
     
     TalonFX[] leftMotors = {leftMotor1, leftMotor2};
     TalonFX[] rightMotors = {rightMotor1, rightMotor2};
