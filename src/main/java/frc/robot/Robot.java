@@ -40,8 +40,8 @@ public class Robot extends TimedRobot {
     CANSparkMax armMotor = new CANSparkMax(7, MotorType.kBrushed);
 
     Compressor pcmCompressor;
-    DoubleSolenoid leftGearBox = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 4, 5);
-    DoubleSolenoid rightGearBox = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 2, 3);
+    DoubleSolenoid leftGearBox = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 3, 2);
+    DoubleSolenoid rightGearBox = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 4, 5);
     
     TalonFX[] leftMotors = {leftMotor1, leftMotor2};
     TalonFX[] rightMotors = {rightMotor1, rightMotor2};
@@ -80,7 +80,7 @@ public class Robot extends TimedRobot {
     int state, startPos;
     double pitchDegrees;
     long lastRunTime, lastDebugOutputTime;
-    boolean waiting;
+    boolean waiting, r1Pressed, leftPressed, rightPressed;
 
     /**
      * Set Left Motor Speeds
@@ -299,6 +299,9 @@ public class Robot extends TimedRobot {
             System.out.println("Teleoperator Mode Initialized, set gyro to zero Yaw");
         }
         lastDebugOutputTime = 0;
+        r1Pressed = false;
+        leftPressed = false;
+        rightPressed = false;
     }
 
     @Override
@@ -320,9 +323,34 @@ public class Robot extends TimedRobot {
         } else {
             setArmMotorSpeed(0);
         }
+        // Button 6 = R1
+        if (joystick.getRawButton(6)) {
+            if (!r1Pressed) {
+                r1Pressed = true;
+                leftGearBox.toggle();
+                rightGearBox.toggle();
+            }
+        } else
+            r1Pressed = false;
+        // Button 9 = Left
+        if (joystick.getRawButton(9)) {
+            if (!leftPressed) {
+                leftPressed = true;
+                leftGearBox.toggle();
+            }
+        } else
+            leftPressed = false;
+        // Button 10 = Right
+        if (joystick.getRawButton(10)) {
+            if (!rightPressed) {
+                rightPressed = true;
+                rightGearBox.toggle();
+            }
+        } else
+            rightPressed = false;
 
         if (debugMode && System.currentTimeMillis() - lastDebugOutputTime >= 500) {
-            System.out.printf("===%nPitch: %f%nYaw: %f%nRoll: %f%nUltrasonic Raw: %d%nUltrasonic Parsed: %f%nController Left: %f%nController Right: %f%nArm Motor Pos: %f%n", ahrs.getPitch(), ahrs.getYaw(), ahrs.getRoll(), ultrasonic.getValue(), getUltrasonicDistance(ultrasonic.getValue()), stickLeft, stickRight, armMotor.getSelectedSensorPosition());
+            System.out.printf("===%nPitch: %f%nYaw: %f%nRoll: %f%nUltrasonic Raw: %d%nUltrasonic Parsed: %f%nController Left: %f%nController Right: %f%nArm Motor Pos: %f%n", ahrs.getPitch(), ahrs.getYaw(), ahrs.getRoll(), ultrasonic.getValue(), getUltrasonicDistance(ultrasonic.getValue()), stickLeft, stickRight, 0.0);
             lastDebugOutputTime = System.currentTimeMillis();
         }
     }
