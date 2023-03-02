@@ -68,6 +68,10 @@ public class Robot extends TimedRobot {
     final double dockedMin = -3; // Pitch degrees to be considered docked (minimum range)
     final double dockedMax = 3; // Pitch degrees to be considered docked (maximum range)
     final double timeToCenter = 4100; // Time in milliseconds to drive from one of the side spawn points to the center
+    final double armTurnSpeed = 0.2; // Speed to turn the arm at when turning the arm
+    final double armMaintainMinSpeed = 0.1; // Minimum speed to maintain middle arm position
+    final double armMaintainMaxSpeed = 0.5; // Maximum speed to maintain middle arm position
+    final double armMaintainIncrement = 0.04; // Amount to increment the arm speed by when maintaining the middle arm position
     final double autonomousMoveSpeed = 0.4; // Speed to move at normally while in automous
     final double autonomousTurnSpeed = 0.3; // Speed to turn at while in autonomous mode
     final double autonomousDockSpeed = 0.35; // Speed to move forward while attempting to dock
@@ -75,15 +79,16 @@ public class Robot extends TimedRobot {
     final long autonomousTurnCheckInterval = 25; // Interval to check gyro while turning
     final long autonomousFloorCheckInterval = 100; // Interval to check gryo at to determine if we're at the docking station (in milliseconds)
     final long autonomousDockCheckInterval = 0; // Interval to check gyro at while attempting to dock (in milliseconds)
+    final long armMaintainCheckInterval = 50; // Interval to check arm position while maintaining the middle arm position (in milliseconds)
     final boolean useRoll = true; // Whether to use roll instead of pitch for pitch related operations
     final boolean debugMode = false; // Debug mode is used to print certain values used for debugging purposes.
     final boolean enableCompressor = false; // Whether to enable the compressor or not
 
     // Runtime Variables
-    int state, startPos, armPos;
-    double pitchDegrees;
-    long lastRunTime, lastDebugOutputTime;
-    boolean waiting, armTransition, r1Pressed, r2Pressed, l1Pressed, l2Pressed, leftPressed, rightPressed;
+    int state, startPos, armPos, armOrigPos;
+    double pitchDegrees, armMaintainSpeed;
+    long lastRunTime, lastDebugOutputTime, lastArmCheckTime, armTransitionStartTime;
+    boolean waiting, armTransition, lastUpper;
 
     /**
      * Set Left Motor Speeds
@@ -126,7 +131,7 @@ public class Robot extends TimedRobot {
 
     /**
      * Turn the robot automatically. Call this function periodically while trying to turn.
-     * @param speed Speed to turn at,
+     * @param speed Speed to turn at.
      * @param degrees Amount of degrees to turn, not 100% precise. Do not do more than 180 degree turns (this isn't made for it -- at least not yet)
      * @param initial Whether this is the first time the function is called
      * @return True if turning is complete, false otherwise
@@ -145,6 +150,39 @@ public class Robot extends TimedRobot {
         }
         
         return (degrees < 0) ? degrees - ahrs.getYaw() >= 0 : ahrs.getYaw() - degrees >= 0;
+    }
+
+    /**
+     * Turn the robot arm automatically. Call this function periodically while trying to turn. The arm motor came straight from hell.
+     * @param speed Speed to turn at.
+     * @param currentPosition Current position
+     * @param targetPosition Position to move the arm to
+     * @param startTime Time the turning started
+     * @param initial Whether this is the first time the function is called
+     * @return True if turning is complete, false otherwise
+     */
+    private boolean turnArm(double speed, int currentPosition, int targetPosition, long startTime, boolean initial) {
+        if (targetPosition == 1) { // Middle
+            if (initial) setArmMotorSpeed(currentPosition == 0 ? speed : -speed);
+            if (currentPosition == 0 && lowerLimitSwitch.get()) {
+                setArmMotorSpeed(armMaintainSpeed);
+                return true;
+            }
+            else if (currentPosition == 2 && lastUpper && !upperLimitSwitch.get()) {
+                setArmMotorSpeed(armMaintainSpeed);
+                lastArmCheckTime = System.currentTimeMillis();
+                return true;
+            }
+            if (currentPosition == 2) lastUpper = upperLimitSwitch.get();
+        } else if (targetPosition == 0) { // Low
+            if (initial) setArmMotorSpeed(0);
+            return true;
+        } else if (targetPosition == 2) { // High
+            if (initial) setArmMotorSpeed(speed);
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -304,18 +342,18 @@ public class Robot extends TimedRobot {
             System.out.println("Teleoperator Mode Initialized, set gyro to zero Yaw");
         }
         lastDebugOutputTime = 0;
-        r1Pressed = false;
-        leftPressed = false;
-        rightPressed = false;
 
         // 0 = Lowered, 1 = Middle, 2 = Raised, -1 = Unknown -- May or may not be accurate
         armPos = 0;
+        armOrigPos = -1;
         armTransition = false;
     }
 
     @Override
     @SuppressWarnings("unused") // I'm not wrong, you're wrong. Get rid of squiggly lines from config variables ("dead code", "unused code", "redundant check")
     public void teleopPeriodic() {
+        long curTime = System.currentTimeMillis();
+
         // DRIVE
         double stickLeft = -joystick.getRawAxis(1);
         double stickRight = joystick.getRawAxis(3);
@@ -329,27 +367,52 @@ public class Robot extends TimedRobot {
 
         // ARM
         if (armPos != -1) {
-            // R2 - Low
-            if (joystick.getRawButtonPressed(8) && armPos != 0) {
-                        
+            if (armTransition) {
+                if (turnArm(armTurnSpeed, armOrigPos, armPos, armTransitionStartTime, false))
+                    armTransition = false;
+            } else {
+                // R2 - Low
+                if (joystick.getRawButtonPressed(8) && armPos != 0) {
+                    armTransition = true;
+                    armOrigPos = armPos;
+                    armPos = 0;
+                }
+                // L2 - Mid
+                else if (joystick.getRawButtonPressed(7) && armPos != 1) {
+                    armTransition = true;
+                    armOrigPos = armPos;
+                    armPos = 1;
+                }
+                // L1 - High
+                else if (joystick.getRawButtonPressed(5) && armPos != 2) {
+                    armTransition = true;
+                    armOrigPos = armPos;
+                    armPos = 2;
+                }
+                if (armTransition) {
+                    armTransitionStartTime = curTime;
+                    turnArm(armTurnSpeed, armOrigPos, armPos, armTransitionStartTime, true);
+                }
             }
-            // L2 - Mid
-            if (joystick.getRawButtonPressed(7) && armPos != 1) {
-
-            }
-            // L1 - High
-            if (joystick.getRawButtonPressed(5) && armPos != 2) {
-
+        }
+        if (armPos == 1 && !armTransition && curTime - lastArmCheckTime >= armMaintainCheckInterval) { // Maintain Middle
+            setArmMotorSpeed(armMaintainSpeed);
+            lastArmCheckTime = curTime;
+            if (lowerLimitSwitch.get() && armMaintainSpeed + armMaintainIncrement <= armMaintainMaxSpeed) {
+                armMaintainSpeed += armMaintainIncrement;
+            } else if (upperLimitSwitch.get() && armMaintainSpeed - armMaintainIncrement >= armMaintainMinSpeed) {
+                armMaintainSpeed -= armMaintainIncrement;
             }
         }
         // X - Manual Override/Motor Control
         if (joystick.getRawButton(1)) {
-            armPos = -1; // Arm position is no longer known, do not allow automatic movement
+            // Arm position is no longer known, do not allow automatic movement
+            if (debugMode && armPos != -1) System.out.println("Arm Manual Override Activated - Auto Movement Disabled");
+            armOrigPos = -1;
+            armPos = -1;
             setArmMotorSpeed(0.3);
-            if (debugMode) System.out.println("Arm Manual Override Activated - Auto Movement Disabled");
-        } else if (armPos == -1) {
+        } else if (armPos == -1)
             setArmMotorSpeed(0);
-        }
         // A - Reset Arm Position (also disables manual override) - only use if arm is at the bottom (low)
         if (joystick.getRawButtonPressed(2)) {
             setArmMotorSpeed(0);
@@ -371,12 +434,12 @@ public class Robot extends TimedRobot {
             rightGearBox.toggle();
 
         // DEBUG
-        if (debugMode && System.currentTimeMillis() - lastDebugOutputTime >= 500) {
+        if (debugMode && curTime - lastDebugOutputTime >= 500) {
             System.out.printf(
                 "===%nPitch: %f%nYaw: %f%nRoll: %f%nUltrasonic Raw: %d%nUltrasonic Parsed: %f%nController Left: %f%nController Right: %f%n",
                 ahrs.getPitch(), ahrs.getYaw(), ahrs.getRoll(), ultrasonic.getValue(), getUltrasonicDistance(ultrasonic.getValue()), stickLeft, stickRight
             );
-            lastDebugOutputTime = System.currentTimeMillis();
+            lastDebugOutputTime = curTime;
         }
     }
 
