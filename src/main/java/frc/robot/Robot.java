@@ -69,9 +69,9 @@ public class Robot extends TimedRobot {
     final double dockedMax = 3; // Pitch degrees to be considered docked (maximum range)
     final double timeToCenter = 4100; // Time in milliseconds to drive from one of the side spawn points to the center
     final double armTurnSpeed = 0.2; // Speed to turn the arm at when turning the arm
-    final double armMaintainMinSpeed = 0.1; // Minimum speed to maintain middle arm position
-    final double armMaintainMaxSpeed = 0.5; // Maximum speed to maintain middle arm position
-    final double armMaintainIncrement = 0.04; // Amount to increment the arm speed by when maintaining the middle arm position
+    final double armMaintainMinSpeed = 0.075; // Minimum speed to maintain middle arm position
+    final double armMaintainMaxSpeed = 0.3; // Maximum speed to maintain middle arm position
+    final double armMaintainIncrement = 0.03; // Amount to increment the arm speed by when maintaining the middle arm position
     final double autonomousMoveSpeed = 0.4; // Speed to move at normally while in automous
     final double autonomousTurnSpeed = 0.3; // Speed to turn at while in autonomous mode
     final double autonomousDockSpeed = 0.35; // Speed to move forward while attempting to dock
@@ -79,7 +79,7 @@ public class Robot extends TimedRobot {
     final long autonomousTurnCheckInterval = 25; // Interval to check gyro while turning
     final long autonomousFloorCheckInterval = 100; // Interval to check gryo at to determine if we're at the docking station (in milliseconds)
     final long autonomousDockCheckInterval = 0; // Interval to check gyro at while attempting to dock (in milliseconds)
-    final long armMaintainCheckInterval = 50; // Interval to check arm position while maintaining the middle arm position (in milliseconds)
+    final long armMaintainCheckInterval = 250; // Interval to check arm position while maintaining the middle arm position (in milliseconds)
     final boolean useRoll = true; // Whether to use roll instead of pitch for pitch related operations
     final boolean debugMode = false; // Debug mode is used to print certain values used for debugging purposes.
     final boolean enableCompressor = false; // Whether to enable the compressor or not
@@ -164,16 +164,16 @@ public class Robot extends TimedRobot {
     private boolean turnArm(double speed, int currentPosition, int targetPosition, long startTime, boolean initial) {
         if (targetPosition == 1) { // Middle
             if (initial) setArmMotorSpeed(currentPosition == 0 ? speed : -speed);
-            if (currentPosition == 0 && lowerLimitSwitch.get()) {
+            if (currentPosition == 0 && !lowerLimitSwitch.get()) {
                 setArmMotorSpeed(armMaintainSpeed);
                 return true;
             }
-            else if (currentPosition == 2 && lastUpper && !upperLimitSwitch.get()) {
+            else if (currentPosition == 2 && lastUpper && upperLimitSwitch.get()) {
                 setArmMotorSpeed(armMaintainSpeed);
                 lastArmCheckTime = System.currentTimeMillis();
                 return true;
             }
-            if (currentPosition == 2) lastUpper = upperLimitSwitch.get();
+            if (currentPosition == 2) lastUpper = !upperLimitSwitch.get();
         } else if (targetPosition == 0) { // Low
             if (initial) setArmMotorSpeed(0);
             return true;
@@ -398,9 +398,9 @@ public class Robot extends TimedRobot {
         if (armPos == 1 && !armTransition && curTime - lastArmCheckTime >= armMaintainCheckInterval) { // Maintain Middle
             setArmMotorSpeed(armMaintainSpeed);
             lastArmCheckTime = curTime;
-            if (lowerLimitSwitch.get() && armMaintainSpeed + armMaintainIncrement <= armMaintainMaxSpeed) {
+            if (!lowerLimitSwitch.get() && armMaintainSpeed + armMaintainIncrement <= armMaintainMaxSpeed) {
                 armMaintainSpeed += armMaintainIncrement;
-            } else if (upperLimitSwitch.get() && armMaintainSpeed - armMaintainIncrement >= armMaintainMinSpeed) {
+            } else if (!upperLimitSwitch.get() && armMaintainSpeed - armMaintainIncrement >= armMaintainMinSpeed) {
                 armMaintainSpeed -= armMaintainIncrement;
             }
         }
