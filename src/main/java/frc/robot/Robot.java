@@ -38,7 +38,7 @@ public class Robot extends TimedRobot {
     TalonFX rightMotor2 = new TalonFX(13);
     TalonFX leftMotor1 = new TalonFX(14);
     TalonFX leftMotor2 = new TalonFX(15);
-    CANSparkMax armMotor = new CANSparkMax(7, MotorType.kBrushed); // TODO: Try (and hope and pray) turning the motor type to kBrushless
+    CANSparkMax armMotor = new CANSparkMax(7, MotorType.kBrushed);
 
     Compressor pcmCompressor;
     DoubleSolenoid leftGearBox = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 3, 2);
@@ -51,8 +51,7 @@ public class Robot extends TimedRobot {
     Joystick joystick = new Joystick(0);
     AHRS ahrs = new AHRS(SPI.Port.kMXP);
     AnalogInput ultrasonic = new AnalogInput(0);
-    DigitalInput lowerLimitSwitch = new DigitalInput(0); // Lower limit switch for determining arm/tray position
-    DigitalInput upperLimitSwitch = new DigitalInput(1); // Upper limit switch for determining arm/tray position
+    DigitalInput limitSwitch = new DigitalInput(0); // true=open/not-pressed, false=closed/pressed. Top mounted limit switch to determine tray top position
 
     // Configuration Variables
     final int startPosOverride = -2; // -2 = None; -1 = Left; 0 = Center; 1 = Right
@@ -69,9 +68,10 @@ public class Robot extends TimedRobot {
     final double dockedMax = 3; // Pitch degrees to be considered docked (maximum range)
     final double timeToCenter = 4100; // Time in milliseconds to drive from one of the side spawn points to the center
     final double armTurnSpeed = 0.2; // Speed to turn the arm at when turning the arm
-    final double armMaintainMinSpeed = 0.075; // Minimum speed to maintain middle arm position
-    final double armMaintainMaxSpeed = 0.3; // Maximum speed to maintain middle arm position
-    final double armMaintainIncrement = 0.03; // Amount to increment the arm speed by when maintaining the middle arm position
+    final double armManualOverrideSpeed = 0.2; // Speed to turn the arm at when manually overriding the arm
+    final double armMaintainMinSpeed = 0.05; // Minimum speed to maintain middle arm position
+    final double armMaintainMaxSpeed = 0.2; // Maximum speed to maintain middle arm position
+    final double armMaintainIncrement = 0.01; // Amount to increment the arm speed by when maintaining the middle arm position
     final double autonomousMoveSpeed = 0.4; // Speed to move at normally while in automous
     final double autonomousTurnSpeed = 0.3; // Speed to turn at while in autonomous mode
     final double autonomousDockSpeed = 0.35; // Speed to move forward while attempting to dock
@@ -79,15 +79,15 @@ public class Robot extends TimedRobot {
     final long autonomousTurnCheckInterval = 25; // Interval to check gyro while turning
     final long autonomousFloorCheckInterval = 100; // Interval to check gryo at to determine if we're at the docking station (in milliseconds)
     final long autonomousDockCheckInterval = 0; // Interval to check gyro at while attempting to dock (in milliseconds)
-    final long armMaintainCheckInterval = 250; // Interval to check arm position while maintaining the middle arm position (in milliseconds)
+    final long armMaintainCheckInterval = 750; // Interval to check arm position while maintaining the middle arm position (in milliseconds)
     final boolean useRoll = true; // Whether to use roll instead of pitch for pitch related operations
     final boolean debugMode = false; // Debug mode is used to print certain values used for debugging purposes.
     final boolean enableCompressor = false; // Whether to enable the compressor or not
 
     // Runtime Variables
-    int state, startPos, armPos, armOrigPos;
+    int state, startPos, armPos;
     double pitchDegrees, armMaintainSpeed;
-    long lastRunTime, lastDebugOutputTime, lastArmCheckTime, armTransitionStartTime;
+    long lastRunTime, lastDebugOutputTime, lastArmCheckTime;
     boolean waiting, armTransition, lastUpper;
 
     /**
@@ -155,34 +155,18 @@ public class Robot extends TimedRobot {
     /**
      * Turn the robot arm automatically. Call this function periodically while trying to turn. The arm motor came straight from hell.
      * @param speed Speed to turn at.
-     * @param currentPosition Current position
      * @param targetPosition Position to move the arm to
-     * @param startTime Time the turning started
      * @param initial Whether this is the first time the function is called
      * @return True if turning is complete, false otherwise
      */
-    private boolean turnArm(double speed, int currentPosition, int targetPosition, long startTime, boolean initial) {
+    private boolean turnArm(double speed, int targetPosition, boolean initial) {
         if (targetPosition == 1) { // Middle
-            if (initial) setArmMotorSpeed(currentPosition == 0 ? speed : -speed);
-            if (currentPosition == 0 && !lowerLimitSwitch.get()) {
-                setArmMotorSpeed(armMaintainSpeed);
-                return true;
-            }
-            else if (currentPosition == 2 && lastUpper && upperLimitSwitch.get()) {
-                setArmMotorSpeed(armMaintainSpeed);
-                lastArmCheckTime = System.currentTimeMillis();
-                return true;
-            }
-            if (currentPosition == 2) lastUpper = !upperLimitSwitch.get();
-        } else if (targetPosition == 0) { // Low
-            if (initial) setArmMotorSpeed(0);
-            return true;
-        } else if (targetPosition == 2) { // High
             if (initial) setArmMotorSpeed(speed);
+            return !limitSwitch.get();
+        } else { // Low
+            setArmMotorSpeed(0);
             return true;
         }
-
-        return false;
     }
 
     /**
@@ -343,10 +327,10 @@ public class Robot extends TimedRobot {
         }
         lastDebugOutputTime = 0;
 
-        // 0 = Lowered, 1 = Middle, 2 = Raised, -1 = Unknown -- May or may not be accurate
+        // 0 = Lowered, 1 = Raised, -1 = Unknown
         armPos = 0;
-        armOrigPos = -1;
         armTransition = false;
+        setMotorSpeedCorrected(0);
     }
 
     @Override
@@ -368,49 +352,37 @@ public class Robot extends TimedRobot {
         // ARM
         if (armPos != -1) {
             if (armTransition) {
-                if (turnArm(armTurnSpeed, armOrigPos, armPos, armTransitionStartTime, false))
+                if (turnArm(armTurnSpeed, armPos, false))
                     armTransition = false;
             } else {
-                // R2 - Low
-                if (joystick.getRawButtonPressed(8) && armPos != 0) {
+                // L2 - Low
+                if (joystick.getRawButtonPressed(7) && armPos != 1) {
                     armTransition = true;
-                    armOrigPos = armPos;
                     armPos = 0;
-                }
-                // L2 - Mid
-                else if (joystick.getRawButtonPressed(7) && armPos != 1) {
-                    armTransition = true;
-                    armOrigPos = armPos;
-                    armPos = 1;
                 }
                 // L1 - High
                 else if (joystick.getRawButtonPressed(5) && armPos != 2) {
                     armTransition = true;
-                    armOrigPos = armPos;
-                    armPos = 2;
+                    armPos = 1;
                 }
                 if (armTransition) {
-                    armTransitionStartTime = curTime;
-                    turnArm(armTurnSpeed, armOrigPos, armPos, armTransitionStartTime, true);
+                    turnArm(armTurnSpeed, armPos, true);
                 }
             }
         }
-        if (armPos == 1 && !armTransition && curTime - lastArmCheckTime >= armMaintainCheckInterval) { // Maintain Middle
+        if (armPos == 1 && !armTransition && curTime - lastArmCheckTime >= armMaintainCheckInterval) { // Maintain High
             setArmMotorSpeed(armMaintainSpeed);
             lastArmCheckTime = curTime;
-            if (!lowerLimitSwitch.get() && armMaintainSpeed + armMaintainIncrement <= armMaintainMaxSpeed) {
+            if (limitSwitch.get() && armMaintainSpeed + armMaintainIncrement <= armMaintainMaxSpeed) {
                 armMaintainSpeed += armMaintainIncrement;
-            } else if (!upperLimitSwitch.get() && armMaintainSpeed - armMaintainIncrement >= armMaintainMinSpeed) {
-                armMaintainSpeed -= armMaintainIncrement;
             }
         }
         // X - Manual Override/Motor Control
         if (joystick.getRawButton(1)) {
             // Arm position is no longer known, do not allow automatic movement
             if (debugMode && armPos != -1) System.out.println("Arm Manual Override Activated - Auto Movement Disabled");
-            armOrigPos = -1;
             armPos = -1;
-            setArmMotorSpeed(0.3);
+            setArmMotorSpeed(armManualOverrideSpeed);
         } else if (armPos == -1)
             setArmMotorSpeed(0);
         // A - Reset Arm Position (also disables manual override) - only use if arm is at the bottom (low)
