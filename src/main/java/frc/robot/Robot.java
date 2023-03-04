@@ -54,6 +54,7 @@ public class Robot extends TimedRobot {
     // Configuration Variables
     final int startPosOverride = -2; // -2 = None; -1 = Left; 0 = Center; 1 = Right
     final int initialState = 0; // Initial state when autonomous is enabled (used for debugging usually)
+    final int autonomousMode = 0; // Mode to use for autonomous docking, 0 = Range Determination, 1 = Decrease Determination, 2 = Forward Back, 3 = Timing
     final int turnRadius = 75; // Amount to turn when trying to do a 90 degree turn. Generally to account for drift.
     final double teleopMoveScale = 0.7; // Percent to scale the controller input by when moving (forward or backward)
     final double teleopTurnScale = 0.5; // Percent to scale the controller input by when turning (controllers aren't in same direction [0 is considered no direction])
@@ -65,12 +66,10 @@ public class Robot extends TimedRobot {
     final double dockedMin = -3; // Pitch degrees to be considered docked (minimum range)
     final double dockedMax = 3; // Pitch degrees to be considered docked (maximum range)
     final double timeToCenter = 4100; // Time in milliseconds to drive from one of the side spawn points to the center
+    final double timeToDock = 3500; // Time in milliseconds to dock to the charging station, for autonomousMode 3
     final double timeToNonCommunity = 3000; // Time in milliseconds to drive from spawn point out of the community, for dumb autonomous
-    final double armTurnSpeed = 0.2; // Speed to turn the arm at when turning the arm
-    final double armManualOverrideSpeed = 0.2; // Speed to turn the arm at when manually overriding the arm
-    final double armMaintainMinSpeed = 0.1; // Minimum speed to maintain middle arm position
-    final double armMaintainMaxSpeed = 0.2; // Maximum speed to maintain middle arm position
-    final double armMaintainIncrement = 0.01; // Amount to increment the arm speed by when maintaining the middle arm position
+    final double armTurnSpeed = -0.2; // Speed to turn the arm at when turning the arm
+    final double armManualOverrideSpeed = -0.2; // Speed to turn the arm at when manually overriding the arm
     final double autonomousMoveSpeed = 0.4; // Speed to move at normally while in automous
     final double autonomousTurnSpeed = 0.3; // Speed to turn at while in autonomous mode
     final double autonomousDockSpeed = 0.35; // Speed to move forward while attempting to dock
@@ -85,8 +84,8 @@ public class Robot extends TimedRobot {
 
     // Runtime Variables
     int state, startPos, armPos;
-    double pitchDegrees, armMaintainSpeed;
-    long lastRunTime, lastDebugOutputTime, lastArmCheckTime;
+    double pitchDegrees, lastPitchDegrees, armMaintainSpeed;
+    long lastRunTime, lastDebugOutputTime, lastArmCheckTime, dockingStartTime;
     boolean waiting, armTransition, lastUpper, offsetOverride;
 
     /**
@@ -308,6 +307,8 @@ public class Robot extends TimedRobot {
                     state = 7; // Start docking
                     waiting = false;
                     lastRunTime = 0;
+                    if (autonomousMode == 1) lastPitchDegrees = pitchDegrees;
+                    else if (autonomousMode == 3) dockingStartTime = curTime;
                 } else if (debugMode) System.out.printf("Pitch IN floor range (%f <= %f <= %f)%n", onFloorMin, pitchDegrees, onFloorMax);
             }
         } else if (state == 7) { // Dock with Charging Station
@@ -317,14 +318,29 @@ public class Robot extends TimedRobot {
             }
             if (curTime - lastRunTime >= autonomousDockCheckInterval) {
                 double pitchDegrees = (useRoll) ? ahrs.getRoll() : ahrs.getPitch();
+                boolean condition = false;
                 lastRunTime = curTime;
-                if (dockedMin <= pitchDegrees && pitchDegrees <= dockedMax) {
+                if (autonomousMode == 0) {
+                    if (dockedMin <= pitchDegrees && pitchDegrees <= dockedMax) {
+                        condition = true;
+                    } else if (debugMode) System.out.printf("Dock OUT of range (%f out of %f-%f)%n", pitchDegrees, dockedMin, dockedMax);
+                } else if (autonomousMode == 1) {
+                    if ((pitchDegrees < 0) ? (pitchDegrees > lastPitchDegrees) : (pitchDegrees < lastPitchDegrees)) {
+                        condition = true;
+                    } else lastPitchDegrees = pitchDegrees;
+                } else if (autonomousMode == 2) {
+                    state = -1; // NOT IMPLEMENTED YET
+                } else if (autonomousMode == 3) {
+                    condition = curTime - dockingStartTime >= timeToDock;
+                }
+
+                if (condition) {
                     if (debugMode) System.out.printf("Dock IN range (%f <= %f <= %f)%n", dockedMin, pitchDegrees, dockedMax);
                     setMotorSpeedCorrected(0);
                     state = 8; // Finished docking
                     waiting = false;
                     lastRunTime = 0;
-                } else if (debugMode) System.out.printf("Dock OUT of range (%f out of %f-%f)%n", pitchDegrees, dockedMin, dockedMax);
+            }
             }
         }
     }
