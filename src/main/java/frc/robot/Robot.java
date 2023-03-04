@@ -51,7 +51,6 @@ public class Robot extends TimedRobot {
     Joystick joystick = new Joystick(0);
     AHRS ahrs = new AHRS(SPI.Port.kMXP);
     AnalogInput ultrasonic = new AnalogInput(0);
-    DigitalInput limitSwitch = new DigitalInput(0); // true=open/not-pressed, false=closed/pressed. Top mounted limit switch to determine tray top position
 
     // Configuration Variables
     final int startPosOverride = -2; // -2 = None; -1 = Left; 0 = Center; 1 = Right
@@ -161,8 +160,8 @@ public class Robot extends TimedRobot {
      */
     private boolean turnArm(double speed, int targetPosition, boolean initial) {
         if (targetPosition == 1) { // Middle
-            if (initial) setArmMotorSpeed(speed);
-            return !limitSwitch.get();
+            setArmMotorSpeed(speed);
+            return true;
         } else { // Low
             setArmMotorSpeed(0);
             return true;
@@ -370,13 +369,8 @@ public class Robot extends TimedRobot {
                 }
             }
         }
-        if (armPos == 1 && !armTransition && curTime - lastArmCheckTime >= armMaintainCheckInterval) { // Maintain High
+        if (armPos == 1 && !armTransition && curTime - lastArmCheckTime >= armMaintainCheckInterval) // Maintain High
             setArmMotorSpeed(armMaintainSpeed);
-            lastArmCheckTime = curTime;
-            if (limitSwitch.get() && armMaintainSpeed + armMaintainIncrement <= armMaintainMaxSpeed) {
-                armMaintainSpeed += armMaintainIncrement;
-            }
-        }
         // X - Manual Override/Motor Control
         if (joystick.getRawButton(1)) {
             // Arm position is no longer known, do not allow automatic movement
