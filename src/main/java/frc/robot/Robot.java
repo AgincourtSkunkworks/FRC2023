@@ -80,7 +80,7 @@ public class Robot extends TimedRobot {
     final long armMaintainCheckInterval = 750; // Interval to check arm position while maintaining the middle arm position (in milliseconds)
     final boolean useRoll = true; // Whether to use roll instead of pitch for pitch related operations
     final boolean debugMode = false; // Debug mode is used to print certain values used for debugging purposes.
-    final boolean enableCompressor = true; // Whether to enable the compressor or not
+    final boolean enableCompressor = false; // Whether to enable the compressor or not
 
     // Runtime Variables
     int state, startPos, armPos;
