@@ -65,6 +65,7 @@ public class Robot extends TimedRobot {
     final double dockedMin = -3; // Pitch degrees to be considered docked (minimum range)
     final double dockedMax = 3; // Pitch degrees to be considered docked (maximum range)
     final double timeToCenter = 4100; // Time in milliseconds to drive from one of the side spawn points to the center
+    final double timeToNonCommunity = 3000; // Time in milliseconds to drive from spawn point out of the community, for dumb autonomous
     final double armTurnSpeed = 0.2; // Speed to turn the arm at when turning the arm
     final double armManualOverrideSpeed = 0.2; // Speed to turn the arm at when manually overriding the arm
     final double armMaintainMinSpeed = 0.1; // Minimum speed to maintain middle arm position
@@ -207,6 +208,7 @@ public class Robot extends TimedRobot {
          * 7 - Charging Station Docking
          * 8 - Done Docking (in theory)
          * -1 - Error State
+         * -2 - "Dumb" Autonomous (move forward out of community and gain a few points)
          */
         state = initialState;
         lastRunTime = 0;
@@ -226,7 +228,17 @@ public class Robot extends TimedRobot {
         // READ THIS vv
         // WARNING: Using a switch statement here causes the god of all confusing bugs to appear. Literally no idea why.
         // READ THIS ^^
-        if (state == 0) { // Initialization
+        if (state == -2) { // "Dumb" Autonomous (Budget Points)
+            if (lastRunTime == 0) { // Initial
+                setMotorSpeedCorrected(autonomousMoveSpeed); 
+                lastRunTime = curTime;
+            }
+            else if (curTime - lastRunTime < timeToNonCommunity) lastRunTime = curTime; // Wait
+            else {  // Done
+                setMotorSpeedCorrected(0);
+                state = -1; // Error State
+            }
+        } else if (state == 0) { // Initialization
             ahrs.zeroYaw();
             state = 1; // Done Initializing
         } else if (state == 1) { // Post-Initialization
