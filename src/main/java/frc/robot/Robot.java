@@ -68,7 +68,7 @@ public class Robot extends TimedRobot {
     final double timeToCenter = 4100; // Time in milliseconds to drive from one of the side spawn points to the center
     final double armTurnSpeed = 0.2; // Speed to turn the arm at when turning the arm
     final double armManualOverrideSpeed = 0.2; // Speed to turn the arm at when manually overriding the arm
-    final double armMaintainMinSpeed = 0.05; // Minimum speed to maintain middle arm position
+    final double armMaintainMinSpeed = 0.1; // Minimum speed to maintain middle arm position
     final double armMaintainMaxSpeed = 0.2; // Maximum speed to maintain middle arm position
     final double armMaintainIncrement = 0.01; // Amount to increment the arm speed by when maintaining the middle arm position
     final double autonomousMoveSpeed = 0.4; // Speed to move at normally while in automous
