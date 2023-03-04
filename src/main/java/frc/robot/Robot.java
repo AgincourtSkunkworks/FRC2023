@@ -15,7 +15,6 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.Compressor;
-import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
@@ -87,7 +86,7 @@ public class Robot extends TimedRobot {
     int state, startPos, armPos;
     double pitchDegrees, armMaintainSpeed;
     long lastRunTime, lastDebugOutputTime, lastArmCheckTime;
-    boolean waiting, armTransition, lastUpper;
+    boolean waiting, armTransition, lastUpper, offsetOverride;
 
     /**
      * Set Left Motor Speeds
@@ -329,6 +328,7 @@ public class Robot extends TimedRobot {
         // 0 = Lowered, 1 = Raised, -1 = Unknown
         armPos = 0;
         armTransition = false;
+        offsetOverride = false;
         setMotorSpeedCorrected(0);
     }
 
@@ -341,11 +341,11 @@ public class Robot extends TimedRobot {
         double stickLeft = -joystick.getRawAxis(1);
         double stickRight = joystick.getRawAxis(3);
         if (stickLeft > 0.05 && stickRight < 0.05 || stickLeft < 0.05 && stickRight > 0.05) { // no movement is ~+-0.007, not absolute zero
-            setLeftMotorSpeed(stickLeft * teleopMoveScale);
-            setRightMotorSpeed(stickRight * teleopMoveScale);
+            setLeftMotorSpeed(stickLeft * ((offsetOverride) ? 1: teleopMoveScale));
+            setRightMotorSpeed(stickRight * ((offsetOverride) ? 1: teleopMoveScale));
         } else {
-            setLeftMotorSpeed(stickLeft * teleopTurnScale);
-            setRightMotorSpeed(stickRight * teleopTurnScale);
+            setLeftMotorSpeed(stickLeft * ((offsetOverride) ? 1: teleopMoveScale));
+            setRightMotorSpeed(stickRight * ((offsetOverride) ? 1: teleopMoveScale));
         }
 
         // ARM
@@ -384,6 +384,14 @@ public class Robot extends TimedRobot {
             setArmMotorSpeed(0);
             armPos = 0;
             if (debugMode) System.out.println("Arm Position Reset - Auto Movement Enabled");
+        }
+        // R2 - Speed Offset Manual Override
+        if (joystick.getRawButtonPressed(8)) {
+            offsetOverride = true;
+            if (debugMode) System.out.println("Speed Offset Manual Override Activated");
+        } else if (joystick.getRawButtonReleased(8)) {
+            offsetOverride = false;
+            if (debugMode) System.out.println("Speed Offset Manual Override Deactivated");
         }
 
         // GEARBOXES
