@@ -233,8 +233,7 @@ public class Robot extends TimedRobot {
                 setMotorSpeedCorrected(autonomousMoveSpeed); 
                 lastRunTime = curTime;
             }
-            else if (curTime - lastRunTime < timeToNonCommunity) lastRunTime = curTime; // Wait
-            else {  // Done
+            else if (curTime - lastRunTime >= timeToNonCommunity) {
                 setMotorSpeedCorrected(0);
                 state = -1; // Error State
             }
