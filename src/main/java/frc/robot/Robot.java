@@ -374,8 +374,8 @@ public class Robot extends TimedRobot {
             setLeftMotorSpeed(stickLeft * ((offsetOverride) ? 1: teleopMoveScale));
             setRightMotorSpeed(stickRight * ((offsetOverride) ? 1: teleopMoveScale));
         } else {
-            setLeftMotorSpeed(stickLeft * ((offsetOverride) ? 1: teleopMoveScale));
-            setRightMotorSpeed(stickRight * ((offsetOverride) ? 1: teleopMoveScale));
+            setLeftMotorSpeed(stickLeft * ((offsetOverride) ? 1: teleopTurnScale));
+            setRightMotorSpeed(stickRight * ((offsetOverride) ? 1: teleopTurnScale));
         }
 
         // ARM
