@@ -54,7 +54,7 @@ public class Robot extends TimedRobot {
     // Configuration Variables
     final int startPosOverride = -2; // -2 = None; -1 = Left; 0 = Center; 1 = Right
     final int initialState = 0; // Initial state when autonomous is enabled (used for debugging usually)
-    final int autonomousMode = 0; // Mode to use for autonomous docking, 0 = Range Determination, 1 = Decrease Determination, 2 = Forward Back, 3 = Timing
+    final int autonomousMode = 0; // Mode to use for autonomous docking, 0 = Range Determination, 1 = Decrease Determination, 2 = Forward Back, 3 = Timing, 4 = High Threshold Determination
     final int turnRadius = 75; // Amount to turn when trying to do a 90 degree turn. Generally to account for drift.
     final double teleopMoveScale = 0.7; // Percent to scale the controller input by when moving (forward or backward)
     final double teleopTurnScale = 0.5; // Percent to scale the controller input by when turning (controllers aren't in same direction [0 is considered no direction])
@@ -65,6 +65,7 @@ public class Robot extends TimedRobot {
     final double onFloorMax = 3; // Pitch degrees to be considered on floor
     final double dockedMin = -3; // Pitch degrees to be considered docked (minimum range)
     final double dockedMax = 3; // Pitch degrees to be considered docked (maximum range)
+    final double dockedThreshold = -15; // Pitch degrees threshold to be considered docked (threshold, in the hopes it will dock itself by gravity), for autonomousMode 4
     final double timeToCenter = 4100; // Time in milliseconds to drive from one of the side spawn points to the center
     final double timeToDock = 3500; // Time in milliseconds to dock to the charging station, for autonomousMode 3
     final double timeToNonCommunity = 3000; // Time in milliseconds to drive from spawn point out of the community, for dumb autonomous
@@ -332,6 +333,8 @@ public class Robot extends TimedRobot {
                     state = -1; // NOT IMPLEMENTED YET
                 } else if (autonomousMode == 3) {
                     condition = curTime - dockingStartTime >= timeToDock;
+                } else if (autonomousMode == 4) {
+                    condition = (dockedThreshold < 0) ? (pitchDegrees <= dockedThreshold) : (pitchDegrees >= dockedThreshold);
                 }
 
                 if (condition) {
