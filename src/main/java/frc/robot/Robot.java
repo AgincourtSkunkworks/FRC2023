@@ -371,11 +371,11 @@ public class Robot extends TimedRobot {
         double stickLeft = -joystick.getRawAxis(1);
         double stickRight = joystick.getRawAxis(3);
         if (stickLeft > 0.05 && stickRight < 0.05 || stickLeft < 0.05 && stickRight > 0.05) { // no movement is ~+-0.007, not absolute zero
-            setLeftMotorSpeed(stickLeft * ((offsetOverride) ? 1: teleopMoveScale));
-            setRightMotorSpeed(stickRight * ((offsetOverride) ? 1: teleopMoveScale));
+            setLeftMotorSpeed(stickLeft * ((offsetOverride) ? 1 : teleopMoveScale));
+            setRightMotorSpeed(stickRight * ((offsetOverride) ? 1 : teleopMoveScale));
         } else {
-            setLeftMotorSpeed(stickLeft * ((offsetOverride) ? 1: teleopTurnScale));
-            setRightMotorSpeed(stickRight * ((offsetOverride) ? 1: teleopTurnScale));
+            setLeftMotorSpeed(stickLeft * ((offsetOverride) ? 1 : teleopTurnScale));
+            setRightMotorSpeed(stickRight * ((offsetOverride) ? 1 : teleopTurnScale));
         }
 
         // ARM
