@@ -7,6 +7,7 @@ package frc.robot;
 import static edu.wpi.first.wpilibj.DoubleSolenoid.Value.kReverse;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.kauailabs.navx.frc.AHRS;
 import com.revrobotics.CANSparkMax;
@@ -185,6 +186,8 @@ public class Robot extends TimedRobot {
     public void robotInit() {
         if (enableCompressor)
             pcmCompressor = new Compressor(PneumaticsModuleType.CTREPCM);
+        for (TalonFX motor : motors)
+            motor.setNeutralMode(NeutralMode.Brake);
         leftGearBox.set(kReverse);
         rightGearBox.set(kReverse);
         CameraServer.startAutomaticCapture(); // Start the webcam
