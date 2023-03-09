@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.TimedRobot;
 
@@ -194,7 +195,18 @@ public class Robot extends TimedRobot {
     }
 
     @Override
-    public void robotPeriodic() {}
+    public void robotPeriodic() {
+        SmartDashboard.putNumber("Left Motor 1 Pos", leftMotor1.getSelectedSensorPosition());
+        SmartDashboard.putNumber("Left Motor 2 Pos", leftMotor2.getSelectedSensorPosition());
+        SmartDashboard.putNumber("Right Motor 1 Pos", rightMotor1.getSelectedSensorPosition());
+        SmartDashboard.putNumber("Right Motor 2 Pos", rightMotor2.getSelectedSensorPosition());
+
+        if (ahrs.isConnected()) {
+            SmartDashboard.putNumber("Yaw", ahrs.getYaw());
+            SmartDashboard.putNumber("Pitch", ahrs.getPitch());
+            SmartDashboard.putNumber("Roll", ahrs.getRoll());
+        }
+    }
 
     @Override
     public void autonomousInit() {
