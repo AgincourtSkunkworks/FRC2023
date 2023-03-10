@@ -43,7 +43,7 @@ public class Robot extends TimedRobot {
 
     // Configuration Variables
     final int initialState = 0; // Initial state when autonomous is enabled (used for debugging usually)
-    final int autonomousMode = 2; // Mode to use for autonomous docking, 0 = Mini Bang Bang w/ Constant, 1 = PID
+    final int autonomousMode = 0; // Mode to use for autonomous docking, 0 = Mini Bang Bang w/ Constant, 1 = PID
     final int turnRadius = 90; // Amount to turn when trying to do a 90 degree turn. Generally to account for drift.
     final double teleopMoveScale = 0.7; // Percent to scale the controller input by when moving (forward or backward)
     final double teleopTurnScale = 0.5; // Percent to scale the controller input by when turning (controllers aren't in same direction [0 is considered no direction])
@@ -56,11 +56,13 @@ public class Robot extends TimedRobot {
     final double armManualOverrideSpeed = -0.2; // Speed to turn the arm at when manually overriding the arm
     final double autonomousMoveSpeed = 0.2; // Speed to move at normally while in automous
     final double autonomousDockSpeed = 0.3; // Speed to move forward while attempting to dock
+    final double autonomousBangBangConstant = 0.038; // Constant to multiply speed by when using autonomous state 0 (mini bang bang)
     final long autonomousFloorCheckInterval = 100; // Interval to check gryo at to determine if we're at the docking station (in milliseconds)
     final long autonomousDockCheckInterval = 0; // Interval to check gyro at while attempting to dock (in milliseconds)
     final long armMaintainCheckInterval = 750; // Interval to check arm position while maintaining the middle arm position (in milliseconds)
     final long debugOutputPrintInterval = 500; // Interval to print debug output (in milliseconds)
     final boolean useRoll = true; // Whether to use roll instead of pitch for pitch related operations
+    final boolean upsideDownGyro = false; // Whether the gyro is upside down vertically (will reverse gyro logic for pitch)
     final boolean debugMode = false; // Debug mode is used to print certain values used for debugging purposes.
 
     // Runtime Variables
@@ -247,7 +249,7 @@ public class Robot extends TimedRobot {
                 boolean condition = false;
                 lastRunTime = curTime;
                 if (autonomousMode == 0) { // Mini Bang Bang w/ Constant
-                    final double motorSpeed = pitchDegrees * autonomousDockSpeed * 0.038;
+                    final double motorSpeed = pitchDegrees * autonomousDockSpeed * autonomousBangBangConstant * (upsideDownGyro ? -1 : 1);
                     setMotorSpeedCorrected(motorSpeed);
                     if (debugMode) System.out.printf("Docking Speed: %f%nPitch: %f%n", motorSpeed, pitchDegrees);
                     // Bang Bang control does not end, even when it's balanced (in case of shift/edge). So the condition is not changed.
