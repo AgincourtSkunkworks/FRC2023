@@ -40,10 +40,6 @@ public class Robot extends TimedRobot {
     TalonFX leftMotor1 = new TalonFX(14);
     TalonFX leftMotor2 = new TalonFX(15);
     CANSparkMax armMotor = new CANSparkMax(7, MotorType.kBrushed);
-
-    Compressor pcmCompressor;
-    DoubleSolenoid leftGearBox = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 3, 2);
-    DoubleSolenoid rightGearBox = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, 4, 5);
     
     TalonFX[] leftMotors = {leftMotor1, leftMotor2};
     TalonFX[] rightMotors = {rightMotor1, rightMotor2};
@@ -83,7 +79,6 @@ public class Robot extends TimedRobot {
     final long debugOutputPrintInterval = 500; // Interval to print debug output (in milliseconds)
     final boolean useRoll = true; // Whether to use roll instead of pitch for pitch related operations
     final boolean debugMode = false; // Debug mode is used to print certain values used for debugging purposes.
-    final boolean enableCompressor = true; // Whether to enable the compressor or not
 
     // Runtime Variables
     int state, startPos, armPos;
@@ -186,12 +181,8 @@ public class Robot extends TimedRobot {
      */
     @Override
     public void robotInit() {
-        if (enableCompressor)
-            pcmCompressor = new Compressor(PneumaticsModuleType.CTREPCM);
         for (TalonFX motor : motors)
             motor.setNeutralMode(NeutralMode.Brake);
-        leftGearBox.set(kReverse);
-        rightGearBox.set(kReverse);
         CameraServer.startAutomaticCapture(); // Start the webcam
     }
 
@@ -444,19 +435,6 @@ public class Robot extends TimedRobot {
             offsetOverride = false;
             if (debugMode) System.out.println("Speed Offset Manual Override Deactivated");
         }
-
-        // GEARBOXES
-        // R1 - Both Gearboxes
-        if (joystick.getRawButtonPressed(6)) {
-            leftGearBox.toggle();
-            rightGearBox.toggle();
-        }
-        // Back - Left Gearbox Manual Override
-        if (joystick.getRawButtonPressed(9))
-            leftGearBox.toggle();
-        // Start - Right Gearbox Manual Override
-        if (joystick.getRawButtonPressed(10))
-            rightGearBox.toggle();
 
         // DEBUG
         if (debugMode && curTime - lastDebugOutputTime >= lastDebugOutputTime) {
