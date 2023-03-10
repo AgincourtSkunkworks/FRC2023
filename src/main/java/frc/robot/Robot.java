@@ -4,8 +4,6 @@
 
 package frc.robot;
 
-import static edu.wpi.first.wpilibj.DoubleSolenoid.Value.kReverse;
-
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
@@ -14,15 +12,10 @@ import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.cameraserver.CameraServer;
-import edu.wpi.first.wpilibj.AnalogInput;
-import edu.wpi.first.wpilibj.Compressor;
-import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.PneumaticsModuleType;
-import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 
 /**
@@ -47,32 +40,22 @@ public class Robot extends TimedRobot {
 
     Joystick joystick = new Joystick(0);
     AHRS ahrs = new AHRS(SPI.Port.kMXP);
-    AnalogInput ultrasonic = new AnalogInput(0);
 
     // Configuration Variables
-    final int startPosOverride = 0; // -2 = None; -1 = Left; 0 = Center; 1 = Right
-    final int initialState = 6; // Initial state when autonomous is enabled (used for debugging usually)
-    final int autonomousMode = 2; // Mode to use for autonomous docking, 0 = Range Determination, 1 = Decrease Determination, 2 = PID/Forward Back, 3 = Timing, 4 = High Threshold Determination
-    final int turnRadius = 75; // Amount to turn when trying to do a 90 degree turn. Generally to account for drift.
+    final int initialState = 0; // Initial state when autonomous is enabled (used for debugging usually)
+    final int autonomousMode = 2; // Mode to use for autonomous docking, 0 = Mini Bang Bang w/ Constant, 1 = PID
+    final int turnRadius = 90; // Amount to turn when trying to do a 90 degree turn. Generally to account for drift.
     final double teleopMoveScale = 0.7; // Percent to scale the controller input by when moving (forward or backward)
     final double teleopTurnScale = 0.5; // Percent to scale the controller input by when turning (controllers aren't in same direction [0 is considered no direction])
     final double leftMotorSpeedOffset = 0; // Percent offset (0-1) for left motor speed (to ensure that it can drive straight)
     final double rightMotorSpeedOffset = 0; // Percent offset (0-1) for right motor speed (to ensure that it can drive straight)
     final double onFloorMin = -3; // Pitch degrees to be considered on floor
     final double onFloorMax = 3; // Pitch degrees to be considered on floor
-    final double dockedMin = -1.5; // Pitch degrees to be considered docked (minimum range)
-    final double dockedMax = 1.5; // Pitch degrees to be considered docked (maximum range)
-    final double dockedThreshold = -15; // Pitch degrees threshold to be considered docked (threshold, in the hopes it will dock itself by gravity), for autonomousMode 4
-    final double timeToCenter = 4100; // Time in milliseconds to drive from one of the side spawn points to the center
-    final double timeToDock = 3500; // Time in milliseconds to dock to the charging station, for autonomousMode 3
     final double timeToNonCommunity = 3000; // Time in milliseconds to drive from spawn point out of the community, for dumb autonomous
     final double armTurnSpeed = -0.2; // Speed to turn the arm at when turning the arm
     final double armManualOverrideSpeed = -0.2; // Speed to turn the arm at when manually overriding the arm
     final double autonomousMoveSpeed = 0.2; // Speed to move at normally while in automous
-    final double autonomousTurnSpeed = 0.2; // Speed to turn at while in autonomous mode
     final double autonomousDockSpeed = 0.3; // Speed to move forward while attempting to dock
-    final long autonomousPostDriveDelay = 500; // Delay (in milliseconds) after driving to the center, so we don't carry energy into the turn and overshoot it.
-    final long autonomousTurnCheckInterval = 25; // Interval to check gyro while turning
     final long autonomousFloorCheckInterval = 100; // Interval to check gryo at to determine if we're at the docking station (in milliseconds)
     final long autonomousDockCheckInterval = 0; // Interval to check gyro at while attempting to dock (in milliseconds)
     final long armMaintainCheckInterval = 750; // Interval to check arm position while maintaining the middle arm position (in milliseconds)
@@ -82,7 +65,7 @@ public class Robot extends TimedRobot {
 
     // Runtime Variables
     int state, startPos, armPos;
-    double pitchDegrees, lastPitchDegrees, armMaintainSpeed;
+    double pitchDegrees, armMaintainSpeed;
     long lastRunTime, lastDebugOutputTime, lastArmCheckTime, dockingStartTime;
     boolean waiting, armTransition, lastUpper, offsetOverride;
 
@@ -166,16 +149,6 @@ public class Robot extends TimedRobot {
     }
 
     /**
-     * Convert the raw value from the ultrasound sensor to distance
-     * @param rawValue Raw value from the Analog Input from the ultrasound censor (0 - 4095)
-     * @return Distance in centimeters
-     */
-    private double getUltrasonicDistance(double rawValue) {
-        double voltageScaleFactor = 5 / RobotController.getVoltage5V();
-        return rawValue * voltageScaleFactor * 0.125;
-    }
-
-    /**
      * This function is run when the robot is first started up and should be used for any
      * initialization code.
      */
@@ -188,6 +161,7 @@ public class Robot extends TimedRobot {
 
     @Override
     public void robotPeriodic() {
+        // FIXME: SmartDashboard numbers are just overlaying each other, instead of replacing like it should
         SmartDashboard.putNumber("Left Motor 1 Pos", leftMotor1.getSelectedSensorPosition());
         SmartDashboard.putNumber("Left Motor 2 Pos", leftMotor2.getSelectedSensorPosition());
         SmartDashboard.putNumber("Right Motor 1 Pos", rightMotor1.getSelectedSensorPosition());
@@ -205,14 +179,9 @@ public class Robot extends TimedRobot {
         /* 
          * State (used to determine operations in periodic)
          * 0 - Initialization
-         * 1 - Post-Initialization (Unmoved)
-         * 2 - Turning Stage 1 (turn toward center, perpendicular to docking station)
-         * 3 - Turning Stage 2 (driving to center)
-         * 4 - Turning Stage 3 (delay after driving to center)
-         * 5 - Turning Stage 4 (turn toward docking station)
-         * 6 - Moving to Charging
-         * 7 - Charging Station Docking
-         * 8 - Done Docking (in theory)
+         * 1 - Moving to Charging
+         * 2 - Charging Station Docking
+         * 3 - Done Docking (in theory)
          * -1 - Error State
          * -2 - "Dumb" Autonomous (move forward out of community and gain a few points)
          */
@@ -226,7 +195,10 @@ public class Robot extends TimedRobot {
     @Override
     @SuppressWarnings("all") // I'm not wrong, you're wrong. Get rid of squiggly lines from config variables ("dead code", "unused code", "redundant check")
     public void autonomousPeriodic() {
-        if (!ahrs.isConnected()) return; // If gyro is not connected, return
+        if (!ahrs.isConnected()) { // If gyro is not connected, return
+            System.out.println("[AUTONOMOUS] ERROR: Gyro is not connected!");
+            return;
+        }
         if (debugMode && System.currentTimeMillis() - lastDebugOutputTime >= debugOutputPrintInterval) {
             System.out.printf("Current Autonomous State: %d%n", state);
             lastDebugOutputTime = System.currentTimeMillis();
@@ -249,60 +221,7 @@ public class Robot extends TimedRobot {
         } else if (state == 0) { // Initialization
             ahrs.zeroYaw();
             state = 1; // Done Initializing
-        } else if (state == 1) { // Post-Initialization
-            // double ultrasoundReading = getUltrasonicDistance(ultrasonic.getValue());
-            if (startPosOverride != -2)
-                startPos = startPosOverride;
-            else {
-                // TODO: Implement left/center/right starting position detection
-            }
-            if (startPos < -1 || startPos > 1) state = -1; // Unexpected
-            else state = (startPos != 0) ? 2 : 6; // Reminder: Only set state when startPos has been successfully determined
-        } else if (state == 2) { // Turning Stage 1 (if needed) -- turn 90 to face center (perpendicular to docking)
-            if (curTime - lastRunTime < autonomousTurnCheckInterval) {}
-            else if (turnRobot(autonomousTurnSpeed, (startPos == -1) ? turnRadius : -turnRadius, !waiting)) {
-                setMotorSpeedCorrected(0);
-                waiting = false;
-                lastRunTime = 0;
-                state = 3; // Turning stage 2
-            } else {
-                waiting = true;
-                lastRunTime = curTime;   
-            }
-        } else if (state == 3) { // Turning Stage 2 (if needed) -- drive to center
-            if (!waiting) {
-                setMotorSpeedCorrected(autonomousMoveSpeed);
-                waiting = true;
-                lastRunTime = curTime;
-            }
-            if (curTime - lastRunTime >= timeToCenter) {
-                setMotorSpeedCorrected(0);
-                lastRunTime = 0;
-                waiting = false;
-                state = 4; // Post-turn wait
-            }
-        } else if (state == 4) { // Turning Stage 3 (if needed) -- wait a while before turning to face docking station
-            if (!waiting) {
-                lastRunTime = curTime;
-                waiting = true;
-            }
-            if (curTime - lastRunTime >= autonomousPostDriveDelay) {
-                lastRunTime = 0;
-                waiting = false;
-                state = 5; // Move to docking station
-            }
-        } else if (state == 5) { // Turning Stage 4 (if needed) -- turn 90 to face docking station
-            if (curTime - lastRunTime < autonomousTurnCheckInterval) {}
-            else if (turnRobot(autonomousTurnSpeed, (startPos == -1) ? -turnRadius : turnRadius, !waiting)) {
-                setMotorSpeedCorrected(0);
-                waiting = false;
-                lastRunTime = 0;
-                state = 6; // Move to docking station
-            } else {
-                waiting = true;
-                lastRunTime = curTime;
-            }
-        } else if (state == 6) { // Moving Forward to Charging Station
+        } else if (state == 1) { // Moving Forward to Charging Station
             if (!waiting) {
                 setMotorSpeedCorrected(autonomousMoveSpeed);
                 waiting = true;
@@ -313,14 +232,12 @@ public class Robot extends TimedRobot {
                 if (onFloorMin > pitchDegrees || pitchDegrees > onFloorMax) {
                     if (debugMode) System.out.printf("Pitch OUT of floor range (%f out of %f-%f)%n", pitchDegrees, onFloorMin, onFloorMax);
                     setMotorSpeedCorrected(0);
-                    state = 7; // Start docking
+                    state = 2; // Dock with Charging Station
                     waiting = false;
                     lastRunTime = 0;
-                    if (autonomousMode == 1) lastPitchDegrees = pitchDegrees;
-                    else if (autonomousMode == 3) dockingStartTime = curTime;
                 } else if (debugMode) System.out.printf("Pitch IN floor range (%f <= %f <= %f)%n", onFloorMin, pitchDegrees, onFloorMax);
             }
-        } else if (state == 7) { // Dock with Charging Station
+        } else if (state == 2) { // Dock with Charging Station
             if (!waiting) {
                 setMotorSpeedCorrected(autonomousDockSpeed);
                 waiting = true;
@@ -329,32 +246,21 @@ public class Robot extends TimedRobot {
                 double pitchDegrees = (useRoll) ? ahrs.getRoll() : ahrs.getPitch();
                 boolean condition = false;
                 lastRunTime = curTime;
-                if (autonomousMode == 0) {
-                    if (dockedMin <= pitchDegrees && pitchDegrees <= dockedMax) {
-                        condition = true;
-                    } else if (debugMode) System.out.printf("Dock OUT of range (%f out of %f-%f)%n", pitchDegrees, dockedMin, dockedMax);
-                } else if (autonomousMode == 1) {
-                    if ((pitchDegrees < 0) ? (pitchDegrees > lastPitchDegrees) : (pitchDegrees < lastPitchDegrees)) {
-                        condition = true;
-                    } else lastPitchDegrees = pitchDegrees;
-                } else if (autonomousMode == 2) {
+                if (autonomousMode == 0) { // Mini Bang Bang w/ Constant
                     final double motorSpeed = pitchDegrees * autonomousDockSpeed * 0.038;
                     setMotorSpeedCorrected(motorSpeed);
                     if (debugMode) System.out.printf("Docking Speed: %f%nPitch: %f%n", motorSpeed, pitchDegrees);
-                    // Bang Bang control does not end, even when it's balanced (in case of shift/edge).
-                } else if (autonomousMode == 3) {
-                    condition = curTime - dockingStartTime >= timeToDock;
-                } else if (autonomousMode == 4) {
-                    condition = (dockedThreshold < 0) ? (pitchDegrees <= dockedThreshold) : (pitchDegrees >= dockedThreshold);
+                    // Bang Bang control does not end, even when it's balanced (in case of shift/edge). So the condition is not changed.
+                } else if (autonomousMode == 1) { // PID
+                    state = -1; // TODO: Implement PID docking control
                 }
 
                 if (condition) {
-                    if (debugMode) System.out.printf("Dock IN range (%f <= %f <= %f)%n", dockedMin, pitchDegrees, dockedMax);
                     setMotorSpeedCorrected(0);
-                    state = 8; // Finished docking
+                    state = 3; // Finished docking
                     waiting = false;
                     lastRunTime = 0;
-            }
+                }
             }
         }
     }
@@ -391,6 +297,7 @@ public class Robot extends TimedRobot {
         }
 
         // ARM
+        // TODO: Redo entire arm control system
         if (armPos != -1) {
             if (armTransition) {
                 if (turnArm(armTurnSpeed, armPos, false))
@@ -439,8 +346,8 @@ public class Robot extends TimedRobot {
         // DEBUG
         if (debugMode && curTime - lastDebugOutputTime >= lastDebugOutputTime) {
             System.out.printf(
-                "===%nPitch: %f%nYaw: %f%nRoll: %f%nUltrasonic Raw: %d%nUltrasonic Parsed: %f%nController Left: %f%nController Right: %f%n",
-                ahrs.getPitch(), ahrs.getYaw(), ahrs.getRoll(), ultrasonic.getValue(), getUltrasonicDistance(ultrasonic.getValue()), stickLeft, stickRight
+                "===%nPitch: %f%nYaw: %f%nRoll: %f%nController Left: %f%nController Right: %f%n",
+                ahrs.getPitch(), ahrs.getYaw(), ahrs.getRoll(), stickLeft, stickRight
             );
             lastDebugOutputTime = curTime;
         }
