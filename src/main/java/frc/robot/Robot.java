@@ -38,8 +38,8 @@ public class Robot extends TimedRobot {
     TalonFX[] rightMotors = {rightMotor1, rightMotor2};
     TalonFX[] motors = {leftMotor1, leftMotor2, rightMotor1, rightMotor2};
 
-    Joystick joystick = new Joystick(0);
-    AHRS ahrs = new AHRS(SPI.Port.kMXP);
+    Joystick controller = new Joystick(0);
+    AHRS gyroscopeAhrs = new AHRS(SPI.Port.kMXP);
 
     // Configuration Variables
     final int initialState = 0; // Initial state when autonomous is enabled (used for debugging usually)
@@ -118,7 +118,7 @@ public class Robot extends TimedRobot {
     private boolean turnRobot(double speed, int degrees, boolean initial) {
         if (initial) {
             setMotorSpeedCorrected(0); // Stop moving, to ensure proper zeroYaw() placement
-            ahrs.zeroYaw(); // Reset YAW to current face
+            gyroscopeAhrs.zeroYaw(); // Reset YAW to current face
             if (degrees < 0) { // Left turn
                 setLeftMotorSpeed(-speed);
                 setRightMotorSpeed(-speed);
@@ -128,7 +128,7 @@ public class Robot extends TimedRobot {
             }
         }
         
-        return (degrees < 0) ? degrees - ahrs.getYaw() >= 0 : ahrs.getYaw() - degrees >= 0;
+        return (degrees < 0) ? degrees - gyroscopeAhrs.getYaw() >= 0 : gyroscopeAhrs.getYaw() - degrees >= 0;
     }
 
     /**
@@ -167,10 +167,10 @@ public class Robot extends TimedRobot {
         SmartDashboard.putNumber("Right Motor 1 Pos", rightMotor1.getSelectedSensorPosition());
         SmartDashboard.putNumber("Right Motor 2 Pos", rightMotor2.getSelectedSensorPosition());
 
-        if (ahrs.isConnected()) {
-            SmartDashboard.putNumber("Yaw", ahrs.getYaw());
-            SmartDashboard.putNumber("Pitch", ahrs.getPitch());
-            SmartDashboard.putNumber("Roll", ahrs.getRoll());
+        if (gyroscopeAhrs.isConnected()) {
+            SmartDashboard.putNumber("Yaw", gyroscopeAhrs.getYaw());
+            SmartDashboard.putNumber("Pitch", gyroscopeAhrs.getPitch());
+            SmartDashboard.putNumber("Roll", gyroscopeAhrs.getRoll());
         }
     }
 
@@ -195,7 +195,7 @@ public class Robot extends TimedRobot {
     @Override
     @SuppressWarnings("all") // I'm not wrong, you're wrong. Get rid of squiggly lines from config variables ("dead code", "unused code", "redundant check")
     public void autonomousPeriodic() {
-        if (!ahrs.isConnected()) { // If gyro is not connected, return
+        if (!gyroscopeAhrs.isConnected()) { // If gyro is not connected, return
             System.out.println("[AUTONOMOUS] ERROR: Gyro is not connected!");
             return;
         }
@@ -219,7 +219,7 @@ public class Robot extends TimedRobot {
                 state = -1; // Error State
             }
         } else if (state == 0) { // Initialization
-            ahrs.zeroYaw();
+            gyroscopeAhrs.zeroYaw();
             state = 1; // Done Initializing
         } else if (state == 1) { // Moving Forward to Charging Station
             if (!waiting) {
@@ -227,7 +227,7 @@ public class Robot extends TimedRobot {
                 waiting = true;
             }
             if (curTime - lastRunTime >= autonomousFloorCheckInterval) {
-                double pitchDegrees = (useRoll) ? ahrs.getRoll() : ahrs.getPitch();
+                double pitchDegrees = (useRoll) ? gyroscopeAhrs.getRoll() : gyroscopeAhrs.getPitch();
                 lastRunTime = curTime;
                 if (onFloorMin > pitchDegrees || pitchDegrees > onFloorMax) {
                     if (debugMode) System.out.printf("Pitch OUT of floor range (%f out of %f-%f)%n", pitchDegrees, onFloorMin, onFloorMax);
@@ -243,7 +243,7 @@ public class Robot extends TimedRobot {
                 waiting = true;
             }
             if (curTime - lastRunTime >= autonomousDockCheckInterval) {
-                double pitchDegrees = (useRoll) ? ahrs.getRoll() : ahrs.getPitch();
+                double pitchDegrees = (useRoll) ? gyroscopeAhrs.getRoll() : gyroscopeAhrs.getPitch();
                 boolean condition = false;
                 lastRunTime = curTime;
                 if (autonomousMode == 0) { // Mini Bang Bang w/ Constant
@@ -268,7 +268,7 @@ public class Robot extends TimedRobot {
     @Override
     public void teleopInit() {
         if (debugMode) {
-            ahrs.zeroYaw();
+            gyroscopeAhrs.zeroYaw();
             System.out.println("Teleoperator Mode Initialized, set gyro to zero Yaw");
         }
         lastDebugOutputTime = 0;
@@ -286,8 +286,8 @@ public class Robot extends TimedRobot {
         long curTime = System.currentTimeMillis();
 
         // DRIVE
-        double stickLeft = -joystick.getRawAxis(1);
-        double stickRight = joystick.getRawAxis(3);
+        double stickLeft = -controller.getRawAxis(1);
+        double stickRight = controller.getRawAxis(3);
         if (stickLeft > 0.05 && stickRight < 0.05 || stickLeft < 0.05 && stickRight > 0.05) { // no movement is ~+-0.007, not absolute zero
             setLeftMotorSpeed(stickLeft * ((offsetOverride) ? 1 : teleopMoveScale));
             setRightMotorSpeed(stickRight * ((offsetOverride) ? 1 : teleopMoveScale));
@@ -304,12 +304,12 @@ public class Robot extends TimedRobot {
                     armTransition = false;
             } else {
                 // L2 - Low
-                if (joystick.getRawButtonPressed(7) && armPos != 1) {
+                if (controller.getRawButtonPressed(7) && armPos != 1) {
                     armTransition = true;
                     armPos = 0;
                 }
                 // L1 - High
-                else if (joystick.getRawButtonPressed(5) && armPos != 2) {
+                else if (controller.getRawButtonPressed(5) && armPos != 2) {
                     armTransition = true;
                     armPos = 1;
                 }
@@ -321,7 +321,7 @@ public class Robot extends TimedRobot {
         if (armPos == 1 && !armTransition && curTime - lastArmCheckTime >= armMaintainCheckInterval) // Maintain High
             setArmMotorSpeed(armMaintainSpeed);
         // X - Manual Override/Motor Control
-        if (joystick.getRawButton(1)) {
+        if (controller.getRawButton(1)) {
             // Arm position is no longer known, do not allow automatic movement
             if (debugMode && armPos != -1) System.out.println("Arm Manual Override Activated - Auto Movement Disabled");
             armPos = -1;
@@ -329,16 +329,16 @@ public class Robot extends TimedRobot {
         } else if (armPos == -1)
             setArmMotorSpeed(0);
         // A - Reset Arm Position (also disables manual override) - only use if arm is at the bottom (low)
-        if (joystick.getRawButtonPressed(2)) {
+        if (controller.getRawButtonPressed(2)) {
             setArmMotorSpeed(0);
             armPos = 0;
             if (debugMode) System.out.println("Arm Position Reset - Auto Movement Enabled");
         }
         // R2 - Speed Offset Manual Override
-        if (joystick.getRawButtonPressed(8)) {
+        if (controller.getRawButtonPressed(8)) {
             offsetOverride = true;
             if (debugMode) System.out.println("Speed Offset Manual Override Activated");
-        } else if (joystick.getRawButtonReleased(8)) {
+        } else if (controller.getRawButtonReleased(8)) {
             offsetOverride = false;
             if (debugMode) System.out.println("Speed Offset Manual Override Deactivated");
         }
@@ -347,7 +347,7 @@ public class Robot extends TimedRobot {
         if (debugMode && curTime - lastDebugOutputTime >= lastDebugOutputTime) {
             System.out.printf(
                 "===%nPitch: %f%nYaw: %f%nRoll: %f%nController Left: %f%nController Right: %f%n",
-                ahrs.getPitch(), ahrs.getYaw(), ahrs.getRoll(), stickLeft, stickRight
+                gyroscopeAhrs.getPitch(), gyroscopeAhrs.getYaw(), gyroscopeAhrs.getRoll(), stickLeft, stickRight
             );
             lastDebugOutputTime = curTime;
         }
