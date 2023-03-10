@@ -54,9 +54,9 @@ public class Robot extends TimedRobot {
     AnalogInput ultrasonic = new AnalogInput(0);
 
     // Configuration Variables
-    final int startPosOverride = -2; // -2 = None; -1 = Left; 0 = Center; 1 = Right
-    final int initialState = 0; // Initial state when autonomous is enabled (used for debugging usually)
-    final int autonomousMode = 0; // Mode to use for autonomous docking, 0 = Range Determination, 1 = Decrease Determination, 2 = PID/Forward Back, 3 = Timing, 4 = High Threshold Determination
+    final int startPosOverride = 0; // -2 = None; -1 = Left; 0 = Center; 1 = Right
+    final int initialState = 6; // Initial state when autonomous is enabled (used for debugging usually)
+    final int autonomousMode = 2; // Mode to use for autonomous docking, 0 = Range Determination, 1 = Decrease Determination, 2 = PID/Forward Back, 3 = Timing, 4 = High Threshold Determination
     final int turnRadius = 75; // Amount to turn when trying to do a 90 degree turn. Generally to account for drift.
     final double teleopMoveScale = 0.7; // Percent to scale the controller input by when moving (forward or backward)
     final double teleopTurnScale = 0.5; // Percent to scale the controller input by when turning (controllers aren't in same direction [0 is considered no direction])
@@ -72,14 +72,15 @@ public class Robot extends TimedRobot {
     final double timeToNonCommunity = 3000; // Time in milliseconds to drive from spawn point out of the community, for dumb autonomous
     final double armTurnSpeed = -0.2; // Speed to turn the arm at when turning the arm
     final double armManualOverrideSpeed = -0.2; // Speed to turn the arm at when manually overriding the arm
-    final double autonomousMoveSpeed = 0.4; // Speed to move at normally while in automous
-    final double autonomousTurnSpeed = 0.3; // Speed to turn at while in autonomous mode
-    final double autonomousDockSpeed = 0.35; // Speed to move forward while attempting to dock
+    final double autonomousMoveSpeed = 0.2; // Speed to move at normally while in automous
+    final double autonomousTurnSpeed = 0.2; // Speed to turn at while in autonomous mode
+    final double autonomousDockSpeed = 0.3; // Speed to move forward while attempting to dock
     final long autonomousPostDriveDelay = 500; // Delay (in milliseconds) after driving to the center, so we don't carry energy into the turn and overshoot it.
     final long autonomousTurnCheckInterval = 25; // Interval to check gyro while turning
     final long autonomousFloorCheckInterval = 100; // Interval to check gryo at to determine if we're at the docking station (in milliseconds)
     final long autonomousDockCheckInterval = 0; // Interval to check gyro at while attempting to dock (in milliseconds)
     final long armMaintainCheckInterval = 750; // Interval to check arm position while maintaining the middle arm position (in milliseconds)
+    final long debugOutputPrintInterval = 500; // Interval to print debug output (in milliseconds)
     final boolean useRoll = true; // Whether to use roll instead of pitch for pitch related operations
     final boolean debugMode = false; // Debug mode is used to print certain values used for debugging purposes.
     final boolean enableCompressor = true; // Whether to enable the compressor or not
@@ -235,7 +236,10 @@ public class Robot extends TimedRobot {
     @SuppressWarnings("all") // I'm not wrong, you're wrong. Get rid of squiggly lines from config variables ("dead code", "unused code", "redundant check")
     public void autonomousPeriodic() {
         if (!ahrs.isConnected()) return; // If gyro is not connected, return
-        if (debugMode) System.out.printf("Current Autonomous State: %d%n", state);
+        if (debugMode && System.currentTimeMillis() - lastDebugOutputTime >= debugOutputPrintInterval) {
+            System.out.printf("Current Autonomous State: %d%n", state);
+            lastDebugOutputTime = System.currentTimeMillis();
+        }
 
         long curTime = System.currentTimeMillis();
 
@@ -343,8 +347,10 @@ public class Robot extends TimedRobot {
                         condition = true;
                     } else lastPitchDegrees = pitchDegrees;
                 } else if (autonomousMode == 2) {
-                    setMotorSpeedCorrected(pitchDegrees * autonomousDockSpeed * 0.5);
-                    condition = dockedMin <= pitchDegrees && pitchDegrees <= dockedMax;
+                    final double motorSpeed = pitchDegrees * autonomousDockSpeed * 0.038;
+                    setMotorSpeedCorrected(motorSpeed);
+                    if (debugMode) System.out.printf("Docking Speed: %f%nPitch: %f%n", motorSpeed, pitchDegrees);
+                    // Bang Bang control does not end, even when it's balanced (in case of shift/edge).
                 } else if (autonomousMode == 3) {
                     condition = curTime - dockingStartTime >= timeToDock;
                 } else if (autonomousMode == 4) {
@@ -453,7 +459,7 @@ public class Robot extends TimedRobot {
             rightGearBox.toggle();
 
         // DEBUG
-        if (debugMode && curTime - lastDebugOutputTime >= 500) {
+        if (debugMode && curTime - lastDebugOutputTime >= lastDebugOutputTime) {
             System.out.printf(
                 "===%nPitch: %f%nYaw: %f%nRoll: %f%nUltrasonic Raw: %d%nUltrasonic Parsed: %f%nController Left: %f%nController Right: %f%n",
                 ahrs.getPitch(), ahrs.getYaw(), ahrs.getRoll(), ultrasonic.getValue(), getUltrasonicDistance(ultrasonic.getValue()), stickLeft, stickRight
