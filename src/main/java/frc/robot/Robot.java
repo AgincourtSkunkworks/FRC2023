@@ -8,8 +8,6 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.kauailabs.navx.frc.AHRS;
-import com.revrobotics.CANSparkMax;
-import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.Joystick;
@@ -28,11 +26,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Robot extends TimedRobot {
     // Initialize objects
-    TalonFX rightMotor1 = new TalonFX(12);
-    TalonFX rightMotor2 = new TalonFX(13);
-    TalonFX leftMotor1 = new TalonFX(14);
-    TalonFX leftMotor2 = new TalonFX(15);
-    CANSparkMax armMotor = new CANSparkMax(7, MotorType.kBrushed);
+    TalonFX rightMotor1 = new TalonFX(14);
+    TalonFX rightMotor2 = new TalonFX(15);
+    TalonFX leftMotor1 = new TalonFX(2);
+    TalonFX leftMotor2 = new TalonFX(3);
+    TalonFX armMotor = new TalonFX(0);
     
     TalonFX[] leftMotors = {leftMotor1, leftMotor2};
     TalonFX[] rightMotors = {rightMotor1, rightMotor2};
@@ -300,28 +298,28 @@ public class Robot extends TimedRobot {
 
         // ARM
         // TODO: Redo entire arm control system
-        if (armPos != -1) {
-            if (armTransition) {
-                if (turnArm(armTurnSpeed, armPos, false))
-                    armTransition = false;
-            } else {
-                // L2 - Low
-                if (controller.getRawButtonPressed(7) && armPos != 1) {
-                    armTransition = true;
-                    armPos = 0;
-                }
-                // L1 - High
-                else if (controller.getRawButtonPressed(5) && armPos != 2) {
-                    armTransition = true;
-                    armPos = 1;
-                }
-                if (armTransition) {
-                    turnArm(armTurnSpeed, armPos, true);
-                }
-            }
-        }
-        if (armPos == 1 && !armTransition && curTime - lastArmCheckTime >= armMaintainCheckInterval) // Maintain High
-            setArmMotorSpeed(armMaintainSpeed);
+        // if (armPos != -1) {
+        //     if (armTransition) {
+        //         if (turnArm(armTurnSpeed, armPos, false))
+        //             armTransition = false;
+        //     } else {
+        //         // L2 - Low
+        //         if (controller.getRawButtonPressed(7) && armPos != 1) {
+        //             armTransition = true;
+        //             armPos = 0;
+        //         }
+        //         // L1 - High
+        //         else if (controller.getRawButtonPressed(5) && armPos != 2) {
+        //             armTransition = true;
+        //             armPos = 1;
+        //         }
+        //         if (armTransition) {
+        //             turnArm(armTurnSpeed, armPos, true);
+        //         }
+        //     }
+        // }
+        // if (armPos == 1 && !armTransition && curTime - lastArmCheckTime >= armMaintainCheckInterval) // Maintain High
+        //     setArmMotorSpeed(armMaintainSpeed);
         // X - Manual Override/Motor Control
         if (controller.getRawButton(1)) {
             // Arm position is no longer known, do not allow automatic movement
