@@ -52,9 +52,9 @@ public class Robot extends TimedRobot {
     final double timeToNonCommunity = 3000; // Time in milliseconds to drive from spawn point out of the community, for dumb autonomous
     final double armTurnSpeed = -0.2; // Speed to turn the arm at when turning the arm
     final double armManualOverrideSpeed = -0.2; // Speed to turn the arm at when manually overriding the arm
-    final double autonomousMoveSpeed = 0.2; // Speed to move at normally while in automous
+    final double autonomousMoveSpeed = 0.24; // Speed to move at normally while in automous
     final double autonomousDockSpeed = 0.3; // Speed to move forward while attempting to dock
-    final double autonomousBangBangConstant = 0.038; // Constant to multiply speed by when using autonomous state 0 (mini bang bang)
+    final double autonomousBangBangConstant = 0.039; // Constant to multiply speed by when using autonomous state 0 (mini bang bang)
     final long autonomousFloorCheckInterval = 100; // Interval to check gryo at to determine if we're at the docking station (in milliseconds)
     final long autonomousDockCheckInterval = 0; // Interval to check gyro at while attempting to dock (in milliseconds)
     final long armMaintainCheckInterval = 750; // Interval to check arm position while maintaining the middle arm position (in milliseconds)
