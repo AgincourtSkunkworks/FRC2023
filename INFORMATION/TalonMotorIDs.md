@@ -1,4 +1,4 @@
 # Motors
-- **Left Drive Motors**: `2`, `3`
-- **Right Drive Motors**: `14`, `15`
-- **Arm Motor**: `0`
+- **Left Drive Motors**: `12`, `13`
+- **Right Drive Motors**: `0`, `1`
+- **Arm Motor**: `15`

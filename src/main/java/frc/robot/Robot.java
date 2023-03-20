@@ -26,11 +26,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Robot extends TimedRobot {
     // Initialize objects
-    TalonFX rightMotor1 = new TalonFX(14);
-    TalonFX rightMotor2 = new TalonFX(15);
-    TalonFX leftMotor1 = new TalonFX(2);
-    TalonFX leftMotor2 = new TalonFX(3);
-    TalonFX armMotor = new TalonFX(0);
+    TalonFX rightMotor1 = new TalonFX(0);
+    TalonFX rightMotor2 = new TalonFX(1);
+    TalonFX leftMotor1 = new TalonFX(12);
+    TalonFX leftMotor2 = new TalonFX(13);
+    TalonFX armMotor = new TalonFX(15);
     
     TalonFX[] leftMotors = {leftMotor1, leftMotor2};
     TalonFX[] rightMotors = {rightMotor1, rightMotor2};
