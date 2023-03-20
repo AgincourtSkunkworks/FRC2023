@@ -96,7 +96,7 @@ public class Robot extends TimedRobot {
      * @param speed Percent of maximum motor speed (1 being max)
      */
     private void setArmMotorSpeed(double speed) {
-        armMotor.set(speed);
+        armMotor.set(ControlMode.PercentOutput, speed);
     }
 
     /**
