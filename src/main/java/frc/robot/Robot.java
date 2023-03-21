@@ -50,13 +50,14 @@ public class Robot extends TimedRobot {
     final double onFloorMin = -3; // Pitch degrees to be considered on floor
     final double onFloorMax = 3; // Pitch degrees to be considered on floor
     final double timeToNonCommunity = 3000; // Time in milliseconds to drive from spawn point out of the community, for dumb autonomous
-    final double armTurnSpeed = -0.2; // Speed to turn the arm at when turning the arm
-    final double armManualOverrideSpeed = -0.2; // Speed to turn the arm at when manually overriding the arm
+    final double armTurnSpeed = 0.2; // Speed to turn the arm at when turning the arm
+    final double armPosTolerance = 500; // Tolerance for the arm position to be considered at the correct position
+    final double armManualOverrideSpeed = 0.2; // Speed to turn the arm at when manually overriding the arm
     final double autonomousMoveSpeed = 0.24; // Speed to move at normally while in automous
     final double autonomousDockSpeed = 0.3; // Speed to move forward while attempting to dock
     final double autonomousBangBangConstant = 0.039; // Constant to multiply speed by when using autonomous state 0 (mini bang bang)
-    final double armPosLimit = 50000; // Limit for the arm position motor in which it is considered too high and will shut itself off
-    final double[] armPosVals = {}; // Array of arm positions to use (up to 3, ordered by low to high)
+    final double armPosLimit = 19196; // Limit for the arm position motor in which it is considered too high and will shut itself off
+    final double[] armPosVals = {1, 7520, 14706}; // Array of arm positions to use (up to 3, ordered by low to high)
     final long autonomousFloorCheckInterval = 100; // Interval to check gryo at to determine if we're at the docking station (in milliseconds)
     final long autonomousDockCheckInterval = 0; // Interval to check gyro at while attempting to dock (in milliseconds)
     final long armMaintainCheckInterval = 750; // Interval to check arm position while maintaining the middle arm position (in milliseconds)
@@ -67,9 +68,9 @@ public class Robot extends TimedRobot {
 
     // Runtime Variables
     int state, startPos, armPosIndex;
-    double pitchDegrees, armMaintainSpeed;
+    double pitchDegrees, armMaintainSpeed, initialArmPos;
     long lastRunTime, lastDebugOutputTime, lastArmCheckTime, dockingStartTime;
-    boolean waiting, armTransition, lastUpper, offsetOverride;
+    boolean waiting, lastUpper, offsetOverride;
 
     /**
      * Set Left Motor Speeds
@@ -159,6 +160,7 @@ public class Robot extends TimedRobot {
         for (TalonFX motor : motors)
             motor.setNeutralMode(NeutralMode.Brake);
         armMotor.setNeutralMode(NeutralMode.Brake);
+        initialArmPos = armMotor.getSelectedSensorPosition();
         CameraServer.startAutomaticCapture(); // Start the webcam
     }
 
@@ -277,7 +279,6 @@ public class Robot extends TimedRobot {
         lastDebugOutputTime = 0;
 
         armPosIndex = 0;
-        armTransition = false;
         offsetOverride = false;
         setMotorSpeedCorrected(0);
     }
@@ -286,6 +287,7 @@ public class Robot extends TimedRobot {
     @SuppressWarnings("unused") // I'm not wrong, you're wrong. Get rid of squiggly lines from config variables ("dead code", "unused code", "redundant check")
     public void teleopPeriodic() {
         long curTime = System.currentTimeMillis();
+        double armCurPos = armMotor.getSelectedSensorPosition() - initialArmPos;
 
         // DRIVE
         double stickLeft = -controller.getRawAxis(1);
@@ -303,33 +305,15 @@ public class Robot extends TimedRobot {
                 || armTurnSpeed > 0 && armMotor.getSelectedSensorPosition() >= armPosLimit) { // Fail-safe hard limit
             armMotor.set(ControlMode.PercentOutput, 0);
         }
-        // TODO: Redo entire arm control system
-        // if (armPos != -1) {
-        //     if (armTransition) {
-        //         if (turnArm(armTurnSpeed, armPos, false))
-        //             armTransition = false;
-        //     } else {
-        //         // L2 - Low
-        //         if (controller.getRawButtonPressed(7) && armPos != 1) {
-        //             armTransition = true;
-        //             armPos = 0;
-        //         }
-        //         // L1 - High
-        //         else if (controller.getRawButtonPressed(5) && armPos != 2) {
-        //             armTransition = true;
-        //             armPos = 1;
-        //         }
-        //         if (armTransition) {
-        //             turnArm(armTurnSpeed, armPos, true);
-        //         }
-        //     }
-        // }
-        // if (armPos == 1 && !armTransition && curTime - lastArmCheckTime >= armMaintainCheckInterval) // Maintain High
-        //     setArmMotorSpeed(armMaintainSpeed);
-        // X - Manual Override/Motor Control
         if (armPosIndex != -1) {
             try {
-                armMotor.set(ControlMode.Position, armPosVals[armPosIndex]);
+                double targetPos = armPosVals[armPosIndex];
+                if (armCurPos < targetPos - armPosTolerance)
+                    armMotor.set(ControlMode.PercentOutput, armTurnSpeed);
+                else if (armCurPos > targetPos + armPosTolerance)
+                    armMotor.set(ControlMode.PercentOutput, -armTurnSpeed);
+                else
+                    armMotor.set(ControlMode.PercentOutput, 0);
             } catch (ArrayIndexOutOfBoundsException e) {
                 System.out.println("Arm Position Index Out of Bounds");
                 armMotor.set(ControlMode.PercentOutput, 0);
