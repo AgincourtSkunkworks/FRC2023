@@ -55,6 +55,8 @@ public class Robot extends TimedRobot {
     final double autonomousMoveSpeed = 0.24; // Speed to move at normally while in automous
     final double autonomousDockSpeed = 0.3; // Speed to move forward while attempting to dock
     final double autonomousBangBangConstant = 0.039; // Constant to multiply speed by when using autonomous state 0 (mini bang bang)
+    final double armPosLimit = 50000; // Limit for the arm position motor in which it is considered too high and will shut itself off
+    final double[] armPosVals = {}; // Array of arm positions to use (up to 3, ordered by low to high)
     final long autonomousFloorCheckInterval = 100; // Interval to check gryo at to determine if we're at the docking station (in milliseconds)
     final long autonomousDockCheckInterval = 0; // Interval to check gyro at while attempting to dock (in milliseconds)
     final long armMaintainCheckInterval = 750; // Interval to check arm position while maintaining the middle arm position (in milliseconds)
@@ -64,7 +66,7 @@ public class Robot extends TimedRobot {
     final boolean debugMode = false; // Debug mode is used to print certain values used for debugging purposes.
 
     // Runtime Variables
-    int state, startPos, armPos;
+    int state, startPos, armPosIndex;
     double pitchDegrees, armMaintainSpeed;
     long lastRunTime, lastDebugOutputTime, lastArmCheckTime, dockingStartTime;
     boolean waiting, armTransition, lastUpper, offsetOverride;
@@ -156,6 +158,7 @@ public class Robot extends TimedRobot {
     public void robotInit() {
         for (TalonFX motor : motors)
             motor.setNeutralMode(NeutralMode.Brake);
+        armMotor.setNeutralMode(NeutralMode.Brake);
         CameraServer.startAutomaticCapture(); // Start the webcam
     }
 
@@ -273,8 +276,7 @@ public class Robot extends TimedRobot {
         }
         lastDebugOutputTime = 0;
 
-        // 0 = Lowered, 1 = Raised, -1 = Unknown
-        armPos = 0;
+        armPosIndex = 0;
         armTransition = false;
         offsetOverride = false;
         setMotorSpeedCorrected(0);
@@ -297,6 +299,10 @@ public class Robot extends TimedRobot {
         }
 
         // ARM
+        if (armTurnSpeed < 0 && armMotor.getSelectedSensorPosition() <= armPosLimit 
+                || armTurnSpeed > 0 && armMotor.getSelectedSensorPosition() >= armPosLimit) { // Fail-safe hard limit
+            armMotor.set(ControlMode.PercentOutput, 0);
+        }
         // TODO: Redo entire arm control system
         // if (armPos != -1) {
         //     if (armTransition) {
@@ -321,19 +327,23 @@ public class Robot extends TimedRobot {
         // if (armPos == 1 && !armTransition && curTime - lastArmCheckTime >= armMaintainCheckInterval) // Maintain High
         //     setArmMotorSpeed(armMaintainSpeed);
         // X - Manual Override/Motor Control
-        if (controller.getRawButton(1)) {
-            // Arm position is no longer known, do not allow automatic movement
-            if (debugMode && armPos != -1) System.out.println("Arm Manual Override Activated - Auto Movement Disabled");
-            armPos = -1;
-            setArmMotorSpeed(armManualOverrideSpeed);
-        } else if (armPos == -1)
-            setArmMotorSpeed(0);
-        // A - Reset Arm Position (also disables manual override) - only use if arm is at the bottom (low)
-        if (controller.getRawButtonPressed(2)) {
-            setArmMotorSpeed(0);
-            armPos = 0;
-            if (debugMode) System.out.println("Arm Position Reset - Auto Movement Enabled");
+        if (armPosIndex != -1) {
+            try {
+                armMotor.set(ControlMode.Position, armPosVals[armPosIndex]);
+            } catch (ArrayIndexOutOfBoundsException e) {
+                System.out.println("Arm Position Index Out of Bounds");
+                armMotor.set(ControlMode.PercentOutput, 0);
+                armPosIndex = -1;
+            }
         }
+        if (controller.getRawButtonPressed(2)) // A - Lowest
+            armPosIndex = 0;
+        else if (controller.getRawButtonPressed(3)) // B - Middle
+            armPosIndex = 1;
+        else if (controller.getRawButtonPressed(4)) // Y - Highest
+            armPosIndex = 2;
+        if (controller.getRawButton(1)) // X - Manual Override/Motor Control
+            armMotor.set(ControlMode.PercentOutput, armTurnSpeed);
         // R2 - Speed Offset Manual Override
         if (controller.getRawButtonPressed(8)) {
             offsetOverride = true;
@@ -346,8 +356,8 @@ public class Robot extends TimedRobot {
         // DEBUG
         if (debugMode && curTime - lastDebugOutputTime >= lastDebugOutputTime) {
             System.out.printf(
-                "===%nPitch: %f%nYaw: %f%nRoll: %f%nController Left: %f%nController Right: %f%n",
-                gyroscopeAhrs.getPitch(), gyroscopeAhrs.getYaw(), gyroscopeAhrs.getRoll(), stickLeft, stickRight
+                "===%nPitch: %f%nYaw: %f%nRoll: %f%nController Left: %f%nController Right: %f%nArm Motor Pos: %f%n",
+                gyroscopeAhrs.getPitch(), gyroscopeAhrs.getYaw(), gyroscopeAhrs.getRoll(), stickLeft, stickRight, armMotor.getSelectedSensorPosition()
             );
             lastDebugOutputTime = curTime;
         }
