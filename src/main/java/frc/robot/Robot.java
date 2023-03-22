@@ -13,6 +13,7 @@ import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 
@@ -39,36 +40,48 @@ public class Robot extends TimedRobot {
     Joystick controller = new Joystick(0);
     AHRS gyroscopeAhrs = new AHRS(SPI.Port.kMXP);
 
-    // Configuration Variables
-    final int initialState = 0; // Initial state when autonomous is enabled (used for debugging usually)
-    final int turnRadius = 90; // Amount to turn when trying to do a 90 degree turn. Generally to account for drift.
-    final double teleopMoveScale = 0.7; // Percent to scale the controller input by when moving (forward or backward)
-    final double teleopTurnScale = 0.5; // Percent to scale the controller input by when turning (controllers aren't in same direction [0 is considered no direction])
+    // ? Configuration Variables
+    // * GENERAL
     final double leftMotorSpeedOffset = 0; // Percent offset (0-1) for left motor speed (to ensure that it can drive straight)
     final double rightMotorSpeedOffset = 0; // Percent offset (0-1) for right motor speed (to ensure that it can drive straight)
-    final double onFloorMin = -3; // Pitch degrees to be considered on floor
-    final double onFloorMax = 3; // Pitch degrees to be considered on floor
-    final double timeToNonCommunity = 3000; // Time in milliseconds to drive from spawn point out of the community, for dumb autonomous
-    final double armTurnSpeed = 0.18; // Speed to turn the arm at when turning the arm
-    final double armPosTolerance = 250; // Tolerance for the arm position to be considered at the correct position
-    final double armManualOverrideSpeed = 0.25; // Speed to turn the arm at when manually overriding the arm
-    final double autonomousMoveSpeed = 0.24; // Speed to move at normally while in automous
-    final double autonomousDockSpeed = 0.3; // Speed to move forward while attempting to dock
-    final double autonomousDockPIDk = 0.039; // k value for PID control in autonomous docking
-    final double armPosLimit = 19000; // Limit for the arm position motor in which it is considered too high and will shut itself off
-    final double[] armPosVals = {0, 18400}; // Array of arm positions (0 = low, 1 = high)
-    final long autonomousFloorCheckInterval = 100; // Interval to check gryo at to determine if we're at the docking station (in milliseconds)
-    final long autonomousDockCheckInterval = 0; // Interval to check gyro at while attempting to dock (in milliseconds)
-    final long armMaintainCheckInterval = 750; // Interval to check arm position while maintaining the middle arm position (in milliseconds)
-    final long debugOutputPrintInterval = 500; // Interval to print debug output (in milliseconds)
     final boolean useRoll = true; // Whether to use roll instead of pitch for pitch related operations
     final boolean upsideDownGyro = false; // Whether the gyro is upside down vertically (will reverse gyro logic for pitch)
     final boolean debugMode = false; // Debug mode is used to print certain values used for debugging purposes.
 
-    // Runtime Variables
+    // * AUTONOMOUS
+    // Generic
+    final int initialState = 0; // Initial state when autonomous is enabled (used for debugging usually)
+    // Movement
+    final int turnRadius = 90; // Amount to turn when trying to do a 90 degree turn. Generally to account for drift.
+    final double autonomousMoveSpeed = 0.24; // Speed to move at normally while in automous
+    final double autonomousDockSpeed = 0.3; // Speed to move forward while attempting to dock
+    // Movement Control
+    final double autonomousDockPIDk = 0.039; // k value for PID control in autonomous docking
+    // Logic
+    final double onFloorMin = -3; // Pitch degrees to be considered on floor
+    final double onFloorMax = 3; // Pitch degrees to be considered on floor
+    // Timing
+    final double timeToNonCommunity = 3000; // Time in milliseconds to drive from spawn point out of the community, for dumb autonomous
+    final double autonomousFloorCheckInterval = 100; // Interval to check gryo at to determine if we're at the docking station (in milliseconds)
+    final double autonomousDockCheckInterval = 0; // Interval to check gyro at while attempting to dock (in milliseconds)
+
+    // * TELEOP
+    // Movement
+    final double teleopMoveScale = 0.7; // Percent to scale the controller input by when moving (forward or backward)
+    final double teleopTurnScale = 0.5; // Percent to scale the controller input by when turning (controllers aren't in same direction [0 is considered no direction])
+    final double armTurnSpeed = 0.18; // Speed to turn the arm at when turning the arm
+    final double armManualOverrideSpeed = 0.25; // Speed to turn the arm at when manually overriding the arm
+    final double[] armPosVals = {0, 18400}; // Array of arm positions (0 = low, 1 = high)
+    // Logic
+    final double armPosTolerance = 250; // Tolerance for the arm position to be considered at the correct position
+    final double armPosLimit = 19000; // Limit for the arm position motor in which it is considered too high and will shut itself off
+    // Timing
+    final double armMaintainCheckInterval = 750; // Interval to check arm position while maintaining the middle arm position (in milliseconds)
+    final double debugOutputPrintInterval = 500; // Interval to print debug output (in milliseconds)
+
+    // ? Runtime Variables
     int autonomousState, armPosIndex;
-    double pitchDegrees, initialArmPos;
-    long lastRunTime, lastDebugOutputTime;
+    double pitchDegrees, initialArmPos, lastRunTime, lastDebugOutputTime;
     boolean waiting, lastUpper, offsetOverride;
 
     /**
@@ -206,12 +219,12 @@ public class Robot extends TimedRobot {
             System.out.println("[AUTONOMOUS] ERROR: Gyro is not connected!");
             return;
         }
-        if (debugMode && System.currentTimeMillis() - lastDebugOutputTime >= debugOutputPrintInterval) {
+        if (debugMode && Timer.getFPGATimestamp() - lastDebugOutputTime >= debugOutputPrintInterval) {
             System.out.printf("Current Autonomous State: %d%n", autonomousState);
-            lastDebugOutputTime = System.currentTimeMillis();
+            lastDebugOutputTime = Timer.getFPGATimestamp();
         }
 
-        long curTime = System.currentTimeMillis();
+        double curTime = Timer.getFPGATimestamp();
         double pitchDegrees = ((useRoll) ? gyroscopeAhrs.getRoll() : gyroscopeAhrs.getPitch()) * (upsideDownGyro ? -1 : 1);
 
         // READ THIS vv
@@ -274,7 +287,7 @@ public class Robot extends TimedRobot {
     @Override
     @SuppressWarnings("unused") // I'm not wrong, you're wrong. Get rid of squiggly lines from config variables ("dead code", "unused code", "redundant check")
     public void teleopPeriodic() {
-        long curTime = System.currentTimeMillis();
+        double curTime = Timer.getFPGATimestamp();
         double armCurPos = armMotor.getSelectedSensorPosition() - initialArmPos;
 
         // DRIVE
