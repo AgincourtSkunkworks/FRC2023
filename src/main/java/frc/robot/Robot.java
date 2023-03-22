@@ -318,12 +318,14 @@ public class Robot extends TimedRobot {
                 armPosIndex = -1;
             }
         }
-        if (controller.getRawButtonPressed(3)) // B - Lowest
+        if (controller.getRawButtonPressed(5)) // L1 - Lowest
             armPosIndex = 0;
-        else if (controller.getRawButtonPressed(4)) // Y - Highest
+        else if (controller.getRawButtonPressed(6)) // L2 - Highest
             armPosIndex = 1;
-        if (controller.getRawButton(1)) // X - Manual Override/Motor Control
+        if (controller.getRawButton(1)) // X - Manual Override Up
             armMotor.set(ControlMode.PercentOutput, armTurnSpeed);
+        else if (controller.getRawButton(4)) // Y - Manual Override Down
+            armMotor.set(ControlMode.PercentOutput, -armTurnSpeed);
         else if (armPosIndex == -1)
             armMotor.set(ControlMode.PercentOutput, 0);
         if (controller.getRawButtonPressed(2)) // A - Reset Arm Low Encoder Pos
