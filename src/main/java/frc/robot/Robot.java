@@ -56,7 +56,9 @@ public class Robot extends TimedRobot {
     final double autonomousMoveSpeed = 0.24; // Speed to move at normally while in automous
     final double autonomousDockSpeed = 0.3; // Speed to move forward while attempting to dock
     // Movement Control
-    final double autonomousDockPIDk = 0.039; // k value for PID control in autonomous docking
+    // TODO: Tune PID values
+    final double autonomousDockPIDk = 0.0117; // k value for PID control in autonomous docking
+    final double autonomousDockPIDi = 0; // i term for PID control in autonomous docking
     // Logic
     final double onFloorMin = -3; // Pitch degrees to be considered on floor
     final double onFloorMax = 3; // Pitch degrees to be considered on floor
@@ -81,7 +83,7 @@ public class Robot extends TimedRobot {
 
     // ? Runtime Variables
     int autonomousState, armPosIndex;
-    double pitchDegrees, initialArmPos, lastRunTime, lastDebugOutputTime;
+    double pitchDegrees, errorSum, initialArmPos, lastRunTime, lastDebugOutputTime;
     boolean waiting, lastUpper, offsetOverride;
 
     /**
@@ -260,12 +262,15 @@ public class Robot extends TimedRobot {
         } else if (autonomousState == 2) { // Dock with Charging Station
             if (!waiting) {
                 setMotorSpeedCorrected(autonomousDockSpeed);
+                errorSum = 0;
                 waiting = true;
             }
             if (curTime - lastRunTime >= autonomousDockCheckInterval) {
-                lastRunTime = curTime;
-                final double motorSpeed = pitchDegrees * autonomousDockSpeed * autonomousDockPIDk;
+                // ! The error in PID is simply the pitch of the robot.
+                errorSum += pitchDegrees * (curTime - lastRunTime);
+                final double motorSpeed = (pitchDegrees * autonomousDockPIDk) + (errorSum * autonomousDockPIDi);
                 setMotorSpeedCorrected(motorSpeed);
+                lastRunTime = curTime;
                 if (debugMode) System.out.printf("Docking Speed: %f%nPitch: %f%n", motorSpeed, pitchDegrees);
             }
         }
