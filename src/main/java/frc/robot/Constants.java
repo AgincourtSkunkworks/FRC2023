@@ -61,8 +61,8 @@ public final class Autonomous {
     }
 }
 
-public final class Teleop {
-    final static double MOVE_SPEED = 0.7; // Percent speed (0-1) for moving the robot
-    final static double TURN_SPEED = 0.5; // Percent speed (0-1) for turning the robot
+public final class TeleOp {
+    final static double MOVE_SCALE = 0.7; // Percent (0-1) to scale speed when moving the robot
+    final static double TURN_SCALE = 0.5; // Percent (0-1) to scale speed when turning the robot
 }
 }

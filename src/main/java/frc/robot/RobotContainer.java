@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.subsystems.*;
+import frc.robot.commands.*;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -19,14 +20,20 @@ import frc.robot.subsystems.*;
  */
 public class RobotContainer {
     private final ArmSubsystem arm = new ArmSubsystem(Constants.ID.ARM);
-    private final DriveSubsystem drive = new DriveSubsystem(Constants.ID.L1, Constants.ID.L2, Constants.ID.R1, Constants.ID.R2, Constants.Drive.LM_INVERSE, Constants.Drive.RM_INVERSE, Constants.Drive.LM_SPEED_OFFSET, Constants.Drive.RM_SPEED_OFFSET);
+    private final DriveSubsystem drive = new DriveSubsystem(
+        Constants.ID.L1, Constants.ID.L2, Constants.ID.R1, Constants.ID.R2, Constants.Drive.LM_INVERSE, 
+        Constants.Drive.RM_INVERSE, Constants.Drive.LM_SPEED_OFFSET, Constants.Drive.RM_SPEED_OFFSET
+    );
     private final Joystick controller = new Joystick(Constants.ID.JOYSTICK);
     private final GyroSubsystem gyro = new GyroSubsystem(Constants.Gyro.USE_ROLL, Constants.Gyro.UPSIDE_DOWN);
 
-    /** The container for the robot. Contains subsystems, OI devices, and commands. */
     public RobotContainer() {
-        // Configure the button bindings
         configureButtonBindings();
+
+        drive.setDefaultCommand(
+            new TeleopDrive(drive, () -> controller.getRawAxis(1), () -> controller.getRawAxis(3),
+            () -> controller.getRawButton(8), Constants.TeleOp.MOVE_SCALE, Constants.TeleOp.TURN_SCALE)
+        );
     }
 
     /**
@@ -44,7 +51,7 @@ public class RobotContainer {
      */
     public Command getAutonomousCommand() {
         return new SequentialCommandGroup(
-            
+
         );
     }
 }
