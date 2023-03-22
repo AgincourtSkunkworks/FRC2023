@@ -57,8 +57,10 @@ public class Robot extends TimedRobot {
     final double autonomousDockSpeed = 0.3; // Speed to move forward while attempting to dock
     // Movement Control
     // TODO: Tune PID values
-    final double autonomousDockPIDk = 0.0117; // k value for PID control in autonomous docking
-    final double autonomousDockPIDi = 0; // i term for PID control in autonomous docking
+    final double autonomousDockPIDk = 0.0117; // k value for PID control in docking
+    final double autonomousDockPIDi = 0; // i term for PID control in docking
+    final double autonomousDockPIDiLimit = 0; // maximum error to add to error sum for PID control in docking
+    final double autonomousDockPIDd = 0; // d term for PID control in docking
     // Logic
     final double onFloorMin = -3; // Pitch degrees to be considered on floor
     final double onFloorMax = 3; // Pitch degrees to be considered on floor
@@ -83,7 +85,7 @@ public class Robot extends TimedRobot {
 
     // ? Runtime Variables
     int autonomousState, armPosIndex;
-    double pitchDegrees, errorSum, initialArmPos, lastRunTime, lastDebugOutputTime;
+    double pitchDegrees, lastPitchDegrees, errorSum, initialArmPos, lastRunTime, lastDebugOutputTime;
     boolean waiting, lastUpper, offsetOverride;
 
     /**
@@ -266,14 +268,19 @@ public class Robot extends TimedRobot {
                 waiting = true;
             }
             if (curTime - lastRunTime >= autonomousDockCheckInterval) {
-                // ! The error in PID is simply the pitch of the robot.
-                errorSum += pitchDegrees * (curTime - lastRunTime);
-                final double motorSpeed = (pitchDegrees * autonomousDockPIDk) + (errorSum * autonomousDockPIDi);
+                // ! The error in PID is simply the pitch of the robot. 
+                //  This works because PID decreases as you get closer to the target (flat, 0), as error is supposed to.
+                final double dt = curTime - lastRunTime;
+                if (Math.abs(pitchDegrees) <= autonomousDockPIDiLimit) errorSum += pitchDegrees * dt;
+                final double pitchRate = (pitchDegrees - lastPitchDegrees) / dt;
+                final double motorSpeed = (pitchDegrees * autonomousDockPIDk) + (errorSum * autonomousDockPIDi) + (pitchRate * autonomousDockPIDd);
                 setMotorSpeedCorrected(motorSpeed);
                 lastRunTime = curTime;
                 if (debugMode) System.out.printf("Docking Speed: %f%nPitch: %f%n", motorSpeed, pitchDegrees);
             }
         }
+
+        lastPitchDegrees = pitchDegrees;
     }
 
     @Override
