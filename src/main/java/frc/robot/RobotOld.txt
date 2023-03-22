@@ -96,11 +96,6 @@ public class RobotOld extends TimedRobot {
      */
     @Override
     public void robotInit() {
-        for (TalonFX motor : motors)
-            motor.setNeutralMode(NeutralMode.Brake);
-        armMotor.setNeutralMode(NeutralMode.Brake);
-        initialArmPos = armMotor.getSelectedSensorPosition();
-        CameraServer.startAutomaticCapture(); // Start the webcam
     }
 
     @Override
@@ -152,24 +147,6 @@ public class RobotOld extends TimedRobot {
                 setMotorSpeedCorrected(0);
                 autonomousState = -1; // Error State
             }
-        } else if (autonomousState == 0) { // Initialization
-            gyroscopeAhrs.zeroYaw();
-            autonomousState = 1; // Done Initializing
-        } else if (autonomousState == 1) { // Moving Forward to Charging Station
-            if (!waiting) {
-                setMotorSpeedCorrected(autonomousMoveSpeed);
-                waiting = true;
-            }
-            if (curTime - lastRunTime >= autonomousFloorCheckInterval) {
-                lastRunTime = curTime;
-                if (onFloorMin > pitchDegrees || pitchDegrees > onFloorMax) {
-                    if (debugMode) System.out.printf("Pitch OUT of floor range (%f out of %f-%f)%n", pitchDegrees, onFloorMin, onFloorMax);
-                    setMotorSpeedCorrected(0);
-                    autonomousState = 2; // Dock with Charging Station
-                    waiting = false;
-                    lastRunTime = 0;
-                } else if (debugMode) System.out.printf("Pitch IN floor range (%f <= %f <= %f)%n", onFloorMin, pitchDegrees, onFloorMax);
-            }
         } else if (autonomousState == 2) { // Dock with Charging Station
             if (!waiting) {
                 setMotorSpeedCorrected(autonomousDockSpeed);
@@ -210,17 +187,6 @@ public class RobotOld extends TimedRobot {
     public void teleopPeriodic() {
         double curTime = Timer.getFPGATimestamp();
         double armCurPos = armMotor.getSelectedSensorPosition() - initialArmPos;
-
-        // DRIVE
-        double stickLeft = -controller.getRawAxis(1);
-        double stickRight = controller.getRawAxis(3);
-        if (stickLeft > 0.05 && stickRight < 0.05 || stickLeft < 0.05 && stickRight > 0.05) { // no movement is ~+-0.007, not absolute zero
-            setLeftMotorSpeed(stickLeft * ((offsetOverride) ? 1 : teleopMoveScale));
-            setRightMotorSpeed(stickRight * ((offsetOverride) ? 1 : teleopMoveScale));
-        } else {
-            setLeftMotorSpeed(stickLeft * ((offsetOverride) ? 1 : teleopTurnScale));
-            setRightMotorSpeed(stickRight * ((offsetOverride) ? 1 : teleopTurnScale));
-        }
 
         // ARM
         if (armPosIndex != -1 && (armTurnSpeed < 0 && armMotor.getSelectedSensorPosition() <= armPosLimit 

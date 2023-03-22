@@ -45,6 +45,11 @@ public class GyroSubsystem extends SubsystemBase {
         return gyroscopeAHRS.getYaw();
     }
 
+    public void zeroYaw() {
+        if (!isReady()) throw new IllegalStateException("Gyro is not ready!");
+        gyroscopeAHRS.zeroYaw();
+    }
+
     @Override
     public void periodic() {
         if (!isReady()) return;
