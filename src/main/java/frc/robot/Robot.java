@@ -68,7 +68,7 @@ public class Robot extends TimedRobot {
 
     // Runtime Variables
     int state, startPos, armPosIndex;
-    double pitchDegrees, armMaintainSpeed, initialArmPos;
+    double pitchDegrees, initialArmPos;
     long lastRunTime, lastDebugOutputTime, lastArmCheckTime, dockingStartTime;
     boolean waiting, lastUpper, offsetOverride;
 
@@ -166,11 +166,14 @@ public class Robot extends TimedRobot {
 
     @Override
     public void robotPeriodic() {
-        // ! FIXME: SmartDashboard numbers are just overlaying each other, instead of replacing like it should
+        // ! FIXME: SmartDashboard numbers are just overlaying each other, instead of replacing like it should. This does not appear to be a code issue.
         SmartDashboard.putNumber("Left Motor 1 Pos", leftMotor1.getSelectedSensorPosition());
         SmartDashboard.putNumber("Left Motor 2 Pos", leftMotor2.getSelectedSensorPosition());
         SmartDashboard.putNumber("Right Motor 1 Pos", rightMotor1.getSelectedSensorPosition());
         SmartDashboard.putNumber("Right Motor 2 Pos", rightMotor2.getSelectedSensorPosition());
+        SmartDashboard.putNumber("Arm Motor Pos Raw", armMotor.getSelectedSensorPosition());
+        SmartDashboard.putNumber("Arm Pos Corrected", armMotor.getSelectedSensorPosition() - initialArmPos);
+
 
         if (gyroscopeAhrs.isConnected()) {
             SmartDashboard.putNumber("Yaw", gyroscopeAhrs.getYaw());
