@@ -50,14 +50,14 @@ public class Robot extends TimedRobot {
     final double onFloorMin = -3; // Pitch degrees to be considered on floor
     final double onFloorMax = 3; // Pitch degrees to be considered on floor
     final double timeToNonCommunity = 3000; // Time in milliseconds to drive from spawn point out of the community, for dumb autonomous
-    final double armTurnSpeed = 0.15; // Speed to turn the arm at when turning the arm
-    final double armPosTolerance = 200; // Tolerance for the arm position to be considered at the correct position
-    final double armManualOverrideSpeed = 0.2; // Speed to turn the arm at when manually overriding the arm
+    final double armTurnSpeed = 0.18; // Speed to turn the arm at when turning the arm
+    final double armPosTolerance = 250; // Tolerance for the arm position to be considered at the correct position
+    final double armManualOverrideSpeed = 0.25; // Speed to turn the arm at when manually overriding the arm
     final double autonomousMoveSpeed = 0.24; // Speed to move at normally while in automous
     final double autonomousDockSpeed = 0.3; // Speed to move forward while attempting to dock
     final double autonomousBangBangConstant = 0.039; // Constant to multiply speed by when using autonomous state 0 (mini bang bang)
-    final double armPosLimit = 18500; // Limit for the arm position motor in which it is considered too high and will shut itself off
-    final double[] armPosVals = {600, 17500}; // Array of arm positions (0 = low, 1 = high)
+    final double armPosLimit = 19000; // Limit for the arm position motor in which it is considered too high and will shut itself off
+    final double[] armPosVals = {0, 18400}; // Array of arm positions (0 = low, 1 = high)
     final long autonomousFloorCheckInterval = 100; // Interval to check gryo at to determine if we're at the docking station (in milliseconds)
     final long autonomousDockCheckInterval = 0; // Interval to check gyro at while attempting to dock (in milliseconds)
     final long armMaintainCheckInterval = 750; // Interval to check arm position while maintaining the middle arm position (in milliseconds)
@@ -301,8 +301,8 @@ public class Robot extends TimedRobot {
         }
 
         // ARM
-        if (armTurnSpeed < 0 && armMotor.getSelectedSensorPosition() <= armPosLimit 
-                || armTurnSpeed > 0 && armMotor.getSelectedSensorPosition() >= armPosLimit) { // Fail-safe hard limit
+        if (armPosIndex != -1 && (armTurnSpeed < 0 && armMotor.getSelectedSensorPosition() <= armPosLimit 
+                || armTurnSpeed > 0 && armMotor.getSelectedSensorPosition() >= armPosLimit)) { // Fail-safe hard limit
             armMotor.set(ControlMode.PercentOutput, 0);
         }
         if (armPosIndex != -1) {
@@ -310,8 +310,6 @@ public class Robot extends TimedRobot {
                 double targetPos = armPosVals[armPosIndex];
                 if (armCurPos < targetPos - armPosTolerance)
                     armMotor.set(ControlMode.PercentOutput, armTurnSpeed);
-                else if (armCurPos > targetPos + armPosTolerance)
-                    armMotor.set(ControlMode.PercentOutput, -armTurnSpeed);
                 else
                     armMotor.set(ControlMode.PercentOutput, 0);
             } catch (ArrayIndexOutOfBoundsException e) {
@@ -326,6 +324,8 @@ public class Robot extends TimedRobot {
             armPosIndex = 1;
         if (controller.getRawButton(1)) // X - Manual Override/Motor Control
             armMotor.set(ControlMode.PercentOutput, armTurnSpeed);
+        else if (armPosIndex == -1)
+            armMotor.set(ControlMode.PercentOutput, 0);
         if (controller.getRawButtonPressed(2)) // A - Reset Arm Low Encoder Pos
             initialArmPos = armMotor.getSelectedSensorPosition();
         // R2 - Speed Offset Manual Override
