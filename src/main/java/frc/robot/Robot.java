@@ -41,7 +41,6 @@ public class Robot extends TimedRobot {
 
     // Configuration Variables
     final int initialState = 0; // Initial state when autonomous is enabled (used for debugging usually)
-    final int autonomousMode = 0; // Mode to use for autonomous docking, 0 = Mini Bang Bang w/ Constant, 1 = PID
     final int turnRadius = 90; // Amount to turn when trying to do a 90 degree turn. Generally to account for drift.
     final double teleopMoveScale = 0.7; // Percent to scale the controller input by when moving (forward or backward)
     final double teleopTurnScale = 0.5; // Percent to scale the controller input by when turning (controllers aren't in same direction [0 is considered no direction])
@@ -55,7 +54,7 @@ public class Robot extends TimedRobot {
     final double armManualOverrideSpeed = 0.25; // Speed to turn the arm at when manually overriding the arm
     final double autonomousMoveSpeed = 0.24; // Speed to move at normally while in automous
     final double autonomousDockSpeed = 0.3; // Speed to move forward while attempting to dock
-    final double autonomousBangBangConstant = 0.039; // Constant to multiply speed by when using autonomous state 0 (mini bang bang)
+    final double autonomousDockPIDk = 0.039; // k value for PID control in autonomous docking
     final double armPosLimit = 19000; // Limit for the arm position motor in which it is considered too high and will shut itself off
     final double[] armPosVals = {0, 18400}; // Array of arm positions (0 = low, 1 = high)
     final long autonomousFloorCheckInterval = 100; // Interval to check gryo at to determine if we're at the docking station (in milliseconds)
@@ -67,9 +66,9 @@ public class Robot extends TimedRobot {
     final boolean debugMode = false; // Debug mode is used to print certain values used for debugging purposes.
 
     // Runtime Variables
-    int state, startPos, armPosIndex;
+    int autonomousState, armPosIndex;
     double pitchDegrees, initialArmPos;
-    long lastRunTime, lastDebugOutputTime, lastArmCheckTime, dockingStartTime;
+    long lastRunTime, lastDebugOutputTime;
     boolean waiting, lastUpper, offsetOverride;
 
     /**
@@ -193,7 +192,7 @@ public class Robot extends TimedRobot {
          * -1 - Error State
          * -2 - "Dumb" Autonomous (move forward out of community and gain a few points)
          */
-        state = initialState;
+        autonomousState = initialState;
         lastRunTime = 0;
         waiting = false;
         if (debugMode)
@@ -208,67 +207,53 @@ public class Robot extends TimedRobot {
             return;
         }
         if (debugMode && System.currentTimeMillis() - lastDebugOutputTime >= debugOutputPrintInterval) {
-            System.out.printf("Current Autonomous State: %d%n", state);
+            System.out.printf("Current Autonomous State: %d%n", autonomousState);
             lastDebugOutputTime = System.currentTimeMillis();
         }
 
         long curTime = System.currentTimeMillis();
+        double pitchDegrees = ((useRoll) ? gyroscopeAhrs.getRoll() : gyroscopeAhrs.getPitch()) * (upsideDownGyro ? -1 : 1);
 
         // READ THIS vv
         // WARNING: Using a switch statement here causes the god of all confusing bugs to appear. Literally no idea why.
         // READ THIS ^^
-        if (state == -2) { // "Dumb" Autonomous (Budget Points)
+        if (autonomousState == -2) { // "Dumb" Autonomous (Budget Points)
             if (lastRunTime == 0) { // Initial
                 setMotorSpeedCorrected(autonomousMoveSpeed); 
                 lastRunTime = curTime;
             }
             else if (curTime - lastRunTime >= timeToNonCommunity) {
                 setMotorSpeedCorrected(0);
-                state = -1; // Error State
+                autonomousState = -1; // Error State
             }
-        } else if (state == 0) { // Initialization
+        } else if (autonomousState == 0) { // Initialization
             gyroscopeAhrs.zeroYaw();
-            state = 1; // Done Initializing
-        } else if (state == 1) { // Moving Forward to Charging Station
+            autonomousState = 1; // Done Initializing
+        } else if (autonomousState == 1) { // Moving Forward to Charging Station
             if (!waiting) {
                 setMotorSpeedCorrected(autonomousMoveSpeed);
                 waiting = true;
             }
             if (curTime - lastRunTime >= autonomousFloorCheckInterval) {
-                double pitchDegrees = (useRoll) ? gyroscopeAhrs.getRoll() : gyroscopeAhrs.getPitch();
                 lastRunTime = curTime;
                 if (onFloorMin > pitchDegrees || pitchDegrees > onFloorMax) {
                     if (debugMode) System.out.printf("Pitch OUT of floor range (%f out of %f-%f)%n", pitchDegrees, onFloorMin, onFloorMax);
                     setMotorSpeedCorrected(0);
-                    state = 2; // Dock with Charging Station
+                    autonomousState = 2; // Dock with Charging Station
                     waiting = false;
                     lastRunTime = 0;
                 } else if (debugMode) System.out.printf("Pitch IN floor range (%f <= %f <= %f)%n", onFloorMin, pitchDegrees, onFloorMax);
             }
-        } else if (state == 2) { // Dock with Charging Station
+        } else if (autonomousState == 2) { // Dock with Charging Station
             if (!waiting) {
                 setMotorSpeedCorrected(autonomousDockSpeed);
                 waiting = true;
             }
             if (curTime - lastRunTime >= autonomousDockCheckInterval) {
-                double pitchDegrees = (useRoll) ? gyroscopeAhrs.getRoll() : gyroscopeAhrs.getPitch();
-                boolean condition = false;
                 lastRunTime = curTime;
-                if (autonomousMode == 0) { // Mini Bang Bang w/ Constant
-                    final double motorSpeed = pitchDegrees * autonomousDockSpeed * autonomousBangBangConstant * (upsideDownGyro ? -1 : 1);
-                    setMotorSpeedCorrected(motorSpeed);
-                    if (debugMode) System.out.printf("Docking Speed: %f%nPitch: %f%n", motorSpeed, pitchDegrees);
-                    // Bang Bang control does not end, even when it's balanced (in case of shift/edge). So the condition is not changed.
-                } else if (autonomousMode == 1) { // PID
-                    state = -1; // TODO: Implement PID docking control
-                }
-
-                if (condition) {
-                    setMotorSpeedCorrected(0);
-                    state = 3; // Finished docking
-                    waiting = false;
-                    lastRunTime = 0;
-                }
+                final double motorSpeed = pitchDegrees * autonomousDockSpeed * autonomousDockPIDk;
+                setMotorSpeedCorrected(motorSpeed);
+                if (debugMode) System.out.printf("Docking Speed: %f%nPitch: %f%n", motorSpeed, pitchDegrees);
             }
         }
     }
