@@ -147,23 +147,6 @@ public class RobotOld extends TimedRobot {
                 setMotorSpeedCorrected(0);
                 autonomousState = -1; // Error State
             }
-        } else if (autonomousState == 2) { // Dock with Charging Station
-            if (!waiting) {
-                setMotorSpeedCorrected(autonomousDockSpeed);
-                errorSum = 0;
-                waiting = true;
-            }
-            if (curTime - lastRunTime >= autonomousDockCheckInterval) {
-                // ! The error in PID is simply the pitch of the robot. 
-                //  This works because PID decreases as you get closer to the target (flat, 0), as error is supposed to.
-                final double dt = curTime - lastRunTime;
-                if (Math.abs(pitchDegrees) <= autonomousDockPIDiLimit) errorSum += pitchDegrees * dt;
-                final double pitchRate = (pitchDegrees - lastPitchDegrees) / dt;
-                final double motorSpeed = (pitchDegrees * autonomousDockPIDk) + (errorSum * autonomousDockPIDi) + (pitchRate * autonomousDockPIDd);
-                setMotorSpeedCorrected(motorSpeed);
-                lastRunTime = curTime;
-                if (debugMode) System.out.printf("Docking Speed: %f%nPitch: %f%n", motorSpeed, pitchDegrees);
-            }
         }
 
         lastPitchDegrees = pitchDegrees;
