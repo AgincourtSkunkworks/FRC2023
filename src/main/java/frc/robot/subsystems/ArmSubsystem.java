@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class ArmSubsystem extends SubsystemBase {
     TalonFX armMotor;
     double initialPos;
+    private boolean override = false;
 
     /**
      * Creates a new ArmSubsystem with brake mode enabled.
@@ -74,6 +75,38 @@ public class ArmSubsystem extends SubsystemBase {
      */
     public void resetInitialPos() {
         this.initialPos = this.getArmPosRaw();
+    }
+
+    /**
+     * Get whether the arm is currently being manually overridden
+     * 
+     * @return Whether the arm is currently being overridden
+     */
+    public boolean isOverridden() {
+        return override;
+    }
+
+    /**
+     * Set whether the arm is currently being manually overridden
+     * 
+     * @param override Whether the arm is currently being overridden
+     */
+    public void setOverride(boolean override) {
+        this.override = override;
+    }
+
+    /**
+     * Enable override mode on the arm
+     */
+    public void override() {
+        this.setOverride(true);
+    }
+
+    /**
+     * Disable override mode on the arm
+     */
+    public void reenable() {
+        this.setOverride(false);
     }
 
     @Override

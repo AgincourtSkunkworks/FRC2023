@@ -49,6 +49,7 @@ public class ArmPID extends CommandBase {
 
     @Override
     public void execute() {
+        if (arm.isOverridden()) return;
         if (this.failsafe || (failsafeLimit < 0 && arm.getArmPos() <= failsafeLimit)
                 || (failsafeLimit > 0 && arm.getArmPos() >= failsafeLimit)) {
             System.out.println("[ARM] Failsafe Limit Hit! Arm Movement Stopped");
