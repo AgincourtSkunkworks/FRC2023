@@ -18,7 +18,7 @@ public class RobotContainer {
     private final ArmSubsystem arm = new ArmSubsystem(Constants.ID.ARM);
     private final DriveSubsystem drive = new DriveSubsystem(
             Constants.ID.L1, Constants.ID.L2, Constants.ID.R1, Constants.ID.R2, Constants.Drive.LM_INVERSE,
-            Constants.Drive.RM_INVERSE, Constants.Drive.LM_SPEED_OFFSET, Constants.Drive.RM_SPEED_OFFSET);
+            Constants.Drive.RM_INVERSE, Constants.Drive.LM_SPEED_OFFSET, Constants.Drive.RM_SPEED_OFFSET, Constants.Drive.BRAKE_THRESHOLD);
     private final Joystick controller = new Joystick(Constants.ID.JOYSTICK);
     private final GyroSubsystem gyro = new GyroSubsystem(Constants.Gyro.USE_ROLL, Constants.Gyro.UPSIDE_DOWN);
 
