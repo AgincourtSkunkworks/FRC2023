@@ -26,8 +26,8 @@ public class RobotContainer {
         configureButtonBindings();
 
         drive.setDefaultCommand(
-                new TeleopDrive(drive, () -> controller.getRawAxis(Constants.TeleOp.LEFT_DRIVE_STICK),
-                        () -> controller.getRawAxis(Constants.TeleOp.RIGHT_DRIVE_STICK),
+                new TeleopDrive(drive, () -> -controller.getRawAxis(Constants.TeleOp.LEFT_DRIVE_STICK),
+                        () -> -controller.getRawAxis(Constants.TeleOp.RIGHT_DRIVE_STICK),
                         () -> controller.getRawButton(Constants.TeleOp.TURBO_BTN), Constants.TeleOp.MOVE_SCALE,
                         Constants.TeleOp.TURN_SCALE));
         arm.setDefaultCommand(
