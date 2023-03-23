@@ -14,6 +14,14 @@ public class DockPID extends CommandBase {
     double p, i, d, lastRunTime, iTolerance, errorSum, lastError;
     boolean hasITolerance;
 
+    /** Creates a DockPID Command. This command is used to drive until the robot is docked, using PID control.
+     * @param drive The drive subsystem
+     * @param gyro The gyro subsystem
+     * @param p The P value of PID
+     * @param i The I value of PID
+     * @param d The D value of PID
+     * @param iTolerance Under this tolerance, the errorSum will be increased. Set to 0 to disable.
+     */
     public DockPID(DriveSubsystem drive, GyroSubsystem gyro, double p, double i, double d, double iTolerance) {
         addRequirements(drive);
         this.drive = drive;

@@ -23,6 +23,9 @@ public class GyroSubsystem extends SubsystemBase {
         this.upsideDown = upsideDown;
     }
 
+    /** Check if the gyro is ready to be used
+     * @return True if the gyro is ready, false otherwise.
+     */
     public boolean isReady() {
         return gyroscopeAHRS.isConnected();
     }
@@ -45,6 +48,9 @@ public class GyroSubsystem extends SubsystemBase {
         return gyroscopeAHRS.getYaw();
     }
 
+    /**
+     * Set the current yaw value to be the new zero value.
+     */
     public void zeroYaw() {
         if (!isReady()) throw new IllegalStateException("Gyro is not ready!");
         gyroscopeAHRS.zeroYaw();

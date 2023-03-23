@@ -9,13 +9,13 @@ public class ArmBangBang extends CommandBase {
     double target, tolerance, speed, failsafeLimit;
     boolean useSpeedDown, failsafe = true;
 
-    /** Create an ArmBangBang command, which is used to automatically turn the arm with Bang Bang control.
-     * @param arm Arm Subsystem
-     * @param target Target position in raw encoder ticks (assuming 0 is lowest position)
-     * @param tolerance 
-     * @param speed Speed to turn the motor
-     * @param useSpeedDown Whether to use negative speed to go down, otherwise turn off the motor and slowly descend
-     * @param failsafeLimit Hard limit for encoder position to stop all movement at
+    /** Creates a ArmBangBang Command. This command is used to move the arm to a certain position using Bang Bang control.
+     * @param arm The arm subsystem
+     * @param target The target position
+     * @param tolerance The tolerance for the position
+     * @param speed The speed to move at
+     * @param useSpeedDown True to use the speed for moving down, false to disable motors and use gravity
+     * @param failsafeLimit Software limit on arm position to stop all arm movement.
      */
     public ArmBangBang(ArmSubsystem arm, double target, double tolerance, double speed, boolean useSpeedDown, double failsafeLimit) {
         addRequirements(arm);

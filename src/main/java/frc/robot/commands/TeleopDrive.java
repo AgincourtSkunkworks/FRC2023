@@ -12,6 +12,14 @@ public class TeleopDrive extends CommandBase {
     Supplier<Double> lSpeedFunc, rSpeedFunc;
     Supplier<Boolean> offsetOverrideFunc;
 
+    /** Creates a TeleOpDrive Command. This command is used to control the drive in teleop.
+     * @param drive The drive subsystem
+     * @param lSpeedFunc Function to get the speed to set the left motors to
+     * @param rSpeedFunc Function to get the speed to set the right motors to
+     * @param offsetOverrideFunc Function to get whether or not to override the speed scaling
+     * @param driveScale The speed to scale the motors by when driving
+     * @param turnScale The speed to scale the motors by when turning
+     */
     public TeleopDrive(DriveSubsystem drive, Supplier<Double> lSpeedFunc, Supplier<Double> rSpeedFunc, Supplier<Boolean> offsetOverrideFunc, double driveScale, double turnScale) {
         addRequirements(drive);
         this.drive = drive;
@@ -30,12 +38,16 @@ public class TeleopDrive extends CommandBase {
         final double stickLeft = lSpeedFunc.get();
         final double stickRight = rSpeedFunc.get();
         final boolean offsetOverride = offsetOverrideFunc.get();
-        if (stickLeft > 0.05 && stickRight < 0.05 || stickLeft < 0.05 && stickRight > 0.05) { // no movement is ~+-0.007, not absolute zero
-            drive.setLeftMotors(stickLeft * ((offsetOverride) ? 1 : driveScale));
-            drive.setRightMotors(stickRight * ((offsetOverride) ? 1 : driveScale));
+        if (offsetOverride) {
+            drive.setLeftMotors(stickLeft);
+            drive.setRightMotors(stickRight);
+        }
+        else if (stickLeft > 0.05 && stickRight < 0.05 || stickLeft < 0.05 && stickRight > 0.05) { // no movement is ~+-0.007, not absolute zero
+            drive.setLeftMotors(stickLeft * driveScale);
+            drive.setRightMotors(stickRight * driveScale);
         } else {
-            drive.setLeftMotors(stickLeft * ((offsetOverride) ? 1 : turnScale));
-            drive.setRightMotors(stickRight * ((offsetOverride) ? 1 : turnScale));
+            drive.setLeftMotors(stickLeft * turnScale);
+            drive.setRightMotors(stickRight * turnScale);
         }
     }
 

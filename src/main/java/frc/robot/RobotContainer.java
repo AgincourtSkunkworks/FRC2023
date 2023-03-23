@@ -14,6 +14,7 @@ import frc.robot.subsystems.*;
 import frc.robot.commands.*;
 
 public class RobotContainer {
+    // Create required systems
     private final ArmSubsystem arm = new ArmSubsystem(Constants.ID.ARM);
     private final DriveSubsystem drive = new DriveSubsystem(
         Constants.ID.L1, Constants.ID.L2, Constants.ID.R1, Constants.ID.R2, Constants.Drive.LM_INVERSE, 
@@ -38,12 +39,6 @@ public class RobotContainer {
         );
     }
 
-    /**
-     * Use this method to define your button->command mappings. Buttons can be created by
-     * instantiating a {@link GenericHID} or one of its subclasses ({@link
-     * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing it to a {@link
-     * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
-     */
     @SuppressWarnings("all") // false positives from use of config constants
     private void configureButtonBindings() {
         new JoystickButton(controller, Constants.Arm.RESET_BTN).onTrue(
@@ -67,11 +62,6 @@ public class RobotContainer {
         );
     }
 
-    /**
-     * Use this to pass the autonomous command to the main {@link Robot} class.
-     *
-     * @return the command to run in autonomous
-     */
     @SuppressWarnings("all") // false positives from use of config constants
     public Command getAutonomousCommand() {
         switch (Constants.Autonomous.SEQUENCE) {
