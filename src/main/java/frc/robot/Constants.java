@@ -11,9 +11,6 @@ public static enum AutonomousSequence {
     LEAVE_DOCK
 }
 
-public static final boolean DEBUG_MODE = false; // Debug mode is used to print certain values used for debugging purposes.
-public static final double DEBUG_PRINT_INTERVAL = 500; // Interval (in milliseconds) to print debug values
-
 public final static class ID {
     public static final int L1 = 14; // Left Motor 1 ID
     public static final int L2 = 15; // Left Motor 2 ID

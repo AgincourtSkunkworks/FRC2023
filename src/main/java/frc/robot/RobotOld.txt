@@ -201,22 +201,5 @@ public class RobotOld extends TimedRobot {
             armMotor.set(ControlMode.PercentOutput, 0);
         if (controller.getRawButtonPressed(2)) // A - Reset Arm Low Encoder Pos
             initialArmPos = armMotor.getSelectedSensorPosition();
-        // R2 - Speed Offset Manual Override
-        if (controller.getRawButtonPressed(8)) {
-            offsetOverride = true;
-            if (debugMode) System.out.println("Speed Offset Manual Override Activated");
-        } else if (controller.getRawButtonReleased(8)) {
-            offsetOverride = false;
-            if (debugMode) System.out.println("Speed Offset Manual Override Deactivated");
-        }
-
-        // DEBUG
-        if (debugMode && curTime - lastDebugOutputTime >= lastDebugOutputTime) {
-            System.out.printf(
-                "===%nPitch: %f%nYaw: %f%nRoll: %f%nController Left: %f%nController Right: %f%nArm Motor Pos: %f%n",
-                gyroscopeAhrs.getPitch(), gyroscopeAhrs.getYaw(), gyroscopeAhrs.getRoll(), stickLeft, stickRight, armMotor.getSelectedSensorPosition()
-            );
-            lastDebugOutputTime = curTime;
-        }
     }
 }
