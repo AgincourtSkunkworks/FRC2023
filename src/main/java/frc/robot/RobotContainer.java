@@ -54,7 +54,7 @@ public class RobotContainer {
             case DOCK:
                 return new SequentialCommandGroup(
                     Commands.waitUntil(gyro::isReady),
-                    Commands.runOnce(() -> gyro.zeroYaw()),
+                    Commands.runOnce(gyro::zeroYaw),
                     new DriveUntilPitch(drive, gyro, Constants.Autonomous.MOVE_SPEED, 0, 3, true),
                     new DockPID(drive, gyro, Constants.Autonomous.DockPID.P, Constants.Autonomous.DockPID.I, Constants.Autonomous.DockPID.D)
                 );

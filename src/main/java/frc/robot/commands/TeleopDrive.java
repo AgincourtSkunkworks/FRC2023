@@ -10,14 +10,14 @@ public class TeleopDrive extends CommandBase {
     DriveSubsystem drive;
     double driveScale, turnScale;
     Supplier<Double> lSpeedFunc, rSpeedFunc;
-    Supplier<Boolean> offsetOverride;
+    Supplier<Boolean> offsetOverrideFunc;
 
-    public TeleopDrive(DriveSubsystem drive, Supplier<Double> lSpeedFunc, Supplier<Double> rSpeedFunc, Supplier<Boolean> offsetOverride, double driveScale, double turnScale) {
+    public TeleopDrive(DriveSubsystem drive, Supplier<Double> lSpeedFunc, Supplier<Double> rSpeedFunc, Supplier<Boolean> offsetOverrideFunc, double driveScale, double turnScale) {
         addRequirements(drive);
         this.drive = drive;
         this.lSpeedFunc = lSpeedFunc;
         this.rSpeedFunc = rSpeedFunc;
-        this.offsetOverride = offsetOverride;
+        this.offsetOverrideFunc = offsetOverrideFunc;
         this.driveScale = driveScale;
         this.turnScale = turnScale;
     }
@@ -29,12 +29,13 @@ public class TeleopDrive extends CommandBase {
     public void execute() {
         final double stickLeft = lSpeedFunc.get();
         final double stickRight = rSpeedFunc.get();
+        final boolean offsetOverride = offsetOverrideFunc.get();
         if (stickLeft > 0.05 && stickRight < 0.05 || stickLeft < 0.05 && stickRight > 0.05) { // no movement is ~+-0.007, not absolute zero
-            drive.setLeftMotors(stickLeft * ((offsetOverride.get()) ? 1 : driveScale));
-            drive.setRightMotors(stickRight * ((offsetOverride.get()) ? 1 : driveScale));
+            drive.setLeftMotors(stickLeft * ((offsetOverride) ? 1 : driveScale));
+            drive.setRightMotors(stickRight * ((offsetOverride) ? 1 : driveScale));
         } else {
-            drive.setLeftMotors(stickLeft * ((offsetOverride.get()) ? 1 : turnScale));
-            drive.setRightMotors(stickRight * ((offsetOverride.get()) ? 1 : turnScale));
+            drive.setLeftMotors(stickLeft * ((offsetOverride) ? 1 : turnScale));
+            drive.setRightMotors(stickRight * ((offsetOverride) ? 1 : turnScale));
         }
     }
 
