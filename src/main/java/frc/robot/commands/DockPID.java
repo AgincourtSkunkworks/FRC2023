@@ -8,19 +8,18 @@ import frc.robot.subsystems.GyroSubsystem;
 public class DockPID extends PIDCommand {
     private boolean allowFinish;
 
-    public DockPID(DriveSubsystem drive, GyroSubsystem gyro, double target, double k, double i, double d, boolean allowFinish) {
+    public DockPID(DriveSubsystem drive, GyroSubsystem gyro, double p, double i, double d) {
         super(
-            new PIDController(k, i, d),
+            new PIDController(p, i, d),
             gyro::getVAngle,
-            target,
+            0,
             output -> drive.setMotors(output),
             drive
         );
-        this.allowFinish = allowFinish;
     }
 
     @Override
     public boolean isFinished() {
-        return allowFinish && getController().atSetpoint();
+        return false;
     }
 }

@@ -54,7 +54,7 @@ public class RobotContainer {
             Commands.waitUntil(gyro::isReady),
             Commands.runOnce(() -> gyro.zeroYaw()),
             new DriveUntilPitch(drive, gyro, Constants.Autonomous.MOVE_SPEED, 0, 3, true),
-            new DockPID(drive, gyro, 0, Constants.Autonomous.DockPID.D, Constants.Autonomous.DockPID.I, Constants.Autonomous.DockPID.P, Constants.Autonomous.DockPID.CAN_END)
+            new DockPID(drive, gyro, Constants.Autonomous.DockPID.P, Constants.Autonomous.DockPID.I, Constants.Autonomous.DockPID.D)
         );
     }
 }
