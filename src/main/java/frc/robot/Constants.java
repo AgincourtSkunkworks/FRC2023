@@ -70,6 +70,7 @@ public final static class Arm {
 }
 
 public final static class Drive {
+    final static double BRAKE_THRESHOLD = 0.005; // Speed threshold to round to 0 (and thus brake)
     final static double LM_SPEED_OFFSET = 0; // Percent offset (0-1) for left motor speed (to ensure that it can drive straight)
     final static double RM_SPEED_OFFSET = 0; // Percent offset (0-1) for right motor speed (to ensure that it can drive straight)
     final static boolean LM_INVERSE = false; // Whether the left motors are inverted

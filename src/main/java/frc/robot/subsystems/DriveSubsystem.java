@@ -10,7 +10,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class DriveSubsystem extends SubsystemBase {
     TalonFX leftMotor1, leftMotor2, rightMotor1, rightMotor2;
     TalonFX[] leftMotors, rightMotors, motors;
-    double lCorrect, rCorrect;
+    double lCorrect, rCorrect, brakeThreshold;
 
     /**
      * Creates a new DriveSubsystem.
@@ -25,7 +25,7 @@ public class DriveSubsystem extends SubsystemBase {
      * @param rCorrect Percent of speed to add to right motors (0-1)
      */
     public DriveSubsystem(int l1ID, int l2ID, int r1ID, int r2ID, boolean lInvert, boolean rInvert, double lCorrect,
-            double rCorrect) {
+            double rCorrect, double brakeThreshold) {
         leftMotor1 = new TalonFX(l1ID);
         leftMotor2 = new TalonFX(l2ID);
         rightMotor1 = new TalonFX(r1ID);
@@ -37,6 +37,7 @@ public class DriveSubsystem extends SubsystemBase {
 
         this.lCorrect = 1 + lCorrect;
         this.rCorrect = 1 + rCorrect;
+        this.brakeThreshold = brakeThreshold;
 
         for (TalonFX motor : motors)
             motor.setNeutralMode(NeutralMode.Brake);
@@ -55,6 +56,7 @@ public class DriveSubsystem extends SubsystemBase {
      * @param speed Speed to set the motors to (-1 to 1)
      */
     public void setLeftMotors(double speed) {
+        if (speed > 0 && speed < brakeThreshold || speed < 0 && speed > -brakeThreshold) speed = 0;
         for (TalonFX motor : leftMotors)
             motor.set(ControlMode.PercentOutput, speed * lCorrect);
     }
@@ -65,6 +67,7 @@ public class DriveSubsystem extends SubsystemBase {
      * @param speed Speed to set the motors to (-1 to 1)
      */
     public void setRightMotors(double speed) {
+        if (speed > 0 && speed < brakeThreshold || speed < 0 && speed > -brakeThreshold) speed = 0;
         for (TalonFX motor : rightMotors)
             motor.set(ControlMode.PercentOutput, speed * rCorrect);
     }
