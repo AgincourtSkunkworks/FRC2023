@@ -64,6 +64,9 @@ public class RobotContainer {
     @SuppressWarnings("all") // false positives from use of config constants
     public Command getAutonomousCommand() {
         switch (Constants.Autonomous.SEQUENCE) {
+            case LEAVE:
+                return new SequentialCommandGroup(
+                        new DriveForTime(drive, Constants.Autonomous.MOVE_SPEED, Constants.Autonomous.COMM_LEAVE_TIME));
             case DOCK:
                 return new SequentialCommandGroup(
                         Commands.waitUntil(gyro::isReady),

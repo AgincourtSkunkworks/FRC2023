@@ -87,7 +87,7 @@ public final static class Autonomous {
     final static double MOVE_SPEED = 0.24; // Percent speed (0-1) for moving the robot
     final static double TURN_SPEED = 0.3; // Percent speed (0-1) for turning the robot
     final static double FLOOR_ANGLE = 3; // Absolute angle (in degrees) to be considered on the floor
-    final static double COMM_LEAVE_TIME = 3; // Time in seconds that are needed to leave the community area (after passing charging station)
+    final static double COMM_LEAVE_TIME = 2; // Time in seconds that are needed to leave the community area (after passing charging station)
     public final class DockPID {
         // TODO: Tune PID values
         final static double P = 0.0117; // Proportional constant for PID
