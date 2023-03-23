@@ -9,7 +9,7 @@ import frc.robot.subsystems.ArmSubsystem;
 // TODO: Create custom parent class for PID commands
 public class ArmPID extends CommandBase {
     ArmSubsystem arm;
-    double target, p, i, d, lastRunTime, iTolerance, errorSum, lastError, failsafeLimit;
+    double target, p, pD, i, d, lastRunTime, iTolerance, errorSum, lastError, failsafeLimit;
     boolean hasITolerance, failsafe = false;
 
     /**
@@ -19,18 +19,20 @@ public class ArmPID extends CommandBase {
      * @param arm           The arm subsystem
      * @param target        The target position
      * @param p             The P value of PID
+     * @param pD            The P value of PID when the arm is moving down
      * @param i             The I value of PID
      * @param d             The D value of PID
      * @param iTolerance    Under this tolerance, the errorSum will be increased.
      *                      Set to 0 to disable.
      * @param failsafeLimit Software limit on arm position to stop all arm movement.
      */
-    public ArmPID(ArmSubsystem arm, double target, double p, double i, double d, double iTolerance,
+    public ArmPID(ArmSubsystem arm, double target, double p, double pD, double i, double d, double iTolerance,
             double failsafeLimit) {
         addRequirements(arm);
         this.arm = arm;
         this.target = target;
         this.p = p;
+        this.pD = pD;
         this.i = i;
         this.d = d;
         this.iTolerance = iTolerance;
@@ -63,7 +65,7 @@ public class ArmPID extends CommandBase {
         final double errorRate = (error - this.lastError) / dt;
         if (!this.hasITolerance || Math.abs(error) <= this.iTolerance)
             this.errorSum += error * dt;
-        arm.setSpeed((error * this.p) + (errorSum * this.i) + (errorRate * this.d));
+        arm.setSpeed((error * (error > 0 ? this.p : this.pD)) + (errorSum * this.i) + (errorRate * this.d));
         this.lastRunTime = curTime;
         this.lastError = error;
     }

@@ -18,7 +18,8 @@ public class RobotContainer {
     private final ArmSubsystem arm = new ArmSubsystem(Constants.ID.ARM);
     private final DriveSubsystem drive = new DriveSubsystem(
             Constants.ID.L1, Constants.ID.L2, Constants.ID.R1, Constants.ID.R2, Constants.Drive.LM_INVERSE,
-            Constants.Drive.RM_INVERSE, Constants.Drive.LM_SPEED_OFFSET, Constants.Drive.RM_SPEED_OFFSET, Constants.Drive.BRAKE_THRESHOLD);
+            Constants.Drive.RM_INVERSE, Constants.Drive.LM_SPEED_OFFSET, Constants.Drive.RM_SPEED_OFFSET,
+            Constants.Drive.BRAKE_THRESHOLD);
     private final Joystick controller = new Joystick(Constants.ID.JOYSTICK);
     private final GyroSubsystem gyro = new GyroSubsystem(Constants.Gyro.USE_ROLL, Constants.Gyro.UPSIDE_DOWN);
 
@@ -32,7 +33,8 @@ public class RobotContainer {
                         Constants.TeleOp.TURN_SCALE));
         arm.setDefaultCommand(
                 (Constants.Arm.TYPE == Constants.ArmMovement.PID)
-                        ? new ArmPID(arm, Constants.Arm.PS_LOW_POS, Constants.Arm.PID.P, Constants.Arm.PID.I,
+                        ? new ArmPID(arm, Constants.Arm.PS_LOW_POS, Constants.Arm.PID.P, Constants.Arm.PID.P_D,
+                                Constants.Arm.PID.I,
                                 Constants.Arm.PID.D, Constants.Arm.PID.I_TOLERANCE, Constants.Arm.LIMIT)
                         : new ArmBangBang(arm, Constants.Arm.PS_LOW_POS, Constants.Arm.TOLERANCE, Constants.Arm.SPEED,
                                 Constants.Arm.REVERSE_SPEED, Constants.Arm.LIMIT));
@@ -44,18 +46,22 @@ public class RobotContainer {
                 Commands.runOnce(arm::resetInitialPos));
         new JoystickButton(controller, Constants.Arm.OVERRIDE_BTN).onTrue(Commands.runOnce(arm::override)).whileTrue(
                 Commands.startEnd(() -> arm.setSpeed(Constants.Arm.OVERRIDE_SPEED), () -> arm.setSpeed(0), arm));
-        new JoystickButton(controller, Constants.Arm.OVERRIDE_REVERSE_BTN).onTrue(Commands.runOnce(arm::override)).whileTrue(
-                Commands.startEnd(() -> arm.setSpeed(Constants.Arm.OVERRIDE_REVERSE_SPEED), () -> arm.setSpeed(0),
-                        arm));
+        new JoystickButton(controller, Constants.Arm.OVERRIDE_REVERSE_BTN).onTrue(Commands.runOnce(arm::override))
+                .whileTrue(
+                        Commands.startEnd(() -> arm.setSpeed(Constants.Arm.OVERRIDE_REVERSE_SPEED),
+                                () -> arm.setSpeed(0),
+                                arm));
         new JoystickButton(controller, Constants.Arm.PS_LOW_BTN).onTrue(Commands.runOnce(arm::reenable)).onTrue(
                 (Constants.Arm.TYPE == Constants.ArmMovement.PID)
-                        ? new ArmPID(arm, Constants.Arm.PS_LOW_POS, Constants.Arm.PID.P, Constants.Arm.PID.I,
+                        ? new ArmPID(arm, Constants.Arm.PS_LOW_POS, Constants.Arm.PID.P, Constants.Arm.PID.P_D,
+                                Constants.Arm.PID.I,
                                 Constants.Arm.PID.D, Constants.Arm.PID.I_TOLERANCE, Constants.Arm.LIMIT)
                         : new ArmBangBang(arm, Constants.Arm.PS_LOW_POS, Constants.Arm.TOLERANCE, Constants.Arm.SPEED,
                                 Constants.Arm.REVERSE_SPEED, Constants.Arm.LIMIT));
         new JoystickButton(controller, Constants.Arm.PS_HIGH_BTN).onTrue(Commands.runOnce(arm::reenable)).onTrue(
                 (Constants.Arm.TYPE == Constants.ArmMovement.PID)
-                        ? new ArmPID(arm, Constants.Arm.PS_HIGH_POS, Constants.Arm.PID.P, Constants.Arm.PID.I,
+                        ? new ArmPID(arm, Constants.Arm.PS_HIGH_POS, Constants.Arm.PID.P, Constants.Arm.PID.P_D,
+                                Constants.Arm.PID.I,
                                 Constants.Arm.PID.D, Constants.Arm.PID.I_TOLERANCE, Constants.Arm.LIMIT)
                         : new ArmBangBang(arm, Constants.Arm.PS_HIGH_POS, Constants.Arm.TOLERANCE, Constants.Arm.SPEED,
                                 Constants.Arm.REVERSE_SPEED, Constants.Arm.LIMIT));

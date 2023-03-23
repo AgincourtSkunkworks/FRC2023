@@ -62,9 +62,10 @@ public final static class Arm {
     final static ArmMovement TYPE = ArmMovement.PID; // Whether to use bang bang or PID for arm movement
     public final class PID {
         // TODO: Tune PID values
-        final static double P = 0.00003; // Proportional constant for PID
+        final static double P = 0.000035; // Proportional constant for PID
+        final static double P_D = 0; // Proportional constant for PID (when moving down)
         final static double I = 0; // Integral constant for PID
-        final static double D = 0.000001; // Derivative constant for PID
+        final static double D = 0.0000008; // Derivative constant for PID
         final static double I_TOLERANCE = 0; // Tolerance for integral constant for PID (0 to disable)
     }
 }
@@ -91,10 +92,10 @@ public final static class Autonomous {
     final static double COMM_LEAVE_TIME = 2; // Time in seconds that are needed to leave the community area (after passing charging station)
     public final class DockPID {
         // TODO: Tune PID values
-        final static double P = 0.012; // Proportional constant for PID
-        final static double I = 0.006; // Integral constant for PID
-        final static double D = 0.0009; // Derivative constant for PID
-        final static double I_TOLERANCE = 0.9; // Tolerance for integral constant for PID (0 to disable)
+        final static double P = 0.0125; // Proportional constant for PID
+        final static double I = 0.0045; // Integral constant for PID
+        final static double D = 0.0008; // Derivative constant for PID
+        final static double I_TOLERANCE = 1; // Tolerance for integral constant for PID (0 to disable)
     }
 }
 
