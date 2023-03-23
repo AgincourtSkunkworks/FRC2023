@@ -5,6 +5,7 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.Joystick;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -52,7 +53,8 @@ public class RobotContainer {
         return new SequentialCommandGroup(
             Commands.waitUntil(gyro::isReady),
             Commands.runOnce(() -> gyro.zeroYaw()),
-            new DriveUntilPitch(drive, gyro, Constants.Autonomous.MOVE_SPEED, 0, 3, true)
+            new DriveUntilPitch(drive, gyro, Constants.Autonomous.MOVE_SPEED, 0, 3, true),
+            new DockPID(drive, gyro, 0, Constants.Autonomous.DockPID.D, Constants.Autonomous.DockPID.I, Constants.Autonomous.DockPID.P, Constants.Autonomous.DockPID.CAN_END)
         );
     }
 }

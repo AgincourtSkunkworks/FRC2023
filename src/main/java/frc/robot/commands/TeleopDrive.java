@@ -2,6 +2,7 @@ package frc.robot.commands;
 
 import java.util.function.Supplier;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.DriveSubsystem;
 
@@ -22,6 +23,9 @@ public class TeleopDrive extends CommandBase {
     }
 
     @Override
+    public void initialize() {SmartDashboard.putString("Command", "TeleopDrive");}
+
+    @Override
     public void execute() {
         final double stickLeft = lSpeedFunc.get();
         final double stickRight = rSpeedFunc.get();
@@ -32,6 +36,12 @@ public class TeleopDrive extends CommandBase {
             drive.setLeftMotors(stickLeft * ((offsetOverride.get()) ? 1 : turnScale));
             drive.setRightMotors(stickRight * ((offsetOverride.get()) ? 1 : turnScale));
         }
+    }
+
+    @Override
+    public void end(boolean interrupted) {
+        drive.setMotors(0);
+        SmartDashboard.putString("Command", "None");
     }
 
     @Override
