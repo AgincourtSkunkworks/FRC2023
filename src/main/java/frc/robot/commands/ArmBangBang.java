@@ -24,6 +24,7 @@ public class ArmBangBang extends CommandBase {
     public ArmBangBang(ArmSubsystem arm, double target, double tolerance, double speed, boolean useSpeedDown,
             double failsafeLimit) {
         addRequirements(arm);
+        this.arm = arm;
         this.target = target;
         this.tolerance = tolerance;
         this.speed = speed;
