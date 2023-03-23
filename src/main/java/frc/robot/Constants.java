@@ -5,7 +5,7 @@
 package frc.robot;
 
 public final class Constants {
-public enum AutonomousSequence {
+public static enum AutonomousSequence {
     LEAVE,
     DOCK,
     LEAVE_DOCK
