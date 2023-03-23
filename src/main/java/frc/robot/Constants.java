@@ -90,10 +90,10 @@ public final static class Autonomous {
     final static double COMM_LEAVE_TIME = 2; // Time in seconds that are needed to leave the community area (after passing charging station)
     public final class DockPID {
         // TODO: Tune PID values
-        final static double P = 0.0117; // Proportional constant for PID
-        final static double I = 0; // Integral constant for PID
-        final static double D = 0; // Derivative constant for PID
-        final static double I_TOLERANCE = 0; // Tolerance for integral constant for PID (0 to disable)
+        final static double P = 0.012; // Proportional constant for PID
+        final static double I = 0.006; // Integral constant for PID
+        final static double D = 0.0009; // Derivative constant for PID
+        final static double I_TOLERANCE = 0.9; // Tolerance for integral constant for PID (0 to disable)
     }
 }
 
