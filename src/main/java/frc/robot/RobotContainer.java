@@ -9,6 +9,7 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.subsystems.*;
 import frc.robot.commands.*;
 
@@ -25,8 +26,10 @@ public class RobotContainer {
         configureButtonBindings();
 
         drive.setDefaultCommand(
-            new TeleopDrive(drive, () -> controller.getRawAxis(1), () -> controller.getRawAxis(3),
-            () -> controller.getRawButton(8), Constants.TeleOp.MOVE_SCALE, Constants.TeleOp.TURN_SCALE)
+            new TeleopDrive(drive, () -> controller.getRawAxis(Constants.TeleOp.LEFT_DRIVE_STICK), 
+            () -> controller.getRawAxis(Constants.TeleOp.RIGHT_DRIVE_STICK),
+            () -> controller.getRawButton(Constants.TeleOp.TURBO_BTN), Constants.TeleOp.MOVE_SCALE,
+            Constants.TeleOp.TURN_SCALE)
         );
     }
 
@@ -36,7 +39,17 @@ public class RobotContainer {
      * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing it to a {@link
      * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
      */
-    private void configureButtonBindings() {}
+    private void configureButtonBindings() {
+        new JoystickButton(controller, Constants.Arm.RESET_BTN).onTrue(
+            Commands.runOnce(arm::resetInitialPos)
+        );
+        new JoystickButton(controller, Constants.Arm.OVERRIDE_BTN).whileTrue(
+            Commands.startEnd(() -> arm.setArmMotor(Constants.Arm.OVERRIDE_SPEED), () -> arm.setArmMotor(0), arm)
+        );
+        new JoystickButton(controller, Constants.Arm.OVERRIDE_REVERSE_BTN).whileTrue(
+            Commands.startEnd(() -> arm.setArmMotor(Constants.Arm.OVERRIDE_REVERSE_SPEED), () -> arm.setArmMotor(0), arm)
+        );
+    }
 
     /**
      * Use this to pass the autonomous command to the main {@link Robot} class.

@@ -54,6 +54,11 @@ public class ArmSubsystem extends SubsystemBase {
      */
     public double getArmPosRaw() {return armMotor.getSelectedSensorPosition();};
 
+    /**
+     * Resets the initial position (used for offset) of the arm motor
+     */
+    public void resetInitialPos() { this.initialPos = this.getArmPosRaw(); }
+
     @Override
     public void periodic() {
         SmartDashboard.putNumber("Arm Position", getArmPos());

@@ -11,6 +11,26 @@ public static enum AutonomousSequence {
     LEAVE_DOCK
 }
 
+public final static class Buttons {
+    public static final int A = 2;
+    public static final int B = 3;
+    public static final int X = 1;
+    public static final int Y = 4;
+    public static final int BACK = 9;
+    public static final int START = 10;
+    public static final int L1 = 5;
+    public static final int L2 = 7;
+    public static final int R1 = 6;
+    public static final int R2 = 8;
+}
+
+public final static class Joystick {
+    public static final int LX = 0;
+    public static final int LY = 1;
+    public static final int RX = 2;
+    public static final int RY = 3;
+}
+
 public final static class ID {
     public static final int L1 = 14; // Left Motor 1 ID
     public static final int L2 = 15; // Left Motor 2 ID
@@ -21,10 +41,14 @@ public final static class ID {
 }
 
 public final static class Arm {
+    final static int OVERRIDE_BTN = Buttons.X;
+    final static int OVERRIDE_REVERSE_BTN = Buttons.A;
+    final static int RESET_BTN = Buttons.Y;
     final static double TOLERANCE = 250; // Tolerance for arm position (in encoder ticks)
     final static double LIMIT = 19000; // Software limit for arm position to hard stop at (in encoder ticks)
     final static double SPEED = 0.18; // Speed for arm movement
     final static double OVERRIDE_SPEED = 0.25; // Speed for arm movement when using manual override
+    final static double OVERRIDE_REVERSE_SPEED = -0.15; // Speed for arm movement when using manual override in reverse
     final static double LOW_POS = 0; // Low position for arm (in encoder ticks)
     final static double HIGH_POS = 18400; // Mid position for arm (in encoder ticks)
 }
@@ -57,6 +81,9 @@ public final static class Autonomous {
 }
 
 public final static class TeleOp {
+    final static int LEFT_DRIVE_STICK = Joystick.LY;
+    final static int RIGHT_DRIVE_STICK = Joystick.RY;
+    final static int TURBO_BTN = Buttons.R2;
     final static double MOVE_SCALE = 0.7; // Percent (0-1) to scale speed when moving the robot
     final static double TURN_SCALE = 0.5; // Percent (0-1) to scale speed when turning the robot
 }
