@@ -31,6 +31,11 @@ public class RobotContainer {
             () -> controller.getRawButton(Constants.TeleOp.TURBO_BTN), Constants.TeleOp.MOVE_SCALE,
             Constants.TeleOp.TURN_SCALE)
         );
+        arm.setDefaultCommand(
+            (Constants.Arm.TYPE == Constants.ArmMovement.PID) ?
+                new ArmPID(arm, Constants.Arm.PS_LOW_POS, Constants.Arm.PID.P, Constants.Arm.PID.I, Constants.Arm.PID.D, Constants.Arm.PID.I_TOLERANCE, Constants.Arm.LIMIT) :
+                new ArmBangBang(arm, Constants.Arm.PS_LOW_POS, Constants.Arm.TOLERANCE, Constants.Arm.SPEED, Constants.Arm.USE_SPEED_REVERSE, Constants.Arm.LIMIT)
+        );
     }
 
     /**
@@ -39,15 +44,26 @@ public class RobotContainer {
      * edu.wpi.first.wpilibj.Joystick} or {@link XboxController}), and then passing it to a {@link
      * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
      */
+    @SuppressWarnings("all") // false positives from use of config constants
     private void configureButtonBindings() {
         new JoystickButton(controller, Constants.Arm.RESET_BTN).onTrue(
             Commands.runOnce(arm::resetInitialPos)
         );
         new JoystickButton(controller, Constants.Arm.OVERRIDE_BTN).whileTrue(
-            Commands.startEnd(() -> arm.setArmMotor(Constants.Arm.OVERRIDE_SPEED), () -> arm.setArmMotor(0), arm)
+            Commands.startEnd(() -> arm.setSpeed(Constants.Arm.OVERRIDE_SPEED), () -> arm.setSpeed(0), arm)
         );
         new JoystickButton(controller, Constants.Arm.OVERRIDE_REVERSE_BTN).whileTrue(
-            Commands.startEnd(() -> arm.setArmMotor(Constants.Arm.OVERRIDE_REVERSE_SPEED), () -> arm.setArmMotor(0), arm)
+            Commands.startEnd(() -> arm.setSpeed(Constants.Arm.OVERRIDE_REVERSE_SPEED), () -> arm.setSpeed(0), arm)
+        );
+        new JoystickButton(controller, Constants.Arm.PS_LOW_BTN).onTrue(
+            (Constants.Arm.TYPE == Constants.ArmMovement.PID) ?
+                new ArmPID(arm, Constants.Arm.PS_LOW_POS, Constants.Arm.PID.P, Constants.Arm.PID.I, Constants.Arm.PID.D, Constants.Arm.PID.I_TOLERANCE, Constants.Arm.LIMIT) :
+                new ArmBangBang(arm, Constants.Arm.PS_LOW_POS, Constants.Arm.TOLERANCE, Constants.Arm.SPEED, Constants.Arm.USE_SPEED_REVERSE, Constants.Arm.LIMIT)
+        );
+        new JoystickButton(controller, Constants.Arm.PS_HIGH_BTN).onTrue(
+            (Constants.Arm.TYPE == Constants.ArmMovement.PID) ?
+                new ArmPID(arm, Constants.Arm.PS_HIGH_POS, Constants.Arm.PID.P, Constants.Arm.PID.I, Constants.Arm.PID.D, Constants.Arm.PID.I_TOLERANCE, Constants.Arm.LIMIT) :
+                new ArmBangBang(arm, Constants.Arm.PS_LOW_POS, Constants.Arm.TOLERANCE, Constants.Arm.SPEED, Constants.Arm.USE_SPEED_REVERSE, Constants.Arm.LIMIT)
         );
     }
 
@@ -56,6 +72,7 @@ public class RobotContainer {
      *
      * @return the command to run in autonomous
      */
+    @SuppressWarnings("all") // false positives from use of config constants
     public Command getAutonomousCommand() {
         switch (Constants.Autonomous.SEQUENCE) {
             case DOCK:
@@ -63,7 +80,8 @@ public class RobotContainer {
                     Commands.waitUntil(gyro::isReady),
                     Commands.runOnce(gyro::zeroYaw),
                     new DriveUntilPitch(drive, gyro, Constants.Autonomous.MOVE_SPEED, 0, 3, true),
-                    new DockPID(drive, gyro, Constants.Autonomous.DockPID.P, Constants.Autonomous.DockPID.I, Constants.Autonomous.DockPID.D)
+                    new DockPID(drive, gyro, Constants.Autonomous.DockPID.P, Constants.Autonomous.DockPID.I, 
+                        Constants.Autonomous.DockPID.D, Constants.Autonomous.DockPID.I_TOLERANCE)
                 );
             default: return null;
         }

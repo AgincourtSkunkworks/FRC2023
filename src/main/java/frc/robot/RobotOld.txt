@@ -154,52 +154,12 @@ public class RobotOld extends TimedRobot {
 
     @Override
     public void teleopInit() {
-        if (debugMode) {
-            gyroscopeAhrs.zeroYaw();
-            System.out.println("Teleoperator Mode Initialized, set gyro to zero Yaw");
-        }
-        lastDebugOutputTime = 0;
-
-        armPosIndex = 0;
-        offsetOverride = false;
-        setMotorSpeedCorrected(0);
+        
     }
 
     @Override
     @SuppressWarnings("unused") // I'm not wrong, you're wrong. Get rid of squiggly lines from config variables ("dead code", "unused code", "redundant check")
     public void teleopPeriodic() {
-        double curTime = Timer.getFPGATimestamp();
-        double armCurPos = armMotor.getSelectedSensorPosition() - initialArmPos;
-
-        // ARM
-        if (armPosIndex != -1 && (armTurnSpeed < 0 && armMotor.getSelectedSensorPosition() <= armPosLimit 
-                || armTurnSpeed > 0 && armMotor.getSelectedSensorPosition() >= armPosLimit)) { // Fail-safe hard limit
-            armMotor.set(ControlMode.PercentOutput, 0);
-        }
-        if (armPosIndex != -1) {
-            try {
-                double targetPos = armPosVals[armPosIndex];
-                if (armCurPos < targetPos - armPosTolerance)
-                    armMotor.set(ControlMode.PercentOutput, armTurnSpeed);
-                else
-                    armMotor.set(ControlMode.PercentOutput, 0);
-            } catch (ArrayIndexOutOfBoundsException e) {
-                System.out.println("Arm Position Index Out of Bounds");
-                armMotor.set(ControlMode.PercentOutput, 0);
-                armPosIndex = -1;
-            }
-        }
-        if (controller.getRawButtonPressed(5)) // L1 - Lowest
-            armPosIndex = 0;
-        else if (controller.getRawButtonPressed(6)) // L2 - Highest
-            armPosIndex = 1;
-        if (controller.getRawButton(1)) // X - Manual Override Up
-            armMotor.set(ControlMode.PercentOutput, armTurnSpeed);
-        else if (controller.getRawButton(4)) // Y - Manual Override Down
-            armMotor.set(ControlMode.PercentOutput, -armTurnSpeed);
-        else if (armPosIndex == -1)
-            armMotor.set(ControlMode.PercentOutput, 0);
-        if (controller.getRawButtonPressed(2)) // A - Reset Arm Low Encoder Pos
-            initialArmPos = armMotor.getSelectedSensorPosition();
+        
     }
 }

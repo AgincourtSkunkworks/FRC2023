@@ -11,6 +11,11 @@ public static enum AutonomousSequence {
     LEAVE_DOCK
 }
 
+public static enum ArmMovement {
+    BANG_BANG,
+    PID
+}
+
 public final static class Buttons {
     public static final int A = 2;
     public static final int B = 3;
@@ -44,13 +49,24 @@ public final static class Arm {
     final static int OVERRIDE_BTN = Buttons.X;
     final static int OVERRIDE_REVERSE_BTN = Buttons.A;
     final static int RESET_BTN = Buttons.Y;
-    final static double TOLERANCE = 250; // Tolerance for arm position (in encoder ticks)
+    final static int PS_LOW_BTN = Buttons.L1;
+    final static int PS_HIGH_BTN = Buttons.R1;
+    final static double TOLERANCE = 250; // Tolerance for arm position (in encoder ticks) for Bang Bang control
     final static double LIMIT = 19000; // Software limit for arm position to hard stop at (in encoder ticks)
-    final static double SPEED = 0.18; // Speed for arm movement
+    final static double SPEED = 0.18; // Speed for arm movement, when using bang bang
     final static double OVERRIDE_SPEED = 0.25; // Speed for arm movement when using manual override
     final static double OVERRIDE_REVERSE_SPEED = -0.15; // Speed for arm movement when using manual override in reverse
-    final static double LOW_POS = 0; // Low position for arm (in encoder ticks)
-    final static double HIGH_POS = 18400; // Mid position for arm (in encoder ticks)
+    final static double PS_LOW_POS = 0; // Low position for arm (in encoder ticks)
+    final static double PS_HIGH_POS = 18400; // Mid position for arm (in encoder ticks)
+    final static boolean USE_SPEED_REVERSE = false; // Whether to use reverse speed to go down, or use gravity
+    final static ArmMovement TYPE = ArmMovement.BANG_BANG; // Whether to use bang bang or PID for arm movement
+    public final class PID {
+        // TODO: Tune PID values
+        final static double P = 0; // Proportional constant for PID
+        final static double I = 0; // Integral constant for PID
+        final static double D = 0; // Derivative constant for PID
+        final static double I_TOLERANCE = 0; // Tolerance for integral constant for PID (0 to disable)
+    }
 }
 
 public final static class Drive {
@@ -77,6 +93,7 @@ public final static class Autonomous {
         final static double P = 0.0117; // Proportional constant for PID
         final static double I = 0; // Integral constant for PID
         final static double D = 0; // Derivative constant for PID
+        final static double I_TOLERANCE = 0; // Tolerance for integral constant for PID (0 to disable)
     }
 }
 

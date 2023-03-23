@@ -39,7 +39,7 @@ public class ArmSubsystem extends SubsystemBase {
     /** Set the speed of the arm motor.
      * @param speed Speed to set the motor to (-1 to 1)
      */
-    public void setArmMotor(double speed) {
+    public void setSpeed(double speed) {
         armMotor.set(ControlMode.PercentOutput, speed);
     }
 
