@@ -9,15 +9,20 @@ public class ArmBangBang extends CommandBase {
     double target, tolerance, speed, failsafeLimit;
     boolean useSpeedDown, failsafe = true;
 
-    /** Creates a ArmBangBang Command. This command is used to move the arm to a certain position using Bang Bang control.
-     * @param arm The arm subsystem
-     * @param target The target position
-     * @param tolerance The tolerance for the position
-     * @param speed The speed to move at
-     * @param useSpeedDown True to use the speed for moving down, false to disable motors and use gravity
+    /**
+     * Creates a ArmBangBang Command. This command is used to move the arm to a
+     * certain position using Bang Bang control.
+     * 
+     * @param arm           The arm subsystem
+     * @param target        The target position
+     * @param tolerance     The tolerance for the position
+     * @param speed         The speed to move at
+     * @param useSpeedDown  True to use the speed for moving down, false to disable
+     *                      motors and use gravity
      * @param failsafeLimit Software limit on arm position to stop all arm movement.
      */
-    public ArmBangBang(ArmSubsystem arm, double target, double tolerance, double speed, boolean useSpeedDown, double failsafeLimit) {
+    public ArmBangBang(ArmSubsystem arm, double target, double tolerance, double speed, boolean useSpeedDown,
+            double failsafeLimit) {
         addRequirements(arm);
         this.target = target;
         this.tolerance = tolerance;

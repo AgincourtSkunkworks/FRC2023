@@ -12,15 +12,21 @@ public class TeleopDrive extends CommandBase {
     Supplier<Double> lSpeedFunc, rSpeedFunc;
     Supplier<Boolean> offsetOverrideFunc;
 
-    /** Creates a TeleOpDrive Command. This command is used to control the drive in teleop.
-     * @param drive The drive subsystem
-     * @param lSpeedFunc Function to get the speed to set the left motors to
-     * @param rSpeedFunc Function to get the speed to set the right motors to
-     * @param offsetOverrideFunc Function to get whether or not to override the speed scaling
-     * @param driveScale The speed to scale the motors by when driving
-     * @param turnScale The speed to scale the motors by when turning
+    /**
+     * Creates a TeleOpDrive Command. This command is used to control the drive in
+     * teleop.
+     * 
+     * @param drive              The drive subsystem
+     * @param lSpeedFunc         Function to get the speed to set the left motors to
+     * @param rSpeedFunc         Function to get the speed to set the right motors
+     *                           to
+     * @param offsetOverrideFunc Function to get whether or not to override the
+     *                           speed scaling
+     * @param driveScale         The speed to scale the motors by when driving
+     * @param turnScale          The speed to scale the motors by when turning
      */
-    public TeleopDrive(DriveSubsystem drive, Supplier<Double> lSpeedFunc, Supplier<Double> rSpeedFunc, Supplier<Boolean> offsetOverrideFunc, double driveScale, double turnScale) {
+    public TeleopDrive(DriveSubsystem drive, Supplier<Double> lSpeedFunc, Supplier<Double> rSpeedFunc,
+            Supplier<Boolean> offsetOverrideFunc, double driveScale, double turnScale) {
         addRequirements(drive);
         this.drive = drive;
         this.lSpeedFunc = lSpeedFunc;
@@ -31,7 +37,9 @@ public class TeleopDrive extends CommandBase {
     }
 
     @Override
-    public void initialize() {SmartDashboard.putString("Command", "TeleopDrive");}
+    public void initialize() {
+        SmartDashboard.putString("Command", "TeleopDrive");
+    }
 
     @Override
     public void execute() {
@@ -41,8 +49,9 @@ public class TeleopDrive extends CommandBase {
         if (offsetOverride) {
             drive.setLeftMotors(stickLeft);
             drive.setRightMotors(stickRight);
-        }
-        else if (stickLeft > 0.05 && stickRight < 0.05 || stickLeft < 0.05 && stickRight > 0.05) { // no movement is ~+-0.007, not absolute zero
+        } else if (stickLeft > 0.05 && stickRight < 0.05 || stickLeft < 0.05 && stickRight > 0.05) { // no movement is
+                                                                                                     // ~+-0.007, not
+                                                                                                     // absolute zero
             drive.setLeftMotors(stickLeft * driveScale);
             drive.setRightMotors(stickRight * driveScale);
         } else {

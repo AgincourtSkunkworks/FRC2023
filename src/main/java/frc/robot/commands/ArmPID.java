@@ -12,13 +12,17 @@ public class ArmPID extends CommandBase {
     double target, p, i, d, lastRunTime, iTolerance, errorSum, lastError, failsafeLimit;
     boolean hasITolerance, failsafe = false;
 
-    /** Creates a ArmPID Command. This command is used to move the arm to a specific position, using PID control.
-     * @param arm The arm subsystem
-     * @param target The target position
-     * @param p The P value of PID
-     * @param i The I value of PID
-     * @param d The D value of PID
-     * @param iTolerance Under this tolerance, the errorSum will be increased. Set to 0 to disable.
+    /**
+     * Creates a ArmPID Command. This command is used to move the arm to a specific
+     * position, using PID control.
+     * 
+     * @param arm           The arm subsystem
+     * @param target        The target position
+     * @param p             The P value of PID
+     * @param i             The I value of PID
+     * @param d             The D value of PID
+     * @param iTolerance    Under this tolerance, the errorSum will be increased.
+     *                      Set to 0 to disable.
      * @param failsafeLimit Software limit on arm position to stop all arm movement.
      */
     public ArmPID(ArmSubsystem arm, double target, double p, double i, double d, double iTolerance,

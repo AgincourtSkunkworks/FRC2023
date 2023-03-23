@@ -14,13 +14,17 @@ public class DockPID extends CommandBase {
     double p, i, d, lastRunTime, iTolerance, errorSum, lastError;
     boolean hasITolerance;
 
-    /** Creates a DockPID Command. This command is used to drive until the robot is docked, using PID control.
-     * @param drive The drive subsystem
-     * @param gyro The gyro subsystem
-     * @param p The P value of PID
-     * @param i The I value of PID
-     * @param d The D value of PID
-     * @param iTolerance Under this tolerance, the errorSum will be increased. Set to 0 to disable.
+    /**
+     * Creates a DockPID Command. This command is used to drive until the robot is
+     * docked, using PID control.
+     * 
+     * @param drive      The drive subsystem
+     * @param gyro       The gyro subsystem
+     * @param p          The P value of PID
+     * @param i          The I value of PID
+     * @param d          The D value of PID
+     * @param iTolerance Under this tolerance, the errorSum will be increased. Set
+     *                   to 0 to disable.
      */
     public DockPID(DriveSubsystem drive, GyroSubsystem gyro, double p, double i, double d, double iTolerance) {
         addRequirements(drive);
@@ -47,7 +51,8 @@ public class DockPID extends CommandBase {
         final double dt = curTime - this.lastRunTime;
         final double error = gyro.getVAngle();
         final double errorRate = (error - this.lastError) / dt;
-        if (!this.hasITolerance || Math.abs(error) <= this.iTolerance) this.errorSum += error * dt;
+        if (!this.hasITolerance || Math.abs(error) <= this.iTolerance)
+            this.errorSum += error * dt;
         drive.setMotors((error * this.p) + (errorSum * this.i) + (errorRate * this.d));
         this.lastRunTime = curTime;
         this.lastError = error;

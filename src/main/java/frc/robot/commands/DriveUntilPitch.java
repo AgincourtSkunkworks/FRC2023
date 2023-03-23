@@ -11,15 +11,20 @@ public class DriveUntilPitch extends CommandBase {
     double speed, target, tolerance;
     boolean not;
 
-    /** Creates a DriveUntilPitch Command. This command is used to drive at a certain speed until the robot reaches (or leaves) a certain pitch.
-     * @param drive The drive subsystem
-     * @param gyro The gyro subsystem
-     * @param speed The speed to drive at
-     * @param target The target pitch
+    /**
+     * Creates a DriveUntilPitch Command. This command is used to drive at a certain
+     * speed until the robot reaches (or leaves) a certain pitch.
+     * 
+     * @param drive     The drive subsystem
+     * @param gyro      The gyro subsystem
+     * @param speed     The speed to drive at
+     * @param target    The target pitch
      * @param tolerance The tolerance for the pitch
-     * @param not True to drive until pitch is out of range, false to drive until pitch is in range
+     * @param not       True to drive until pitch is out of range, false to drive
+     *                  until pitch is in range
      */
-    public DriveUntilPitch(DriveSubsystem drive, GyroSubsystem gyro, double speed, double target, double tolerance, boolean not) {
+    public DriveUntilPitch(DriveSubsystem drive, GyroSubsystem gyro, double speed, double target, double tolerance,
+            boolean not) {
         addRequirements(drive);
         this.drive = drive;
         this.speed = speed;
@@ -30,10 +35,14 @@ public class DriveUntilPitch extends CommandBase {
     }
 
     @Override
-    public void initialize() {SmartDashboard.putString("Command", "DriveUntilPitch");}
+    public void initialize() {
+        SmartDashboard.putString("Command", "DriveUntilPitch");
+    }
 
     @Override
-    public void execute() {drive.setMotors(speed);}
+    public void execute() {
+        drive.setMotors(speed);
+    }
 
     @Override
     public void end(boolean interrupted) {
