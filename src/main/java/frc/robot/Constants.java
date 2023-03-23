@@ -64,7 +64,7 @@ public final static class Arm {
         final static double P = 0.000035; // Proportional constant for PID
         final static double P_D = 0; // Proportional constant for PID (when moving down)
         final static double I = 0; // Integral constant for PID
-        final static double D = 0.0000008; // Derivative constant for PID
+        final static double D = 0.0000005; // Derivative constant for PID
         final static double I_TOLERANCE = 0; // Tolerance for integral constant for PID (0 to disable)
     }
 }
