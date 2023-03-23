@@ -1,7 +1,5 @@
 package frc.robot.commands;
 
-import javax.lang.model.util.ElementScanner6;
-
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.ArmSubsystem;
