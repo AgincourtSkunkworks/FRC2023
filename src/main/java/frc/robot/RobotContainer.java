@@ -57,7 +57,7 @@ public class RobotContainer {
                 (Constants.Arm.TYPE == Constants.ArmMovement.PID)
                         ? new ArmPID(arm, Constants.Arm.PS_HIGH_POS, Constants.Arm.PID.P, Constants.Arm.PID.I,
                                 Constants.Arm.PID.D, Constants.Arm.PID.I_TOLERANCE, Constants.Arm.LIMIT)
-                        : new ArmBangBang(arm, Constants.Arm.PS_LOW_POS, Constants.Arm.TOLERANCE, Constants.Arm.SPEED,
+                        : new ArmBangBang(arm, Constants.Arm.PS_HIGH_POS, Constants.Arm.TOLERANCE, Constants.Arm.SPEED,
                                 Constants.Arm.USE_SPEED_REVERSE, Constants.Arm.LIMIT));
     }
 
