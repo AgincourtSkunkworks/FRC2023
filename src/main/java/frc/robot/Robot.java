@@ -65,9 +65,9 @@ public class Robot extends TimedRobot {
     final double onFloorMin = -3; // Pitch degrees to be considered on floor
     final double onFloorMax = 3; // Pitch degrees to be considered on floor
     // Timing
-    final double timeToNonCommunity = 3000; // Time in milliseconds to drive from spawn point out of the community, for dumb autonomous
-    final double autonomousFloorCheckInterval = 100; // Interval to check gryo at to determine if we're at the docking station (in milliseconds)
-    final double autonomousDockCheckInterval = 0; // Interval to check gyro at while attempting to dock (in milliseconds)
+    final double timeToNonCommunity = 3; // Time in seconds to drive from spawn point out of the community, for dumb autonomous
+    final double autonomousFloorCheckInterval = 0.1; // Interval to check gryo at to determine if we're at the docking station (in seconds)
+    final double autonomousDockCheckInterval = 0; // Interval to check gyro at while attempting to dock (in seconds)
 
     // * TELEOP
     // Movement
@@ -80,8 +80,8 @@ public class Robot extends TimedRobot {
     final double armPosTolerance = 250; // Tolerance for the arm position to be considered at the correct position
     final double armPosLimit = 19000; // Limit for the arm position motor in which it is considered too high and will shut itself off
     // Timing
-    final double armMaintainCheckInterval = 750; // Interval to check arm position while maintaining the middle arm position (in milliseconds)
-    final double debugOutputPrintInterval = 500; // Interval to print debug output (in milliseconds)
+    final double armMaintainCheckInterval = 0.75; // Interval to check arm position while maintaining the middle arm position (in seconds)
+    final double debugOutputPrintInterval = 0.5; // Interval to print debug output (in seconds)
 
     // ? Runtime Variables
     int autonomousState, armPosIndex;
@@ -223,12 +223,14 @@ public class Robot extends TimedRobot {
             System.out.println("[AUTONOMOUS] ERROR: Gyro is not connected!");
             return;
         }
-        if (debugMode && Timer.getFPGATimestamp() - lastDebugOutputTime >= debugOutputPrintInterval) {
+
+        double curTime = Timer.getFPGATimestamp();
+
+        if (debugMode && curTime - lastDebugOutputTime >= debugOutputPrintInterval) {
             System.out.printf("Current Autonomous State: %d%n", autonomousState);
             lastDebugOutputTime = Timer.getFPGATimestamp();
         }
 
-        double curTime = Timer.getFPGATimestamp();
         double pitchDegrees = ((useRoll) ? gyroscopeAhrs.getRoll() : gyroscopeAhrs.getPitch()) * (upsideDownGyro ? -1 : 1);
 
         // READ THIS vv
