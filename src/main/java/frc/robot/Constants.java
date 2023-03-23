@@ -54,11 +54,11 @@ public final static class Arm {
     final static double TOLERANCE = 250; // Tolerance for arm position (in encoder ticks) for Bang Bang control
     final static double LIMIT = 19000; // Software limit for arm position to hard stop at (in encoder ticks)
     final static double SPEED = 0.18; // Speed for arm movement, when using bang bang
+    final static double REVERSE_SPEED = -0.1; // Speed for arm movement in reverse, when using bang bang
     final static double OVERRIDE_SPEED = 0.25; // Speed for arm movement when using manual override
     final static double OVERRIDE_REVERSE_SPEED = -0.15; // Speed for arm movement when using manual override in reverse
     final static double PS_LOW_POS = 0; // Low position for arm (in encoder ticks)
     final static double PS_HIGH_POS = 18400; // Mid position for arm (in encoder ticks)
-    final static boolean USE_SPEED_REVERSE = false; // Whether to use reverse speed to go down, or use gravity
     final static ArmMovement TYPE = ArmMovement.BANG_BANG; // Whether to use bang bang or PID for arm movement
     public final class PID {
         // TODO: Tune PID values

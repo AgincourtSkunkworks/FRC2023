@@ -6,8 +6,8 @@ import frc.robot.subsystems.ArmSubsystem;
 
 public class ArmBangBang extends CommandBase {
     ArmSubsystem arm;
-    double target, tolerance, speed, failsafeLimit;
-    boolean useSpeedDown, failsafe = true;
+    double target, tolerance, speed, reverseSpeed, failsafeLimit;
+    boolean failsafe = true;
 
     /**
      * Creates a ArmBangBang Command. This command is used to move the arm to a
@@ -21,14 +21,13 @@ public class ArmBangBang extends CommandBase {
      *                      motors and use gravity
      * @param failsafeLimit Software limit on arm position to stop all arm movement.
      */
-    public ArmBangBang(ArmSubsystem arm, double target, double tolerance, double speed, boolean useSpeedDown,
-            double failsafeLimit) {
+    public ArmBangBang(ArmSubsystem arm, double target, double tolerance, double speed, double reverseSpeed, double failsafeLimit) {
         addRequirements(arm);
         this.arm = arm;
         this.target = target;
         this.tolerance = tolerance;
         this.speed = speed;
-        this.useSpeedDown = useSpeedDown;
+        this.reverseSpeed = reverseSpeed;
         this.failsafeLimit = failsafeLimit;
     }
 
@@ -51,9 +50,7 @@ public class ArmBangBang extends CommandBase {
         if (armCurPos < target - tolerance)
             arm.setSpeed(this.speed);
         else if (armCurPos > target + tolerance)
-            arm.setSpeed((this.useSpeedDown) ? -this.speed : 0);
-        else
-            arm.setSpeed(0);
+            arm.setSpeed(this.reverseSpeed);
     }
 
     @Override
