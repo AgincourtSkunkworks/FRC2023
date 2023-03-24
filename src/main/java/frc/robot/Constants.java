@@ -24,7 +24,7 @@ public final static class Buttons { // Button Name -> ID Mapping
     public static final int Y = 4;
     public static final int BACK = 9;
     public static final int START = 10;
-    public static final int L1 = 5;
+    public static final int L1 = 5; // ! Currently broken on the controller (not the code)
     public static final int L2 = 7;
     public static final int R1 = 6;
     public static final int R2 = 8;
