@@ -70,7 +70,7 @@ public class RobotContainer {
     @SuppressWarnings("all") // false positives from use of config constants
     public Command getAutonomousCommand() {
         switch (Constants.Autonomous.SEQUENCE) {
-            case LEAVE:
+            case LEAVE: // TODO: Test LEAVE
                 return new SequentialCommandGroup(
                         new DriveForTime(drive, Constants.Autonomous.MOVE_SPEED, Constants.Autonomous.COMM_LEAVE_TIME));
             case DOCK:
@@ -80,15 +80,14 @@ public class RobotContainer {
                         new DriveUntilPitch(drive, gyro, Constants.Autonomous.MOVE_SPEED, 0, 3, true),
                         new DockPID(drive, gyro, Constants.Autonomous.DockPID.P, Constants.Autonomous.DockPID.I,
                                 Constants.Autonomous.DockPID.D, Constants.Autonomous.DockPID.I_TOLERANCE));
-            case LEAVE_DOCK:
+            case LEAVE_DOCK: // TODO: Test LEAVE_DOCK
                 return new SequentialCommandGroup(
                         Commands.waitUntil(gyro::isReady),
                         Commands.runOnce(gyro::zeroYaw),
                         new DriveForTime(drive, Constants.Autonomous.MOVE_SPEED, Constants.Autonomous.COMM_LEAVE_TIME),
                         new DriveUntilPitch(drive, gyro, Constants.Autonomous.MOVE_SPEED, 0, 3, true),
                         new DockPID(drive, gyro, Constants.Autonomous.DockPID.P, Constants.Autonomous.DockPID.I,
-                                Constants.Autonomous.DockPID.D, Constants.Autonomous.DockPID.I_TOLERANCE)
-                );
+                                Constants.Autonomous.DockPID.D, Constants.Autonomous.DockPID.I_TOLERANCE));
             default:
                 System.out.println("[ERROR] Invalid autonomous sequence");
                 return null;
