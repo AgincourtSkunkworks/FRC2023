@@ -8,7 +8,8 @@ public final class Constants {
 public static enum AutonomousSequence { // Enum to use for different autonomous sequences
     LEAVE, // Leave the community area
     DOCK, // Dock with the charging station
-    LEAVE_DOCK // Leave the community area, then dock
+    LEAVE_DOCK, // Leave the community area, then dock
+    NONE
 }
 
 public static enum ArmMovement { // Enum to use for types of arm movement
@@ -49,8 +50,8 @@ public final static class Arm {
     final static int OVERRIDE_BTN = Buttons.X; // Button to use for manual override
     final static int OVERRIDE_REVERSE_BTN = Buttons.A; // Button to use for manual override reverse
     final static int RESET_BTN = Buttons.Y; // Button to use for pos offset reset
-    final static int PS_LOW_BTN = Buttons.L1; // Button to use for low preset
-    final static int PS_HIGH_BTN = Buttons.R1; // Button to use for high preset
+    final static int PS_LOW_BTN = Buttons.L2; // Button to use for low preset
+    final static int PS_HIGH_BTN = Buttons.R2; // Button to use for high preset
     final static double TOLERANCE = 250; // Tolerance for arm position (in encoder ticks) for Bang Bang control
     final static double LIMIT = 18900; // Software limit for arm position to hard stop at (in encoder ticks)
     final static double SPEED = 0.18; // Speed for arm movement, when using bang bang
@@ -88,7 +89,7 @@ public final static class Autonomous {
     final static double MOVE_SPEED = 0.24; // Percent speed (0-1) for moving the robot
     final static double TURN_SPEED = 0.3; // Percent speed (0-1) for turning the robot
     final static double FLOOR_ANGLE = 3; // Absolute angle (in degrees) to be considered on the floor
-    final static double COMM_LEAVE_TIME = 2; // Time in seconds that are needed to leave the community area (after passing charging station)
+    final static double COMM_LEAVE_TIME = 0.6; // Time in seconds that are needed to leave the community area (after passing charging station)
     public final class DockPID {
         final static double P = 0.0125; // Proportional constant for PID
         final static double I = 0.0045; // Integral constant for PID
@@ -100,7 +101,7 @@ public final static class Autonomous {
 public final static class TeleOp {
     final static int LEFT_DRIVE_STICK = Joystick.LY; // Joystick to use for left motor control
     final static int RIGHT_DRIVE_STICK = Joystick.RY; // JOystick to use for right motor control
-    final static int TURBO_BTN = Buttons.R2; // Button to use to override drive speed scaling
+    final static int TURBO_BTN = Buttons.R1; // Button to use to override drive speed scaling
     final static double MOVE_SCALE = 0.7; // Percent (0-1) to scale speed when moving the robot
     final static double TURN_SCALE = 0.5; // Percent (0-1) to scale speed when turning the robot
 }

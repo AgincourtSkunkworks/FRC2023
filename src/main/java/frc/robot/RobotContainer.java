@@ -84,10 +84,14 @@ public class RobotContainer {
                 return new SequentialCommandGroup(
                         Commands.waitUntil(gyro::isReady),
                         Commands.runOnce(gyro::zeroYaw),
-                        new DriveForTime(drive, Constants.Autonomous.MOVE_SPEED, Constants.Autonomous.COMM_LEAVE_TIME),
                         new DriveUntilPitch(drive, gyro, Constants.Autonomous.MOVE_SPEED, 0, 3, true),
-                        new DockPID(drive, gyro, Constants.Autonomous.DockPID.P, Constants.Autonomous.DockPID.I,
+                        new DriveUntilPitch(drive, gyro, Constants.Autonomous.MOVE_SPEED * 0.85, 0, 3, false),
+                        new DriveForTime(drive, Constants.Autonomous.MOVE_SPEED, Constants.Autonomous.COMM_LEAVE_TIME),
+                        new DriveUntilPitch(drive, gyro, -Constants.Autonomous.MOVE_SPEED, 0, 7, true),
+                        new DockPID(drive, gyro, Constants.Autonomous.DockPID.P * 1.05, Constants.Autonomous.DockPID.I,
                                 Constants.Autonomous.DockPID.D, Constants.Autonomous.DockPID.I_TOLERANCE));
+            case NONE:
+                return null;
             default:
                 System.out.println("[ERROR] Invalid autonomous sequence");
                 return null;
