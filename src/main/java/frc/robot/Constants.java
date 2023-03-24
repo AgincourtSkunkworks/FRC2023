@@ -90,11 +90,13 @@ public final static class Autonomous {
     final static double TURN_SPEED = 0.3; // Percent speed (0-1) for turning the robot
     final static double FLOOR_ANGLE = 3; // Absolute angle (in degrees) to be considered on the floor
     final static double COMM_LEAVE_TIME = 0.6; // Time in seconds that are needed to leave the community area (after passing charging station)
+    final static double DOWN_SCALE = 0.85; // Amount to scale the speed of the drive when going down the charging station (for LEAVE_DOCK)
     public final class DockPID {
         final static double P = 0.0125; // Proportional constant for PID
         final static double I = 0.0045; // Integral constant for PID
         final static double D = 0.0008; // Derivative constant for PID
         final static double I_TOLERANCE = 1; // Tolerance for integral constant for PID (0 to disable)
+        final static double P_REVERSE_SCALE = 1.05; // Amount to scale the speed of the drive when going up the charging station in reverse (for LEAVE_DOCK)
     }
 }
 
