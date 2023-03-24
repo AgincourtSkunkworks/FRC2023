@@ -72,6 +72,10 @@ public class RobotContainer {
         switch (Constants.Autonomous.SEQUENCE) {
             case LEAVE: // TODO: Test LEAVE
                 return new SequentialCommandGroup(
+                        Commands.waitUntil(gyro::isReady),
+                        Commands.runOnce(gyro::zeroYaw),
+                        new DriveUntilPitch(drive, gyro, Constants.Autonomous.MOVE_SPEED, 0, 3, true),
+                        new DriveUntilPitch(drive, gyro, Constants.Autonomous.MOVE_SPEED * Constants.Autonomous.DOWN_SCALE, 0, 3, false),
                         new DriveForTime(drive, Constants.Autonomous.MOVE_SPEED, Constants.Autonomous.COMM_LEAVE_TIME));
             case DOCK:
                 return new SequentialCommandGroup(
