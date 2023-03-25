@@ -74,30 +74,40 @@ public class RobotContainer {
                 return new SequentialCommandGroup(
                         Commands.waitUntil(gyro::isReady),
                         Commands.runOnce(gyro::zeroYaw),
-                        new DriveUntilPitch(drive, gyro, Constants.Autonomous.MOVE_SPEED, 0, 3, true),
+                        new DriveUntilPitch(drive, gyro, Constants.Autonomous.MOVE_SPEED, 0, 3, true,
+                                Constants.Autonomous.MAX_TEMP),
                         new DriveUntilPitch(drive, gyro,
-                                Constants.Autonomous.MOVE_SPEED * Constants.Autonomous.DOWN_SCALE, 0, 3, false),
-                        new DriveForTime(drive, Constants.Autonomous.MOVE_SPEED, Constants.Autonomous.COMM_LEAVE_TIME));
+                                Constants.Autonomous.MOVE_SPEED * Constants.Autonomous.DOWN_SCALE, 0, 3, false,
+                                Constants.Autonomous.MAX_TEMP),
+                        new DriveForTime(drive, Constants.Autonomous.MOVE_SPEED, Constants.Autonomous.COMM_LEAVE_TIME,
+                                Constants.Autonomous.MAX_TEMP));
             case DOCK:
                 return new SequentialCommandGroup(
                         Commands.waitUntil(gyro::isReady),
                         Commands.runOnce(gyro::zeroYaw),
-                        new DriveUntilPitch(drive, gyro, Constants.Autonomous.MOVE_SPEED, 0, 3, true),
+                        new DriveUntilPitch(drive, gyro, Constants.Autonomous.MOVE_SPEED, 0, 3, true,
+                                Constants.Autonomous.MAX_TEMP),
                         new DockPID(drive, gyro, Constants.Autonomous.DockPID.P, Constants.Autonomous.DockPID.I,
-                                Constants.Autonomous.DockPID.D, Constants.Autonomous.DockPID.I_TOLERANCE));
+                                Constants.Autonomous.DockPID.D, Constants.Autonomous.DockPID.I_TOLERANCE,
+                                Constants.Autonomous.MAX_TEMP));
             case LEAVE_DOCK: // TODO: Test LEAVE_DOCK
                 return new SequentialCommandGroup(
                         Commands.waitUntil(gyro::isReady),
                         Commands.runOnce(gyro::zeroYaw),
-                        new DriveUntilPitch(drive, gyro, Constants.Autonomous.MOVE_SPEED, 0, 3, true),
+                        new DriveUntilPitch(drive, gyro, Constants.Autonomous.MOVE_SPEED, 0, 3, true,
+                                Constants.Autonomous.MAX_TEMP),
                         new DriveUntilPitch(drive, gyro,
-                                Constants.Autonomous.MOVE_SPEED * Constants.Autonomous.DOWN_SCALE, 0, 3, false),
-                        new DriveForTime(drive, Constants.Autonomous.MOVE_SPEED, Constants.Autonomous.COMM_LEAVE_TIME),
-                        new DriveUntilPitch(drive, gyro, -Constants.Autonomous.MOVE_SPEED, 0, 7, true),
+                                Constants.Autonomous.MOVE_SPEED * Constants.Autonomous.DOWN_SCALE, 0, 3, false,
+                                Constants.Autonomous.MAX_TEMP),
+                        new DriveForTime(drive, Constants.Autonomous.MOVE_SPEED, Constants.Autonomous.COMM_LEAVE_TIME,
+                                Constants.Autonomous.MAX_TEMP),
+                        new DriveUntilPitch(drive, gyro, -Constants.Autonomous.MOVE_SPEED, 0, 7, true,
+                                Constants.Autonomous.MAX_TEMP),
                         new DockPID(drive, gyro,
                                 Constants.Autonomous.DockPID.P * Constants.Autonomous.DockPID.P_REVERSE_SCALE,
                                 Constants.Autonomous.DockPID.I,
-                                Constants.Autonomous.DockPID.D, Constants.Autonomous.DockPID.I_TOLERANCE));
+                                Constants.Autonomous.DockPID.D, Constants.Autonomous.DockPID.I_TOLERANCE,
+                                Constants.Autonomous.MAX_TEMP));
             case ARM_LEAVE_DOCK: // TODO: Test ARM_LEAVE_DOCK
                 return new SequentialCommandGroup(
                         Commands.waitUntil(gyro::isReady),
@@ -107,15 +117,20 @@ public class RobotContainer {
                         new ArmPID(arm, Constants.Arm.PS_HIGH_POS, Constants.Arm.PID.P, Constants.Arm.PID.P_D,
                                 Constants.Arm.PID.I, Constants.Arm.PID.D, Constants.Arm.PID.I_TOLERANCE,
                                 Constants.Arm.LIMIT),
-                        new DriveUntilPitch(drive, gyro, Constants.Autonomous.MOVE_SPEED, 0, 3, true),
+                        new DriveUntilPitch(drive, gyro, Constants.Autonomous.MOVE_SPEED, 0, 3, true,
+                                Constants.Autonomous.MAX_TEMP),
                         new DriveUntilPitch(drive, gyro,
-                                Constants.Autonomous.MOVE_SPEED * Constants.Autonomous.DOWN_SCALE, 0, 3, false),
-                        new DriveForTime(drive, Constants.Autonomous.MOVE_SPEED, Constants.Autonomous.COMM_LEAVE_TIME),
-                        new DriveUntilPitch(drive, gyro, -Constants.Autonomous.MOVE_SPEED, 0, 7, true),
+                                Constants.Autonomous.MOVE_SPEED * Constants.Autonomous.DOWN_SCALE, 0, 3, false,
+                                Constants.Autonomous.MAX_TEMP),
+                        new DriveForTime(drive, Constants.Autonomous.MOVE_SPEED, Constants.Autonomous.COMM_LEAVE_TIME,
+                                Constants.Autonomous.MAX_TEMP),
+                        new DriveUntilPitch(drive, gyro, -Constants.Autonomous.MOVE_SPEED, 0, 7, true,
+                                Constants.Autonomous.MAX_TEMP),
                         new DockPID(drive, gyro,
                                 Constants.Autonomous.DockPID.P * Constants.Autonomous.DockPID.P_REVERSE_SCALE,
                                 Constants.Autonomous.DockPID.I,
-                                Constants.Autonomous.DockPID.D, Constants.Autonomous.DockPID.I_TOLERANCE));
+                                Constants.Autonomous.DockPID.D, Constants.Autonomous.DockPID.I_TOLERANCE,
+                                Constants.Autonomous.MAX_TEMP));
             case NONE:
                 return null;
             default:

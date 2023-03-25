@@ -8,8 +8,8 @@ import frc.robot.subsystems.GyroSubsystem;
 public class DriveUntilPitch extends CommandBase {
     DriveSubsystem drive;
     GyroSubsystem gyro;
-    double speed, target, tolerance;
-    boolean not;
+    double speed, target, tolerance, maxTemp;
+    boolean not, failsafe = false;
 
     /**
      * Creates a DriveUntilPitch Command. This command is used to drive at a certain
@@ -22,9 +22,10 @@ public class DriveUntilPitch extends CommandBase {
      * @param tolerance The tolerance for the pitch
      * @param not       True to drive until pitch is out of range, false to drive
      *                  until pitch is in range
+     * @param maxTemp   The maximum temperature before thermal failsafe kicks in
      */
     public DriveUntilPitch(DriveSubsystem drive, GyroSubsystem gyro, double speed, double target, double tolerance,
-            boolean not) {
+            boolean not, double maxTemp) {
         addRequirements(drive);
         this.drive = drive;
         this.speed = speed;
@@ -32,15 +33,22 @@ public class DriveUntilPitch extends CommandBase {
         this.target = target;
         this.tolerance = tolerance;
         this.not = not;
+        this.maxTemp = maxTemp;
     }
 
     @Override
     public void initialize() {
         SmartDashboard.putString("Command", "DriveUntilPitch");
+        this.failsafe = false;
     }
 
     @Override
     public void execute() {
+        if (drive.getHighestTemp() >= maxTemp) {
+            failsafe = true;
+            System.out.println("[DriveUntilPitch] Failsafe activated, high motor temperature!]");
+            return;
+        }
         drive.setMotors(speed);
     }
 
@@ -53,6 +61,6 @@ public class DriveUntilPitch extends CommandBase {
     @Override
     public boolean isFinished() {
         final boolean finished = Math.abs(gyro.getVAngle() - target) <= tolerance;
-        return not ? !finished : finished;
+        return this.failsafe || (not ? !finished : finished);
     }
 }

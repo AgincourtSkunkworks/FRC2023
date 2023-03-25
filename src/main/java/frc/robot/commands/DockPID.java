@@ -11,8 +11,8 @@ import frc.robot.subsystems.GyroSubsystem;
 public class DockPID extends CommandBase {
     DriveSubsystem drive;
     GyroSubsystem gyro;
-    double p, i, d, lastRunTime, iTolerance, errorSum, lastError;
-    boolean hasITolerance;
+    double p, i, d, lastRunTime, iTolerance, errorSum, lastError, maxTemp;
+    boolean hasITolerance, failsafe = false;
 
     /**
      * Creates a DockPID Command. This command is used to drive until the robot is
@@ -25,8 +25,9 @@ public class DockPID extends CommandBase {
      * @param d          The D value of PID
      * @param iTolerance Under this tolerance, the errorSum will be increased. Set
      *                   to 0 to disable.
+     * @param maxTemp    The maximum temperature before thermal failsafe kicks in
      */
-    public DockPID(DriveSubsystem drive, GyroSubsystem gyro, double p, double i, double d, double iTolerance) {
+    public DockPID(DriveSubsystem drive, GyroSubsystem gyro, double p, double i, double d, double iTolerance, double maxTemp) {
         addRequirements(drive);
         this.drive = drive;
         this.gyro = gyro;
@@ -35,6 +36,7 @@ public class DockPID extends CommandBase {
         this.d = d;
         this.iTolerance = iTolerance;
         this.hasITolerance = iTolerance != 0;
+        this.maxTemp = maxTemp;
     }
 
     @Override
@@ -43,10 +45,16 @@ public class DockPID extends CommandBase {
         this.errorSum = 0;
         this.lastRunTime = 0;
         this.lastError = 0;
+        this.failsafe = false;
     }
 
     @Override
     public void execute() {
+        if (drive.getHighestTemp() >= maxTemp) {
+            failsafe = true;
+            System.out.println("[DockPID] Failsafe activated, high motor temperature!]");
+            return;
+        }
         final double curTime = Timer.getFPGATimestamp();
         final double dt = curTime - this.lastRunTime;
         final double error = gyro.getVAngle();
@@ -66,6 +74,6 @@ public class DockPID extends CommandBase {
 
     @Override
     public boolean isFinished() {
-        return false;
+        return this.failsafe;
     }
 }

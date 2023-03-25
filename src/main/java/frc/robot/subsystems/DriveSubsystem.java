@@ -120,15 +120,39 @@ public class DriveSubsystem extends SubsystemBase {
         return rightMotor2.getSelectedSensorPosition();
     }
 
+    public double getLeft1Temp() {
+        return leftMotor1.getTemperature();
+    }
+
+    public double getLeft2Temp() {
+        return leftMotor2.getTemperature();
+    }
+
+    public double getRight1Temp() {
+        return rightMotor1.getTemperature();
+    }
+
+    public double getRight2Temp() {
+        return rightMotor2.getTemperature();
+    }
+
+    public double getHighestTemp() {
+        double highest = 0;
+        for (TalonFX motor : motors)
+            if (motor.getTemperature() > highest)
+                highest = motor.getTemperature();
+        return highest;
+    }
+
     @Override
     public void periodic() {
         SmartDashboard.putNumber("LM1 Position", getLeft1Pos());
         SmartDashboard.putNumber("LM2 Position", getLeft2Pos());
         SmartDashboard.putNumber("RM1 Position", getRight1Pos());
         SmartDashboard.putNumber("RM2 Position", getRight2Pos());
-        SmartDashboard.putNumber("LM1 Temp", leftMotor1.getTemperature());
-        SmartDashboard.putNumber("LM2 Temp", leftMotor2.getTemperature());
-        SmartDashboard.putNumber("RM1 Temp", rightMotor1.getTemperature());
-        SmartDashboard.putNumber("RM2 Temp", rightMotor2.getTemperature());
+        SmartDashboard.putNumber("LM1 Temp", getLeft1Temp());
+        SmartDashboard.putNumber("LM2 Temp", getLeft2Temp());
+        SmartDashboard.putNumber("RM1 Temp", getRight1Temp());
+        SmartDashboard.putNumber("RM2 Temp", getRight2Temp());
     }
 }

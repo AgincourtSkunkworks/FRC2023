@@ -7,32 +7,41 @@ import frc.robot.subsystems.DriveSubsystem;
 
 public class DriveForTime extends CommandBase {
     DriveSubsystem drive;
-    double speed, time, startTime;
+    double speed, time, startTime, maxTemp;
+    boolean failsafe = false;
 
     /**
      * Creates a DriveForTime Command. This command is used to drive at a certain
      * speed for a certain time.
      * 
-     * @param drive The drive subsystem
-     * @param speed The speed to drive at
-     * @param time  The time to drive for (in seconds)
+     * @param drive   The drive subsystem
+     * @param speed   The speed to drive at
+     * @param time    The time to drive for (in seconds)
+     * @param maxTemp The maximum temperature before thermal failsafe kicks in
      */
-    public DriveForTime(DriveSubsystem drive, double speed, double time) {
+    public DriveForTime(DriveSubsystem drive, double speed, double time, double maxTemp) {
         addRequirements(drive);
         this.drive = drive;
         this.speed = speed;
         this.time = time;
+        this.maxTemp = maxTemp;
     }
 
     @Override
     public void initialize() {
         SmartDashboard.putString("Command", "DriveForTime");
         this.startTime = Timer.getFPGATimestamp();
+        this.failsafe = false;
         drive.setMotors(speed);
     }
 
     @Override
     public void execute() {
+        if (drive.getHighestTemp() >= maxTemp) {
+            failsafe = true;
+            System.out.println("[DriveForTime] Failsafe activated, high motor temperature!]");
+            return;
+        }
         drive.setMotors(speed);
     }
 
@@ -44,6 +53,6 @@ public class DriveForTime extends CommandBase {
 
     @Override
     public boolean isFinished() {
-        return Timer.getFPGATimestamp() - startTime >= time;
+        return this.failsafe || Timer.getFPGATimestamp() - startTime >= time;
     }
 }
