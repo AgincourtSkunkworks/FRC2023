@@ -8,7 +8,7 @@ public final class Constants {
 public static enum AutonomousSequence { // Enum to use for different autonomous sequences
     LEAVE, // Leave the community area
     DOCK, // Dock with the charging station
-    LEAVE_DOCK, // Leave the community area, then dock
+    LEAVE_DOCK, // Leave the community area, then dock. NOTE: Only designed for PID arm movement
     ARM_LEAVE_DOCK, // Raise the arm, leave the community area, then dock. NOTE: Only designed for PID arm movement
     NONE
 }
