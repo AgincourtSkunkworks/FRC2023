@@ -104,9 +104,10 @@ public class RobotContainer {
                         new DriveUntilPitch(drive, gyro, -Constants.Autonomous.MOVE_SPEED, 0, 7, true,
                                 Constants.Autonomous.MAX_TEMP),
                         new DockPID(drive, gyro,
-                                Constants.Autonomous.DockPID.P * Constants.Autonomous.DockPID.P_REVERSE_SCALE,
-                                Constants.Autonomous.DockPID.I,
-                                Constants.Autonomous.DockPID.D, Constants.Autonomous.DockPID.I_TOLERANCE,
+                                Constants.Autonomous.DockPIDReverse.P
+                                        * Constants.Autonomous.DockPIDReverse.P_REVERSE_SCALE,
+                                Constants.Autonomous.DockPIDReverse.I,
+                                Constants.Autonomous.DockPIDReverse.D, Constants.Autonomous.DockPIDReverse.I_TOLERANCE,
                                 Constants.Autonomous.MAX_TEMP));
             case ARM_LEAVE_DOCK: // TODO: Test ARM_LEAVE_DOCK
                 return new SequentialCommandGroup(
@@ -127,9 +128,10 @@ public class RobotContainer {
                         new DriveUntilPitch(drive, gyro, -Constants.Autonomous.MOVE_SPEED, 0, 7, true,
                                 Constants.Autonomous.MAX_TEMP),
                         new DockPID(drive, gyro,
-                                Constants.Autonomous.DockPID.P * Constants.Autonomous.DockPID.P_REVERSE_SCALE,
-                                Constants.Autonomous.DockPID.I,
-                                Constants.Autonomous.DockPID.D, Constants.Autonomous.DockPID.I_TOLERANCE,
+                                Constants.Autonomous.DockPIDReverse.P
+                                        * Constants.Autonomous.DockPIDReverse.P_REVERSE_SCALE,
+                                Constants.Autonomous.DockPIDReverse.I,
+                                Constants.Autonomous.DockPIDReverse.D, Constants.Autonomous.DockPIDReverse.I_TOLERANCE,
                                 Constants.Autonomous.MAX_TEMP));
             case NONE:
                 return null;
