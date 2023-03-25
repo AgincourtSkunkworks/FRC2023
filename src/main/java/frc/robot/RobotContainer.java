@@ -70,7 +70,7 @@ public class RobotContainer {
     @SuppressWarnings("all") // false positives from use of config constants
     public Command getAutonomousCommand() {
         switch (Constants.Autonomous.SEQUENCE) {
-            case LEAVE: // TODO: Test LEAVE
+            case LEAVE:
                 return new SequentialCommandGroup(
                         Commands.waitUntil(gyro::isReady),
                         Commands.runOnce(gyro::zeroYaw),
