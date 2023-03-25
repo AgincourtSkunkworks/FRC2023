@@ -47,8 +47,8 @@ public class DriveSubsystem extends SubsystemBase {
         for (TalonFX motor : motors) {
             motor.setNeutralMode(NeutralMode.Brake);
             // TODO: TEST CURRENT LIMITS
-            motor.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 50, 50, 1));
-            motor.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(true, 40, 40, 0.5));
+            motor.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 65, 75, 0.5));
+            motor.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(true, 60, 70, 0.5));
         }
 
         if (lInvert)
