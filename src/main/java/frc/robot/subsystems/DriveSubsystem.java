@@ -122,9 +122,13 @@ public class DriveSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-        SmartDashboard.putNumber("Left Motor 1 Position", getLeft1Pos());
-        SmartDashboard.putNumber("Left Motor 2 Position", getLeft2Pos());
-        SmartDashboard.putNumber("Right Motor 1 Position", getRight1Pos());
-        SmartDashboard.putNumber("Right Motor 2 Position", getRight2Pos());
+        SmartDashboard.putNumber("LM1 Position", getLeft1Pos());
+        SmartDashboard.putNumber("LM2 Position", getLeft2Pos());
+        SmartDashboard.putNumber("RM1 Position", getRight1Pos());
+        SmartDashboard.putNumber("RM2 Position", getRight2Pos());
+        SmartDashboard.putNumber("LM1 Temp", leftMotor1.getTemperature());
+        SmartDashboard.putNumber("LM2 Temp", leftMotor2.getTemperature());
+        SmartDashboard.putNumber("RM1 Temp", rightMotor1.getTemperature());
+        SmartDashboard.putNumber("RM2 Temp", rightMotor2.getTemperature());
     }
 }
