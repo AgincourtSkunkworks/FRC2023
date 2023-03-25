@@ -2,6 +2,8 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.StatorCurrentLimitConfiguration;
+import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -42,8 +44,12 @@ public class DriveSubsystem extends SubsystemBase {
         this.brakeThreshold = brakeThreshold;
         this.thermalWarning = thermalWarning;
 
-        for (TalonFX motor : motors)
+        for (TalonFX motor : motors) {
             motor.setNeutralMode(NeutralMode.Brake);
+            // TODO: TEST CURRENT LIMITS
+            motor.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 50, 50, 1));
+            motor.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(true, 40, 40, 0.5));
+        }
 
         if (lInvert)
             for (TalonFX motor : leftMotors)
