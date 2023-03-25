@@ -58,6 +58,8 @@ public class TeleopDrive extends CommandBase {
             drive.setLeftMotors(stickLeft * turnScale);
             drive.setRightMotors(stickRight * turnScale);
         }
+        SmartDashboard.putNumber("Stick Left", stickLeft);
+        SmartDashboard.putNumber("Stick Right", stickRight);
     }
 
     @Override
