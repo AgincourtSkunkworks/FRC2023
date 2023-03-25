@@ -163,6 +163,14 @@ public class DriveSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("LM2 Temp", getLeft2Temp());
         SmartDashboard.putNumber("RM1 Temp", getRight1Temp());
         SmartDashboard.putNumber("RM2 Temp", getRight2Temp());
+        SmartDashboard.putNumber("LM1 Stator", leftMotor1.getStatorCurrent());
+        SmartDashboard.putNumber("LM2 Stator", leftMotor2.getStatorCurrent());
+        SmartDashboard.putNumber("RM1 Stator", rightMotor1.getStatorCurrent());
+        SmartDashboard.putNumber("RM2 Stator", rightMotor2.getStatorCurrent());
+        SmartDashboard.putNumber("LM1 Supply", leftMotor1.getSupplyCurrent());
+        SmartDashboard.putNumber("LM2 Supply", leftMotor2.getSupplyCurrent());
+        SmartDashboard.putNumber("RM1 Supply", rightMotor1.getSupplyCurrent());
+        SmartDashboard.putNumber("RM2 Supply", rightMotor2.getSupplyCurrent());
 
         if (getHighestTemp() > thermalWarning) {
             SmartDashboard.putString("WARNING", "MOTOR OVERHEAT - CAUTION");
