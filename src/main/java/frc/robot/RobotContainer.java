@@ -81,6 +81,8 @@ public class RobotContainer {
                                 Constants.Autonomous.MAX_TEMP),
                         new DriveForTime(drive, Constants.Autonomous.MOVE_SPEED, Constants.Autonomous.COMM_LEAVE_TIME,
                                 Constants.Autonomous.MAX_TEMP));
+            case LEAVE_STRAIGHT:
+                return new DriveForTime(drive, Constants.Autonomous.MOVE_SPEED, Constants.Autonomous.COMM_LEAVE_TIME, Constants.Autonomous.MAX_TEMP);
             case DOCK:
                 return new SequentialCommandGroup(
                         Commands.waitUntil(gyro::isReady),

@@ -6,7 +6,8 @@ package frc.robot;
 
 public final class Constants {
 public static enum AutonomousSequence { // Enum to use for different autonomous sequences
-    LEAVE, // Leave the community area
+    LEAVE, // Leave the community area, over the charging station (center pos)
+    LEAVE_STRAIGHT, // Leave the community area, by driving straight (side pos)
     DOCK, // Dock with the charging station
     LEAVE_DOCK, // Leave the community area, then dock. NOTE: Only designed for PID arm movement
     ARM_LEAVE_DOCK, // Raise the arm, leave the community area, then dock. NOTE: Only designed for PID arm movement
@@ -92,6 +93,7 @@ public final static class Autonomous {
     final static double TURN_SPEED = 0.3; // Percent speed (0-1) for turning the robot
     final static double FLOOR_ANGLE = 3; // Absolute angle (in degrees) to be considered on the floor
     final static double COMM_LEAVE_TIME = 0.45; // Time in seconds that are needed to leave the community area (after passing charging station)
+    final static double COMM_LEAVE_STRAIGHT_TIME = 1.8; // Time in seconds that are needed to leave the community area (without going over the charging station)
     final static double DOWN_SCALE = 0.85; // Amount to scale the speed of the drive when going down the charging station (for LEAVE_DOCK)
     final static double MAX_TEMP = 60; // Maximum temperature (in degrees C) before autonomous stops
     public final class DockPID { // Forwards docking
