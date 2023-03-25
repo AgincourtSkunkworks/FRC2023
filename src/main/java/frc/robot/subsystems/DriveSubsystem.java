@@ -10,7 +10,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class DriveSubsystem extends SubsystemBase {
     TalonFX leftMotor1, leftMotor2, rightMotor1, rightMotor2;
     TalonFX[] leftMotors, rightMotors, motors;
-    double lCorrect, rCorrect, brakeThreshold;
+    double lCorrect, rCorrect, brakeThreshold, thermalWarning;
 
     /**
      * Creates a new DriveSubsystem.
@@ -23,9 +23,11 @@ public class DriveSubsystem extends SubsystemBase {
      * @param rInvert  Whether or not to invert the right motors
      * @param lCorrect Percent of speed to add to left motors (0-1)
      * @param rCorrect Percent of speed to add to right motors (0-1)
+     * @param brakeThreshold The speed at which it rounds down to 0 and brakes
+     * @param thermalWarning The motor temperature in which a warning is sent to the driver station
      */
     public DriveSubsystem(int l1ID, int l2ID, int r1ID, int r2ID, boolean lInvert, boolean rInvert, double lCorrect,
-            double rCorrect, double brakeThreshold) {
+            double rCorrect, double brakeThreshold, double thermalWarning) {
         leftMotor1 = new TalonFX(l1ID);
         leftMotor2 = new TalonFX(l2ID);
         rightMotor1 = new TalonFX(r1ID);
@@ -38,6 +40,7 @@ public class DriveSubsystem extends SubsystemBase {
         this.lCorrect = 1 + lCorrect;
         this.rCorrect = 1 + rCorrect;
         this.brakeThreshold = brakeThreshold;
+        this.thermalWarning = thermalWarning;
 
         for (TalonFX motor : motors)
             motor.setNeutralMode(NeutralMode.Brake);
@@ -154,5 +157,11 @@ public class DriveSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("LM2 Temp", getLeft2Temp());
         SmartDashboard.putNumber("RM1 Temp", getRight1Temp());
         SmartDashboard.putNumber("RM2 Temp", getRight2Temp());
+
+        if (getHighestTemp() > thermalWarning) {
+            SmartDashboard.putString("WARNING", "MOTOR OVERHEAT - CAUTION");
+        } else {
+            SmartDashboard.putString("WARNING", "");
+        }
     }
 }
