@@ -75,7 +75,8 @@ public class RobotContainer {
                         Commands.waitUntil(gyro::isReady),
                         Commands.runOnce(gyro::zeroYaw),
                         new DriveUntilPitch(drive, gyro, Constants.Autonomous.MOVE_SPEED, 0, 3, true),
-                        new DriveUntilPitch(drive, gyro, Constants.Autonomous.MOVE_SPEED * Constants.Autonomous.DOWN_SCALE, 0, 3, false),
+                        new DriveUntilPitch(drive, gyro,
+                                Constants.Autonomous.MOVE_SPEED * Constants.Autonomous.DOWN_SCALE, 0, 3, false),
                         new DriveForTime(drive, Constants.Autonomous.MOVE_SPEED, Constants.Autonomous.COMM_LEAVE_TIME));
             case DOCK:
                 return new SequentialCommandGroup(
@@ -89,10 +90,29 @@ public class RobotContainer {
                         Commands.waitUntil(gyro::isReady),
                         Commands.runOnce(gyro::zeroYaw),
                         new DriveUntilPitch(drive, gyro, Constants.Autonomous.MOVE_SPEED, 0, 3, true),
-                        new DriveUntilPitch(drive, gyro, Constants.Autonomous.MOVE_SPEED * Constants.Autonomous.DOWN_SCALE, 0, 3, false),
+                        new DriveUntilPitch(drive, gyro,
+                                Constants.Autonomous.MOVE_SPEED * Constants.Autonomous.DOWN_SCALE, 0, 3, false),
                         new DriveForTime(drive, Constants.Autonomous.MOVE_SPEED, Constants.Autonomous.COMM_LEAVE_TIME),
                         new DriveUntilPitch(drive, gyro, -Constants.Autonomous.MOVE_SPEED, 0, 7, true),
-                        new DockPID(drive, gyro, Constants.Autonomous.DockPID.P * Constants.Autonomous.DockPID.P_REVERSE_SCALE, Constants.Autonomous.DockPID.I,
+                        new DockPID(drive, gyro,
+                                Constants.Autonomous.DockPID.P * Constants.Autonomous.DockPID.P_REVERSE_SCALE,
+                                Constants.Autonomous.DockPID.I,
+                                Constants.Autonomous.DockPID.D, Constants.Autonomous.DockPID.I_TOLERANCE));
+            case ARM_LEAVE_DOCK: // TODO: Test ARM_LEAVE_DOCK
+                return new SequentialCommandGroup(
+                        Commands.waitUntil(gyro::isReady),
+                        Commands.runOnce(gyro::zeroYaw),
+                        new ArmPID(arm, Constants.Arm.PS_HIGH_POS, Constants.Arm.PID.P, Constants.Arm.PID.P_D,
+                                Constants.Arm.PID.I, Constants.Arm.PID.D, Constants.Arm.PID.I_TOLERANCE,
+                                Constants.Arm.LIMIT),
+                        new DriveUntilPitch(drive, gyro, Constants.Autonomous.MOVE_SPEED, 0, 3, true),
+                        new DriveUntilPitch(drive, gyro,
+                                Constants.Autonomous.MOVE_SPEED * Constants.Autonomous.DOWN_SCALE, 0, 3, false),
+                        new DriveForTime(drive, Constants.Autonomous.MOVE_SPEED, Constants.Autonomous.COMM_LEAVE_TIME),
+                        new DriveUntilPitch(drive, gyro, -Constants.Autonomous.MOVE_SPEED, 0, 7, true),
+                        new DockPID(drive, gyro,
+                                Constants.Autonomous.DockPID.P * Constants.Autonomous.DockPID.P_REVERSE_SCALE,
+                                Constants.Autonomous.DockPID.I,
                                 Constants.Autonomous.DockPID.D, Constants.Autonomous.DockPID.I_TOLERANCE));
             case NONE:
                 return null;

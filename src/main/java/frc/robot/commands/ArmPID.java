@@ -9,7 +9,7 @@ import frc.robot.subsystems.ArmSubsystem;
 // TODO: Create custom parent class for PID commands
 public class ArmPID extends CommandBase {
     ArmSubsystem arm;
-    double target, p, pD, i, d, lastRunTime, iTolerance, errorSum, lastError, failsafeLimit;
+    double target, p, pD, i, d, startTime, lastRunTime, iTolerance, errorSum, lastError, failsafeLimit, stopAfterTime;
     boolean hasITolerance, failsafe = false;
 
     /**
@@ -38,6 +38,38 @@ public class ArmPID extends CommandBase {
         this.iTolerance = iTolerance;
         this.failsafeLimit = failsafeLimit;
         this.hasITolerance = iTolerance != 0;
+        this.stopAfterTime = 0;
+    }
+
+    /**
+     * Creates a ArmPID Command. This command is used to move the arm to a specific
+     * position, using PID control, ending after a certain amount of time.
+     * 
+     * @param arm           The arm subsystem
+     * @param target        The target position
+     * @param p             The P value of PID
+     * @param pD            The P value of PID when the arm is moving down
+     * @param i             The I value of PID
+     * @param d             The D value of PID
+     * @param iTolerance    Under this tolerance, the errorSum will be increased.
+     *                      Set to 0 to disable.
+     * @param failsafeLimit Software limit on arm position to stop all arm movement.
+     * @param stopAfterTime Stop the arm after a certain amount of time in seconds
+     */
+    public ArmPID(ArmSubsystem arm, double target, double p, double pD, double i, double d, double iTolerance,
+            double failsafeLimit, double stopAfterTime) {
+        addRequirements(arm);
+        this.arm = arm;
+        this.target = target;
+        this.p = p;
+        this.pD = pD;
+        this.i = i;
+        this.d = d;
+        this.iTolerance = iTolerance;
+        this.failsafeLimit = failsafeLimit;
+        this.hasITolerance = iTolerance != 0;
+        this.startTime = Timer.getFPGATimestamp();
+        this.stopAfterTime = stopAfterTime;
     }
 
     @Override
@@ -78,6 +110,6 @@ public class ArmPID extends CommandBase {
 
     @Override
     public boolean isFinished() {
-        return this.failsafe;
+        return this.failsafe || (this.stopAfterTime > 0 && Timer.getFPGATimestamp() - this.startTime >= this.stopAfterTime);
     }
 }
