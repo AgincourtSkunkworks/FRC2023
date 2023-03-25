@@ -54,13 +54,13 @@ public final static class Arm {
     final static int PS_LOW_BTN = Buttons.L2; // Button to use for low preset
     final static int PS_HIGH_BTN = Buttons.R2; // Button to use for high preset
     final static double TOLERANCE = 250; // Tolerance for arm position (in encoder ticks) for Bang Bang control
-    final static double LIMIT = 18900; // Software limit for arm position to hard stop at (in encoder ticks)
+    final static double LIMIT = 19000; // Software limit for arm position to hard stop at (in encoder ticks)
     final static double SPEED = 0.18; // Speed for arm movement, when using bang bang
     final static double REVERSE_SPEED = 0; // Speed for arm movement in reverse, when using bang bang (0 to use brake)
     final static double OVERRIDE_SPEED = 0.25; // Speed for arm movement when using manual override
     final static double OVERRIDE_REVERSE_SPEED = -0.15; // Speed for arm movement when using manual override in reverse
     final static double PS_LOW_POS = 0; // Low position for arm (in encoder ticks)
-    final static double PS_HIGH_POS = 18000; // High position for arm (in encoder ticks)
+    final static double PS_HIGH_POS = 18500; // High position for arm (in encoder ticks)
     final static ArmMovement TYPE = ArmMovement.PID; // Whether to use bang bang or PID for arm movement
     public final class PID {
         final static double P = 0.000035; // Proportional constant for PID
