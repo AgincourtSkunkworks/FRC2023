@@ -102,6 +102,8 @@ public class RobotContainer {
                 return new SequentialCommandGroup(
                         Commands.waitUntil(gyro::isReady),
                         Commands.runOnce(gyro::zeroYaw),
+                        Commands.runOnce(arm::resetInitialPos),
+                        Commands.runOnce(arm::reenable),
                         new ArmPID(arm, Constants.Arm.PS_HIGH_POS, Constants.Arm.PID.P, Constants.Arm.PID.P_D,
                                 Constants.Arm.PID.I, Constants.Arm.PID.D, Constants.Arm.PID.I_TOLERANCE,
                                 Constants.Arm.LIMIT),
