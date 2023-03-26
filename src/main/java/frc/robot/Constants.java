@@ -83,11 +83,11 @@ public final static class Drive {
         final static boolean SUPPLY = true;
         final static double SUPPLY_LIMIT = 100;
         final static double SUPPLY_TRIGGER = 100;
-        final static double SUPPLY_TRIGGER_TIME = 0;
+        final static double SUPPLY_TRIGGER_TIME = 0.15;
         final static boolean STATOR = true;
         final static double STATOR_LIMIT = 100;
         final static double STATOR_TRIGGER = 100;
-        final static double STATOR_TRIGGER_TIME = 0;
+        final static double STATOR_TRIGGER_TIME = 0.15;
     }
 }
 
@@ -106,7 +106,7 @@ public final static class Autonomous {
     final static double COMM_LEAVE_STRAIGHT_TIME = 1.8; // Time in seconds that are needed to leave the community area (without going over the charging station)
     final static double DOWN_SCALE = 0.85; // Amount to scale the speed of the drive when going down the charging station (for LEAVE_DOCK)
     final static double REV_SCALE = 1.134; // Amount to scale the speed of the drive when backing up into the charging station
-    final static double MAX_TEMP = 80; // Maximum temperature (in degrees C) before autonomous stops
+    final static double MAX_TEMP = 60; // Maximum temperature (in degrees C) before autonomous stops
     public final class DockPID { // Forwards docking
         final static double P = 0.0125; // Proportional constant for PID
         final static double I = 0.0045; // Integral constant for PID
