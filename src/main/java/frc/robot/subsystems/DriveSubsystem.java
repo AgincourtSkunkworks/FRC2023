@@ -4,14 +4,14 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.StatorCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
-import com.ctre.phoenix.motorcontrol.can.TalonFX;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class DriveSubsystem extends SubsystemBase {
-    TalonFX leftMotor1, leftMotor2, rightMotor1, rightMotor2;
-    TalonFX[] leftMotors, rightMotors, motors;
+    WPI_TalonFX leftMotor1, leftMotor2, rightMotor1, rightMotor2;
+    WPI_TalonFX[] leftMotors, rightMotors, motors;
     double lCorrect, rCorrect, brakeThreshold, thermalWarning;
 
     /**
@@ -32,31 +32,31 @@ public class DriveSubsystem extends SubsystemBase {
             double rCorrect, double brakeThreshold, double thermalWarning, boolean currentSupply, double currentSupplyLimit,
             double currentSupplyTrigger, double currentSupplyTriggerTime, boolean currentStator, double currentStatorLimit,
             double currentStatorTrigger, double currentStatorTriggerTime) {
-        leftMotor1 = new TalonFX(l1ID);
-        leftMotor2 = new TalonFX(l2ID);
-        rightMotor1 = new TalonFX(r1ID);
-        rightMotor2 = new TalonFX(r2ID);
+        leftMotor1 = new WPI_TalonFX(l1ID);
+        leftMotor2 = new WPI_TalonFX(l2ID);
+        rightMotor1 = new WPI_TalonFX(r1ID);
+        rightMotor2 = new WPI_TalonFX(r2ID);
 
-        leftMotors = new TalonFX[] { leftMotor1, leftMotor2 };
-        rightMotors = new TalonFX[] { rightMotor1, rightMotor2 };
-        motors = new TalonFX[] { leftMotor1, leftMotor2, rightMotor1, rightMotor2 };
+        leftMotors = new WPI_TalonFX[] { leftMotor1, leftMotor2 };
+        rightMotors = new WPI_TalonFX[] { rightMotor1, rightMotor2 };
+        motors = new WPI_TalonFX[] { leftMotor1, leftMotor2, rightMotor1, rightMotor2 };
 
         this.lCorrect = 1 + lCorrect;
         this.rCorrect = 1 + rCorrect;
         this.brakeThreshold = brakeThreshold;
         this.thermalWarning = thermalWarning;
 
-        for (TalonFX motor : motors) {
+        for (WPI_TalonFX motor : motors) {
             motor.setNeutralMode(NeutralMode.Brake);
             motor.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(currentSupply, currentSupplyLimit, currentSupplyTrigger, currentSupplyTriggerTime));
             motor.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(currentStator, currentStatorLimit, currentStatorTrigger, currentStatorTriggerTime));
         }
 
         if (lInvert)
-            for (TalonFX motor : leftMotors)
+            for (WPI_TalonFX motor : leftMotors)
                 motor.setInverted(true);
         if (rInvert)
-            for (TalonFX motor : rightMotors)
+            for (WPI_TalonFX motor : rightMotors)
                 motor.setInverted(true);
     }
 
@@ -67,7 +67,7 @@ public class DriveSubsystem extends SubsystemBase {
      */
     public void setLeftMotors(double speed) {
         if (speed > 0 && speed < brakeThreshold || speed < 0 && speed > -brakeThreshold) speed = 0;
-        for (TalonFX motor : leftMotors)
+        for (WPI_TalonFX motor : leftMotors)
             motor.set(ControlMode.PercentOutput, speed * lCorrect);
     }
 
@@ -78,7 +78,7 @@ public class DriveSubsystem extends SubsystemBase {
      */
     public void setRightMotors(double speed) {
         if (speed > 0 && speed < brakeThreshold || speed < 0 && speed > -brakeThreshold) speed = 0;
-        for (TalonFX motor : rightMotors)
+        for (WPI_TalonFX motor : rightMotors)
             motor.set(ControlMode.PercentOutput, speed * rCorrect);
     }
 
@@ -148,7 +148,7 @@ public class DriveSubsystem extends SubsystemBase {
 
     public double getHighestTemp() {
         double highest = 0;
-        for (TalonFX motor : motors)
+        for (WPI_TalonFX motor : motors)
             if (motor.getTemperature() > highest)
                 highest = motor.getTemperature();
         return highest;
