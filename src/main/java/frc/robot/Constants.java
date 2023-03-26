@@ -103,7 +103,7 @@ public final static class Autonomous {
     final static double FLOOR_ANGLE = 3; // Absolute angle (in degrees) to be considered on the floor
     final static double ARM_TIME = 1.5; // Time to raise arm for (start to end)
     final static double COMM_LEAVE_TIME = 0.45; // Time in seconds that are needed to leave the community area (after passing charging station)
-    final static double COMM_LEAVE_STRAIGHT_TIME = 2; // Time in seconds that are needed to leave the community area (without going over the charging station)
+    final static double COMM_LEAVE_STRAIGHT_TIME = 1.6; // Time in seconds that are needed to leave the community area (without going over the charging station)
     final static double DOWN_SCALE = 0.85; // Amount to scale the speed of the drive when going down the charging station (for LEAVE_DOCK)
     final static double REV_SCALE = 1.134; // Amount to scale the speed of the drive when backing up into the charging station
     final static double MAX_TEMP = 60; // Maximum temperature (in degrees C) before autonomous stops
@@ -124,6 +124,6 @@ public final static class Autonomous {
 public final static class TeleOp {
     final static int LEFT_DRIVE_STICK = Joystick.LY; // Joystick to use for left motor control
     final static int RIGHT_DRIVE_STICK = Joystick.RY; // Joystick to use for right motor control
-    final static double SLEW_RATE_LIMIT = 0.5; // Slew limit for motor control, shared on left & right
+    final static double SLEW_RATE_LIMIT = 0.9; // Slew limit for motor control, shared on left & right
 }
 }
