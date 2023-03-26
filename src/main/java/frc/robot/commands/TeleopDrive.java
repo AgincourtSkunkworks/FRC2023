@@ -9,7 +9,6 @@ import frc.robot.subsystems.DriveSubsystem;
 
 public class TeleopDrive extends CommandBase {
     DriveSubsystem drive;
-    double driveScale, turnScale;
     Supplier<Double> lSpeedFunc, rSpeedFunc;
     SlewRateLimiter leftLimiter, rightLimiter;
 
