@@ -87,7 +87,6 @@ public final static class Gyro {
 }
 
 public final static class Autonomous {
-    final static AutonomousSequence SEQUENCE = AutonomousSequence.DOCK; // Sequence to use in autonomous
     final static int TURN_RADIUS = 90; // Amount to turn (in degrees) for turning commands
     final static double MOVE_SPEED = 0.24; // Percent speed (0-1) for moving the robot
     final static double TURN_SPEED = 0.3; // Percent speed (0-1) for turning the robot

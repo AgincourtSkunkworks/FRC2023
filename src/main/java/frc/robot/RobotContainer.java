@@ -5,7 +5,8 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.Joystick;
-
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
@@ -22,6 +23,7 @@ public class RobotContainer {
             Constants.Drive.BRAKE_THRESHOLD, Constants.Drive.THERMAL_WARNING);
     private final Joystick controller = new Joystick(Constants.ID.JOYSTICK);
     private final GyroSubsystem gyro = new GyroSubsystem(Constants.Gyro.USE_ROLL, Constants.Gyro.UPSIDE_DOWN);
+    private final SendableChooser<Command> autoChooser = new SendableChooser<>();
 
     public RobotContainer() {
         configureButtonBindings();
@@ -38,6 +40,71 @@ public class RobotContainer {
                                 Constants.Arm.PID.D, Constants.Arm.PID.I_TOLERANCE, Constants.Arm.LIMIT)
                         : new ArmBangBang(arm, Constants.Arm.PS_LOW_POS, Constants.Arm.TOLERANCE, Constants.Arm.SPEED,
                                 Constants.Arm.REVERSE_SPEED, Constants.Arm.LIMIT));
+
+        autoChooser.setDefaultOption("Dock", new SequentialCommandGroup(
+                Commands.waitUntil(gyro::isReady),
+                Commands.runOnce(gyro::zeroYaw),
+                new DriveUntilPitch(drive, gyro, Constants.Autonomous.MOVE_SPEED, 0, 3, true,
+                        Constants.Autonomous.MAX_TEMP),
+                new DockPID(drive, gyro, Constants.Autonomous.DockPID.P, Constants.Autonomous.DockPID.I,
+                        Constants.Autonomous.DockPID.D, Constants.Autonomous.DockPID.I_TOLERANCE,
+                        Constants.Autonomous.MAX_TEMP)));
+        autoChooser.addOption("Leave (Charging Station)", new SequentialCommandGroup(
+                Commands.waitUntil(gyro::isReady),
+                Commands.runOnce(gyro::zeroYaw),
+                new DriveUntilPitch(drive, gyro, Constants.Autonomous.MOVE_SPEED, 0, 3, true,
+                        Constants.Autonomous.MAX_TEMP),
+                new DriveUntilPitch(drive, gyro,
+                        Constants.Autonomous.MOVE_SPEED * Constants.Autonomous.DOWN_SCALE, 0, 3, false,
+                        Constants.Autonomous.MAX_TEMP),
+                new DriveForTime(drive, Constants.Autonomous.MOVE_SPEED, Constants.Autonomous.COMM_LEAVE_TIME,
+                        Constants.Autonomous.MAX_TEMP)));
+        autoChooser.addOption("Leave (Straight)", new DriveForTime(drive, Constants.Autonomous.MOVE_SPEED,
+                Constants.Autonomous.COMM_LEAVE_TIME, Constants.Autonomous.MAX_TEMP));
+        autoChooser.addOption("Leave & Dock", new SequentialCommandGroup(
+                Commands.waitUntil(gyro::isReady),
+                Commands.runOnce(gyro::zeroYaw),
+                new DriveUntilPitch(drive, gyro, Constants.Autonomous.MOVE_SPEED, 0, 3, true,
+                        Constants.Autonomous.MAX_TEMP),
+                new DriveUntilPitch(drive, gyro,
+                        Constants.Autonomous.MOVE_SPEED * Constants.Autonomous.DOWN_SCALE, 0, 3, false,
+                        Constants.Autonomous.MAX_TEMP),
+                new DriveForTime(drive, Constants.Autonomous.MOVE_SPEED, Constants.Autonomous.COMM_LEAVE_TIME,
+                        Constants.Autonomous.MAX_TEMP),
+                new DriveUntilPitch(drive, gyro, -Constants.Autonomous.MOVE_SPEED, 0, 7, true,
+                        Constants.Autonomous.MAX_TEMP),
+                new DockPID(drive, gyro,
+                        Constants.Autonomous.DockPIDReverse.P
+                                * Constants.Autonomous.DockPIDReverse.P_REVERSE_SCALE,
+                        Constants.Autonomous.DockPIDReverse.I,
+                        Constants.Autonomous.DockPIDReverse.D, Constants.Autonomous.DockPIDReverse.I_TOLERANCE,
+                        Constants.Autonomous.MAX_TEMP)));
+        autoChooser.addOption("Arm & Leave & Dock", new SequentialCommandGroup(
+                Commands.waitUntil(gyro::isReady),
+                Commands.runOnce(gyro::zeroYaw),
+                Commands.runOnce(arm::resetInitialPos),
+                Commands.runOnce(arm::reenable),
+                new ArmPID(arm, Constants.Arm.PS_HIGH_POS, Constants.Arm.PID.P, Constants.Arm.PID.P_D,
+                        Constants.Arm.PID.I, Constants.Arm.PID.D, Constants.Arm.PID.I_TOLERANCE,
+                        Constants.Arm.LIMIT),
+                new DriveUntilPitch(drive, gyro, Constants.Autonomous.MOVE_SPEED, 0, 3, true,
+                        Constants.Autonomous.MAX_TEMP),
+                new DriveUntilPitch(drive, gyro,
+                        Constants.Autonomous.MOVE_SPEED * Constants.Autonomous.DOWN_SCALE, 0, 3, false,
+                        Constants.Autonomous.MAX_TEMP),
+                new DriveForTime(drive, Constants.Autonomous.MOVE_SPEED, Constants.Autonomous.COMM_LEAVE_TIME,
+                        Constants.Autonomous.MAX_TEMP),
+                new DriveUntilPitch(drive, gyro, -Constants.Autonomous.MOVE_SPEED, 0, 7, true,
+                        Constants.Autonomous.MAX_TEMP),
+                new DockPID(drive, gyro,
+                        Constants.Autonomous.DockPIDReverse.P
+                                * Constants.Autonomous.DockPIDReverse.P_REVERSE_SCALE,
+                        Constants.Autonomous.DockPIDReverse.I,
+                        Constants.Autonomous.DockPIDReverse.D, Constants.Autonomous.DockPIDReverse.I_TOLERANCE,
+                        Constants.Autonomous.MAX_TEMP)));
+        autoChooser.addOption("None", null);
+
+        SmartDashboard.putData(autoChooser);
     }
 
     @SuppressWarnings("all") // false positives from use of config constants
@@ -67,79 +134,7 @@ public class RobotContainer {
                                 Constants.Arm.REVERSE_SPEED, Constants.Arm.LIMIT));
     }
 
-    @SuppressWarnings("all") // false positives from use of config constants
     public Command getAutonomousCommand() {
-        switch (Constants.Autonomous.SEQUENCE) {
-            case LEAVE:
-                return new SequentialCommandGroup(
-                        Commands.waitUntil(gyro::isReady),
-                        Commands.runOnce(gyro::zeroYaw),
-                        new DriveUntilPitch(drive, gyro, Constants.Autonomous.MOVE_SPEED, 0, 3, true,
-                                Constants.Autonomous.MAX_TEMP),
-                        new DriveUntilPitch(drive, gyro,
-                                Constants.Autonomous.MOVE_SPEED * Constants.Autonomous.DOWN_SCALE, 0, 3, false,
-                                Constants.Autonomous.MAX_TEMP),
-                        new DriveForTime(drive, Constants.Autonomous.MOVE_SPEED, Constants.Autonomous.COMM_LEAVE_TIME,
-                                Constants.Autonomous.MAX_TEMP));
-            case LEAVE_STRAIGHT:
-                return new DriveForTime(drive, Constants.Autonomous.MOVE_SPEED, Constants.Autonomous.COMM_LEAVE_TIME, Constants.Autonomous.MAX_TEMP);
-            case DOCK:
-                return new SequentialCommandGroup(
-                        Commands.waitUntil(gyro::isReady),
-                        Commands.runOnce(gyro::zeroYaw),
-                        new DriveUntilPitch(drive, gyro, Constants.Autonomous.MOVE_SPEED, 0, 3, true,
-                                Constants.Autonomous.MAX_TEMP),
-                        new DockPID(drive, gyro, Constants.Autonomous.DockPID.P, Constants.Autonomous.DockPID.I,
-                                Constants.Autonomous.DockPID.D, Constants.Autonomous.DockPID.I_TOLERANCE,
-                                Constants.Autonomous.MAX_TEMP));
-            case LEAVE_DOCK: // TODO: Test LEAVE_DOCK
-                return new SequentialCommandGroup(
-                        Commands.waitUntil(gyro::isReady),
-                        Commands.runOnce(gyro::zeroYaw),
-                        new DriveUntilPitch(drive, gyro, Constants.Autonomous.MOVE_SPEED, 0, 3, true,
-                                Constants.Autonomous.MAX_TEMP),
-                        new DriveUntilPitch(drive, gyro,
-                                Constants.Autonomous.MOVE_SPEED * Constants.Autonomous.DOWN_SCALE, 0, 3, false,
-                                Constants.Autonomous.MAX_TEMP),
-                        new DriveForTime(drive, Constants.Autonomous.MOVE_SPEED, Constants.Autonomous.COMM_LEAVE_TIME,
-                                Constants.Autonomous.MAX_TEMP),
-                        new DriveUntilPitch(drive, gyro, -Constants.Autonomous.MOVE_SPEED, 0, 7, true,
-                                Constants.Autonomous.MAX_TEMP),
-                        new DockPID(drive, gyro,
-                                Constants.Autonomous.DockPIDReverse.P
-                                        * Constants.Autonomous.DockPIDReverse.P_REVERSE_SCALE,
-                                Constants.Autonomous.DockPIDReverse.I,
-                                Constants.Autonomous.DockPIDReverse.D, Constants.Autonomous.DockPIDReverse.I_TOLERANCE,
-                                Constants.Autonomous.MAX_TEMP));
-            case ARM_LEAVE_DOCK: // TODO: Test ARM_LEAVE_DOCK
-                return new SequentialCommandGroup(
-                        Commands.waitUntil(gyro::isReady),
-                        Commands.runOnce(gyro::zeroYaw),
-                        Commands.runOnce(arm::resetInitialPos),
-                        Commands.runOnce(arm::reenable),
-                        new ArmPID(arm, Constants.Arm.PS_HIGH_POS, Constants.Arm.PID.P, Constants.Arm.PID.P_D,
-                                Constants.Arm.PID.I, Constants.Arm.PID.D, Constants.Arm.PID.I_TOLERANCE,
-                                Constants.Arm.LIMIT),
-                        new DriveUntilPitch(drive, gyro, Constants.Autonomous.MOVE_SPEED, 0, 3, true,
-                                Constants.Autonomous.MAX_TEMP),
-                        new DriveUntilPitch(drive, gyro,
-                                Constants.Autonomous.MOVE_SPEED * Constants.Autonomous.DOWN_SCALE, 0, 3, false,
-                                Constants.Autonomous.MAX_TEMP),
-                        new DriveForTime(drive, Constants.Autonomous.MOVE_SPEED, Constants.Autonomous.COMM_LEAVE_TIME,
-                                Constants.Autonomous.MAX_TEMP),
-                        new DriveUntilPitch(drive, gyro, -Constants.Autonomous.MOVE_SPEED, 0, 7, true,
-                                Constants.Autonomous.MAX_TEMP),
-                        new DockPID(drive, gyro,
-                                Constants.Autonomous.DockPIDReverse.P
-                                        * Constants.Autonomous.DockPIDReverse.P_REVERSE_SCALE,
-                                Constants.Autonomous.DockPIDReverse.I,
-                                Constants.Autonomous.DockPIDReverse.D, Constants.Autonomous.DockPIDReverse.I_TOLERANCE,
-                                Constants.Autonomous.MAX_TEMP));
-            case NONE:
-                return null;
-            default:
-                System.out.println("[ERROR] Invalid autonomous sequence");
-                return null;
-        }
+        return autoChooser.getSelected();
     }
 }
