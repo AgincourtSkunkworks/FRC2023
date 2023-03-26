@@ -68,7 +68,6 @@ public class ArmPID extends CommandBase {
         this.iTolerance = iTolerance;
         this.failsafeLimit = failsafeLimit;
         this.hasITolerance = iTolerance != 0;
-        this.startTime = Timer.getFPGATimestamp();
         this.stopAfterTime = stopAfterTime;
     }
 
@@ -79,6 +78,7 @@ public class ArmPID extends CommandBase {
         this.lastRunTime = 0;
         this.lastError = 0;
         this.failsafe = false;
+        this.startTime = Timer.getFPGATimestamp();
     }
 
     @Override
