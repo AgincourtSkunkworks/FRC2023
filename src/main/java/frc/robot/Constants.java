@@ -101,23 +101,23 @@ public final static class Autonomous {
     final static double MOVE_SPEED = 0.24; // Percent speed (0-1) for moving the robot
     final static double TURN_SPEED = 0.3; // Percent speed (0-1) for turning the robot
     final static double FLOOR_ANGLE = 3; // Absolute angle (in degrees) to be considered on the floor
+    final static double ARM_TIME = 1.5; // Time to raise arm for (start to end)
     final static double COMM_LEAVE_TIME = 0.45; // Time in seconds that are needed to leave the community area (after passing charging station)
     final static double COMM_LEAVE_STRAIGHT_TIME = 1.8; // Time in seconds that are needed to leave the community area (without going over the charging station)
     final static double DOWN_SCALE = 0.85; // Amount to scale the speed of the drive when going down the charging station (for LEAVE_DOCK)
-    final static double MAX_TEMP = 60; // Maximum temperature (in degrees C) before autonomous stops
+    final static double REV_SCALE = 1.134; // Amount to scale the speed of the drive when backing up into the charging station
+    final static double MAX_TEMP = 80; // Maximum temperature (in degrees C) before autonomous stops
     public final class DockPID { // Forwards docking
         final static double P = 0.0125; // Proportional constant for PID
         final static double I = 0.0045; // Integral constant for PID
         final static double D = 0.0008; // Derivative constant for PID
         final static double I_TOLERANCE = 1; // Tolerance for integral constant for PID (0 to disable)
-        final static double P_REVERSE_SCALE = 1.05; // Amount to scale the speed of the drive when going up the charging station in reverse (for LEAVE_DOCK)
     }
     public final class DockPIDReverse { // Backwards docking
-        final static double P = 0.0125; // Proportional constant for PID
-        final static double I = 0.0045; // Integral constant for PID
-        final static double D = 0.0008; // Derivative constant for PID
-        final static double I_TOLERANCE = 1; // Tolerance for integral constant for PID (0 to disable)
-        final static double P_REVERSE_SCALE = 1.05; // Amount to scale the speed of the drive when going up the charging station in reverse (for LEAVE_DOCK)
+        final static double P = 0.0129; // Proportional constant for PID
+        final static double I = 0.00413; // Integral constant for PID
+        final static double D = 0.0018; // Derivative constant for PID
+        final static double I_TOLERANCE = 0.8; // Tolerance for integral constant for PID (0 to disable)
     }
 }
 

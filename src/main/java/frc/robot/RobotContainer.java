@@ -83,11 +83,10 @@ public class RobotContainer {
                         Constants.Autonomous.MAX_TEMP),
                 new DriveForTime(drive, Constants.Autonomous.MOVE_SPEED, Constants.Autonomous.COMM_LEAVE_TIME,
                         Constants.Autonomous.MAX_TEMP),
-                new DriveUntilPitch(drive, gyro, -Constants.Autonomous.MOVE_SPEED, 0, 7, true,
+                new DriveUntilPitch(drive, gyro, -Constants.Autonomous.MOVE_SPEED * Constants.Autonomous.REV_SCALE, 0, 7, true,
                         Constants.Autonomous.MAX_TEMP),
                 new DockPID(drive, gyro,
-                        Constants.Autonomous.DockPIDReverse.P
-                                * Constants.Autonomous.DockPIDReverse.P_REVERSE_SCALE,
+                        Constants.Autonomous.DockPIDReverse.P,
                         Constants.Autonomous.DockPIDReverse.I,
                         Constants.Autonomous.DockPIDReverse.D, Constants.Autonomous.DockPIDReverse.I_TOLERANCE,
                         Constants.Autonomous.MAX_TEMP)));
@@ -106,11 +105,10 @@ public class RobotContainer {
                         Constants.Autonomous.MAX_TEMP),
                 new DriveForTime(drive, Constants.Autonomous.MOVE_SPEED, Constants.Autonomous.COMM_LEAVE_TIME,
                         Constants.Autonomous.MAX_TEMP),
-                new DriveUntilPitch(drive, gyro, -Constants.Autonomous.MOVE_SPEED, 0, 7, true,
+                new DriveUntilPitch(drive, gyro, -Constants.Autonomous.MOVE_SPEED * Constants.Autonomous.REV_SCALE, 0, 7, true,
                         Constants.Autonomous.MAX_TEMP),
                 new DockPID(drive, gyro,
-                        Constants.Autonomous.DockPIDReverse.P
-                                * Constants.Autonomous.DockPIDReverse.P_REVERSE_SCALE,
+                        Constants.Autonomous.DockPIDReverse.P,
                         Constants.Autonomous.DockPIDReverse.I,
                         Constants.Autonomous.DockPIDReverse.D, Constants.Autonomous.DockPIDReverse.I_TOLERANCE,
                         Constants.Autonomous.MAX_TEMP)));
