@@ -79,6 +79,16 @@ public final static class Drive {
     final static double THERMAL_WARNING = 85; // Temperature (in degrees C) to warn the driver about
     final static boolean LM_INVERSE = false; // Whether the left motors are inverted
     final static boolean RM_INVERSE = true; // Whether the right motors are inverted
+    public final class CurrentLimit { // TODO: Test and tune current limits -- redo PID for new limits
+        final static boolean SUPPLY = true;
+        final static double SUPPLY_LIMIT = 65;
+        final static double SUPPLY_TRIGGER = 75;
+        final static double SUPPLY_TRIGGER_TIME = 0.5;
+        final static boolean STATOR = true;
+        final static double STATOR_LIMIT = 60;
+        final static double STATOR_TRIGGER = 70;
+        final static double STATOR_TRIGGER_TIME = 0.5;
+    }
 }
 
 public final static class Gyro {

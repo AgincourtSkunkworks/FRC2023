@@ -20,7 +20,11 @@ public class RobotContainer {
     private final DriveSubsystem drive = new DriveSubsystem(
             Constants.ID.L1, Constants.ID.L2, Constants.ID.R1, Constants.ID.R2, Constants.Drive.LM_INVERSE,
             Constants.Drive.RM_INVERSE, Constants.Drive.LM_SPEED_OFFSET, Constants.Drive.RM_SPEED_OFFSET,
-            Constants.Drive.BRAKE_THRESHOLD, Constants.Drive.THERMAL_WARNING);
+            Constants.Drive.BRAKE_THRESHOLD, Constants.Drive.THERMAL_WARNING, Constants.Drive.CurrentLimit.SUPPLY,
+            Constants.Drive.CurrentLimit.SUPPLY_LIMIT, Constants.Drive.CurrentLimit.SUPPLY_TRIGGER,
+            Constants.Drive.CurrentLimit.SUPPLY_TRIGGER_TIME, Constants.Drive.CurrentLimit.STATOR,
+            Constants.Drive.CurrentLimit.STATOR_LIMIT, Constants.Drive.CurrentLimit.STATOR_TRIGGER,
+            Constants.Drive.CurrentLimit.STATOR_TRIGGER_TIME);
     private final Joystick controller = new Joystick(Constants.ID.JOYSTICK);
     private final GyroSubsystem gyro = new GyroSubsystem(Constants.Gyro.USE_ROLL, Constants.Gyro.UPSIDE_DOWN);
     private final SendableChooser<Command> autoChooser = new SendableChooser<>();

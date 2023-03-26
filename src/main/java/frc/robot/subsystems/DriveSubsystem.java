@@ -29,7 +29,9 @@ public class DriveSubsystem extends SubsystemBase {
      * @param thermalWarning The motor temperature in which a warning is sent to the driver station
      */
     public DriveSubsystem(int l1ID, int l2ID, int r1ID, int r2ID, boolean lInvert, boolean rInvert, double lCorrect,
-            double rCorrect, double brakeThreshold, double thermalWarning) {
+            double rCorrect, double brakeThreshold, double thermalWarning, boolean currentSupply, double currentSupplyLimit,
+            double currentSupplyTrigger, double currentSupplyTriggerTime, boolean currentStator, double currentStatorLimit,
+            double currentStatorTrigger, double currentStatorTriggerTime) {
         leftMotor1 = new TalonFX(l1ID);
         leftMotor2 = new TalonFX(l2ID);
         rightMotor1 = new TalonFX(r1ID);
@@ -46,9 +48,8 @@ public class DriveSubsystem extends SubsystemBase {
 
         for (TalonFX motor : motors) {
             motor.setNeutralMode(NeutralMode.Brake);
-            // TODO: TEST CURRENT LIMITS
-            motor.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(true, 65, 75, 0.5));
-            motor.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(true, 60, 70, 0.5));
+            motor.configSupplyCurrentLimit(new SupplyCurrentLimitConfiguration(currentSupply, currentSupplyLimit, currentSupplyTrigger, currentSupplyTriggerTime));
+            motor.configStatorCurrentLimit(new StatorCurrentLimitConfiguration(currentStator, currentStatorLimit, currentStatorTrigger, currentStatorTriggerTime));
         }
 
         if (lInvert)
