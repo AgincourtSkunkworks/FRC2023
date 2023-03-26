@@ -64,7 +64,7 @@ public class RobotContainer {
                 new DriveForTime(drive, Constants.Autonomous.MOVE_SPEED, Constants.Autonomous.COMM_LEAVE_TIME,
                         Constants.Autonomous.MAX_TEMP)));
         autoChooser.addOption("Leave (Straight)", new DriveForTime(drive, Constants.Autonomous.MOVE_SPEED,
-                Constants.Autonomous.COMM_LEAVE_TIME, Constants.Autonomous.MAX_TEMP));
+                Constants.Autonomous.COMM_LEAVE_STRAIGHT_TIME, Constants.Autonomous.MAX_TEMP));
         autoChooser.addOption("Leave & Dock", new SequentialCommandGroup(
                 Commands.waitUntil(gyro::isReady),
                 Commands.runOnce(gyro::zeroYaw),
