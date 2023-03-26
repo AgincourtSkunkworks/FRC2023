@@ -35,8 +35,7 @@ public class RobotContainer {
         drive.setDefaultCommand(
                 new TeleopDrive(drive, () -> -controller.getRawAxis(Constants.TeleOp.LEFT_DRIVE_STICK),
                         () -> -controller.getRawAxis(Constants.TeleOp.RIGHT_DRIVE_STICK),
-                        () -> controller.getRawButton(Constants.TeleOp.TURBO_BTN), Constants.TeleOp.MOVE_SCALE,
-                        Constants.TeleOp.TURN_SCALE));
+                        Constants.TeleOp.SLEW_RATE_LIMIT));
         arm.setDefaultCommand(
                 (Constants.Arm.TYPE == Constants.ArmMovement.PID)
                         ? new ArmPID(arm, Constants.Arm.PS_LOW_POS, Constants.Arm.PID.P, Constants.Arm.PID.P_D,
