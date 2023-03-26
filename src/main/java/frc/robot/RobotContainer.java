@@ -44,8 +44,14 @@ public class RobotContainer {
                                 Constants.Arm.PID.D, Constants.Arm.PID.I_TOLERANCE, Constants.Arm.LIMIT)
                         : new ArmBangBang(arm, Constants.Arm.PS_LOW_POS, Constants.Arm.TOLERANCE, Constants.Arm.SPEED,
                                 Constants.Arm.REVERSE_SPEED, Constants.Arm.LIMIT));
-
-        autoChooser.setDefaultOption("Dock", new SequentialCommandGroup(
+        autoChooser.setDefaultOption("Arm & Leave (Straight)", new SequentialCommandGroup(
+                Commands.runOnce(arm::resetInitialPos),
+                Commands.runOnce(arm::reenable),
+                new ArmPID(arm, Constants.Arm.PS_HIGH_POS, Constants.Arm.PID.P, Constants.Arm.PID.P_D,
+                        Constants.Arm.PID.I, Constants.Arm.PID.D, Constants.Arm.PID.I_TOLERANCE,
+                        Constants.Arm.LIMIT, Constants.Autonomous.ARM_TIME),
+                new DriveForTime(drive, Constants.Autonomous.MOVE_SPEED, Constants.Autonomous.COMM_LEAVE_STRAIGHT_TIME, Constants.Autonomous.MAX_TEMP)));
+        autoChooser.addOption("Dock", new SequentialCommandGroup(
                 Commands.waitUntil(gyro::isReady),
                 Commands.runOnce(gyro::zeroYaw),
                 new DriveUntilPitch(drive, gyro, Constants.Autonomous.MOVE_SPEED, 0, 3, true,
@@ -65,14 +71,14 @@ public class RobotContainer {
                         Constants.Autonomous.MAX_TEMP)));
         autoChooser.addOption("Leave (Straight)", new DriveForTime(drive, Constants.Autonomous.MOVE_SPEED,
                 Constants.Autonomous.COMM_LEAVE_STRAIGHT_TIME, Constants.Autonomous.MAX_TEMP));
-        autoChooser.addOption("Arm & Leave (Straight)", new SequentialCommandGroup(
-                Commands.runOnce(arm::resetInitialPos),
-                Commands.runOnce(arm::reenable),
-                new ArmPID(arm, Constants.Arm.PS_HIGH_POS, Constants.Arm.PID.P, Constants.Arm.PID.P_D,
-                        Constants.Arm.PID.I, Constants.Arm.PID.D, Constants.Arm.PID.I_TOLERANCE,
-                        Constants.Arm.LIMIT, Constants.Autonomous.ARM_TIME),
-                new DriveForTime(drive, Constants.Autonomous.MOVE_SPEED, Constants.Autonomous.COMM_LEAVE_STRAIGHT_TIME, Constants.Autonomous.MAX_TEMP)
-        ));
+        // autoChooser.addOption("Arm & Leave (Straight)", new SequentialCommandGroup(
+        //         Commands.runOnce(arm::resetInitialPos),
+        //         Commands.runOnce(arm::reenable),
+        //         new ArmPID(arm, Constants.Arm.PS_HIGH_POS, Constants.Arm.PID.P, Constants.Arm.PID.P_D,
+        //                 Constants.Arm.PID.I, Constants.Arm.PID.D, Constants.Arm.PID.I_TOLERANCE,
+        //                 Constants.Arm.LIMIT, Constants.Autonomous.ARM_TIME),
+        //         new DriveForTime(drive, Constants.Autonomous.MOVE_SPEED, Constants.Autonomous.COMM_LEAVE_STRAIGHT_TIME, Constants.Autonomous.MAX_TEMP)
+        // ));
         autoChooser.addOption("Leave & Dock", new SequentialCommandGroup(
                 Commands.waitUntil(gyro::isReady),
                 Commands.runOnce(gyro::zeroYaw),
