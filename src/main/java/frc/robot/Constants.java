@@ -76,7 +76,7 @@ public final static class Drive {
     final static double BRAKE_THRESHOLD = 0.005; // Speed threshold to round to 0 (and thus brake)
     final static double LM_SPEED_OFFSET = 0; // Percent offset (0-1) for left motor speed (to ensure that it can drive straight)
     final static double RM_SPEED_OFFSET = 0; // Percent offset (0-1) for right motor speed (to ensure that it can drive straight)
-    final static double THERMAL_WARNING = 85; // Temperature (in degrees C) to warn the driver about
+    final static double THERMAL_WARNING = 80; // Temperature (in degrees C) to warn the driver about
     final static boolean LM_INVERSE = false; // Whether the left motors are inverted
     final static boolean RM_INVERSE = true; // Whether the right motors are inverted
     public final class CurrentLimit { // TODO: Test and tune current limits -- redo PID for new limits
@@ -98,22 +98,22 @@ public final static class Gyro {
 
 public final static class Autonomous {
     final static int TURN_RADIUS = 90; // Amount to turn (in degrees) for turning commands
-    final static double MOVE_SPEED = 0.24; // Percent speed (0-1) for moving the robot
+    final static double MOVE_SPEED = 0.5; // Percent speed (0-1) for moving the robot
     final static double TURN_SPEED = 0.3; // Percent speed (0-1) for turning the robot
     final static double FLOOR_ANGLE = 3; // Absolute angle (in degrees) to be considered on the floor
     final static double ARM_TIME = 1.5; // Time to raise arm for (start to end)
     final static double COMM_LEAVE_TIME = 0.45; // Time in seconds that are needed to leave the community area (after passing charging station)
-    final static double COMM_LEAVE_STRAIGHT_TIME = 1.8; // Time in seconds that are needed to leave the community area (without going over the charging station)
+    final static double COMM_LEAVE_STRAIGHT_TIME = 1.78; // Time in seconds that are needed to leave the community area (without going over the charging station)
     final static double DOWN_SCALE = 0.85; // Amount to scale the speed of the drive when going down the charging station (for LEAVE_DOCK)
     final static double REV_SCALE = 1.134; // Amount to scale the speed of the drive when backing up into the charging station
     final static double MAX_TEMP = 60; // Maximum temperature (in degrees C) before autonomous stops
-    public final class DockPID { // Forwards docking
+    public final class DockPID { // Forwards docking // TODO: Retune PID for changed drive ratio
         final static double P = 0.0125; // Proportional constant for PID
         final static double I = 0.0045; // Integral constant for PID
         final static double D = 0.0008; // Derivative constant for PID
         final static double I_TOLERANCE = 1; // Tolerance for integral constant for PID (0 to disable)
     }
-    public final class DockPIDReverse { // Backwards docking
+    public final class DockPIDReverse { // Backwards docking // TODO: Retune PID for changed drive ratio
         final static double P = 0.0129; // Proportional constant for PID
         final static double I = 0.00413; // Integral constant for PID
         final static double D = 0.0018; // Derivative constant for PID
@@ -124,8 +124,6 @@ public final static class Autonomous {
 public final static class TeleOp {
     final static int LEFT_DRIVE_STICK = Joystick.LY; // Joystick to use for left motor control
     final static int RIGHT_DRIVE_STICK = Joystick.RY; // JOystick to use for right motor control
-    final static int TURBO_BTN = Buttons.R1; // Button to use to override drive speed scaling
-    final static double MOVE_SCALE = 0.7; // Percent (0-1) to scale speed when moving the robot
-    final static double TURN_SCALE = 0.5; // Percent (0-1) to scale speed when turning the robot
+    final static double SLEW_RATE_LIMIT = 0.985; // Slew rate limit (0-1) for joystick input
 }
 }
