@@ -98,12 +98,12 @@ public final static class Gyro {
 
 public final static class Autonomous {
     final static int TURN_RADIUS = 90; // Amount to turn (in degrees) for turning commands
-    final static double MOVE_SPEED = 0.24; // Percent speed (0-1) for moving the robot
+    final static double MOVE_SPEED = 0.5; // Percent speed (0-1) for moving the robot
     final static double TURN_SPEED = 0.3; // Percent speed (0-1) for turning the robot
     final static double FLOOR_ANGLE = 3; // Absolute angle (in degrees) to be considered on the floor
     final static double ARM_TIME = 1.5; // Time to raise arm for (start to end)
     final static double COMM_LEAVE_TIME = 0.45; // Time in seconds that are needed to leave the community area (after passing charging station)
-    final static double COMM_LEAVE_STRAIGHT_TIME = 1.8; // Time in seconds that are needed to leave the community area (without going over the charging station)
+    final static double COMM_LEAVE_STRAIGHT_TIME = 2; // Time in seconds that are needed to leave the community area (without going over the charging station)
     final static double DOWN_SCALE = 0.85; // Amount to scale the speed of the drive when going down the charging station (for LEAVE_DOCK)
     final static double REV_SCALE = 1.134; // Amount to scale the speed of the drive when backing up into the charging station
     final static double MAX_TEMP = 60; // Maximum temperature (in degrees C) before autonomous stops
@@ -123,9 +123,7 @@ public final static class Autonomous {
 
 public final static class TeleOp {
     final static int LEFT_DRIVE_STICK = Joystick.LY; // Joystick to use for left motor control
-    final static int RIGHT_DRIVE_STICK = Joystick.RY; // JOystick to use for right motor control
-    final static int TURBO_BTN = Buttons.R1; // Button to use to override drive speed scaling
-    final static double MOVE_SCALE = 0.7; // Percent (0-1) to scale speed when moving the robot
-    final static double TURN_SCALE = 0.5; // Percent (0-1) to scale speed when turning the robot
+    final static int RIGHT_DRIVE_STICK = Joystick.RY; // Joystick to use for right motor control
+    final static double SLEW_RATE_LIMIT = 0.5; // Maximum acceleration allowed in one cycle (ramp up)
 }
 }
