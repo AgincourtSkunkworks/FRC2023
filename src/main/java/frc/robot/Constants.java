@@ -124,6 +124,6 @@ public final static class Autonomous {
 public final static class TeleOp {
     final static int LEFT_DRIVE_STICK = Joystick.LY; // Joystick to use for left motor control
     final static int RIGHT_DRIVE_STICK = Joystick.RY; // Joystick to use for right motor control
-    final static double SLEW_RATE_LIMIT = 0.9; // Slew limit for motor control, shared on left & right
+    final static double SLEW_RATE_LIMIT = 0.985; // Slew limit for motor control, shared on left & right
 }
 }
