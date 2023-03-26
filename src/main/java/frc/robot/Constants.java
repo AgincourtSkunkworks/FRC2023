@@ -76,7 +76,7 @@ public final static class Drive {
     final static double BRAKE_THRESHOLD = 0.005; // Speed threshold to round to 0 (and thus brake)
     final static double LM_SPEED_OFFSET = 0; // Percent offset (0-1) for left motor speed (to ensure that it can drive straight)
     final static double RM_SPEED_OFFSET = 0; // Percent offset (0-1) for right motor speed (to ensure that it can drive straight)
-    final static double THERMAL_WARNING = 85; // Temperature (in degrees C) to warn the driver about
+    final static double THERMAL_WARNING = 80; // Temperature (in degrees C) to warn the driver about
     final static boolean LM_INVERSE = false; // Whether the left motors are inverted
     final static boolean RM_INVERSE = true; // Whether the right motors are inverted
     public final class CurrentLimit { // TODO: Test and tune current limits -- redo PID for new limits
@@ -124,6 +124,6 @@ public final static class Autonomous {
 public final static class TeleOp {
     final static int LEFT_DRIVE_STICK = Joystick.LY; // Joystick to use for left motor control
     final static int RIGHT_DRIVE_STICK = Joystick.RY; // Joystick to use for right motor control
-    final static double SLEW_RATE_LIMIT = 0.5; // Maximum acceleration allowed in one cycle (ramp up)
+    final static double SLEW_RATE_LIMIT = 0.5; // Slew limit for motor control, shared on left & right
 }
 }
