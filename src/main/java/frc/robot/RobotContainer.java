@@ -36,13 +36,9 @@ public class RobotContainer {
                 new TeleopDrive(drive, () -> -controller.getRawAxis(Constants.TeleOp.LEFT_DRIVE_STICK),
                         () -> -controller.getRawAxis(Constants.TeleOp.RIGHT_DRIVE_STICK),
                         Constants.TeleOp.SLEW_RATE_LIMIT));
-        arm.setDefaultCommand(
-                (Constants.Arm.TYPE == Constants.ArmMovement.PID)
-                        ? new ArmPID(arm, Constants.Arm.PS_LOW_POS, Constants.Arm.PID.P, Constants.Arm.PID.P_D,
-                                Constants.Arm.PID.I,
-                                Constants.Arm.PID.D, Constants.Arm.PID.I_TOLERANCE, Constants.Arm.LIMIT)
-                        : new ArmBangBang(arm, Constants.Arm.PS_LOW_POS, Constants.Arm.TOLERANCE, Constants.Arm.SPEED,
-                                Constants.Arm.REVERSE_SPEED, Constants.Arm.LIMIT));
+        arm.setDefaultCommand(new ArmPID(arm, Constants.Arm.PS_LOW_POS, Constants.Arm.PID.P, Constants.Arm.PID.P_D,
+                Constants.Arm.PID.I,
+                Constants.Arm.PID.D, Constants.Arm.PID.I_TOLERANCE, Constants.Arm.LIMIT));
 
         autoChooser.setDefaultOption("Dock", new SequentialCommandGroup(
                 Commands.waitUntil(gyro::isReady),
@@ -70,8 +66,8 @@ public class RobotContainer {
                 new ArmPID(arm, Constants.Arm.PS_HIGH_POS, Constants.Arm.PID.P, Constants.Arm.PID.P_D,
                         Constants.Arm.PID.I, Constants.Arm.PID.D, Constants.Arm.PID.I_TOLERANCE,
                         Constants.Arm.LIMIT, Constants.Autonomous.ARM_TIME),
-                new DriveForTime(drive, Constants.Autonomous.MOVE_SPEED, Constants.Autonomous.COMM_LEAVE_STRAIGHT_TIME, Constants.Autonomous.MAX_TEMP)
-        ));
+                new DriveForTime(drive, Constants.Autonomous.MOVE_SPEED, Constants.Autonomous.COMM_LEAVE_STRAIGHT_TIME,
+                        Constants.Autonomous.MAX_TEMP)));
         autoChooser.addOption("Leave & Dock", new SequentialCommandGroup(
                 Commands.waitUntil(gyro::isReady),
                 Commands.runOnce(gyro::zeroYaw),
@@ -82,7 +78,8 @@ public class RobotContainer {
                         Constants.Autonomous.MAX_TEMP),
                 new DriveForTime(drive, Constants.Autonomous.MOVE_SPEED, Constants.Autonomous.COMM_LEAVE_TIME,
                         Constants.Autonomous.MAX_TEMP),
-                new DriveUntilPitch(drive, gyro, -Constants.Autonomous.MOVE_SPEED * Constants.Autonomous.REV_SCALE, 0, 7, true,
+                new DriveUntilPitch(drive, gyro, -Constants.Autonomous.MOVE_SPEED * Constants.Autonomous.REV_SCALE, 0,
+                        7, true,
                         Constants.Autonomous.MAX_TEMP),
                 new DockPID(drive, gyro,
                         Constants.Autonomous.DockPIDReverse.P,
@@ -104,7 +101,8 @@ public class RobotContainer {
                         Constants.Autonomous.MAX_TEMP),
                 new DriveForTime(drive, Constants.Autonomous.MOVE_SPEED, Constants.Autonomous.COMM_LEAVE_TIME,
                         Constants.Autonomous.MAX_TEMP),
-                new DriveUntilPitch(drive, gyro, -Constants.Autonomous.MOVE_SPEED * Constants.Autonomous.REV_SCALE, 0, 7, true,
+                new DriveUntilPitch(drive, gyro, -Constants.Autonomous.MOVE_SPEED * Constants.Autonomous.REV_SCALE, 0,
+                        7, true,
                         Constants.Autonomous.MAX_TEMP),
                 new DockPID(drive, gyro,
                         Constants.Autonomous.DockPIDReverse.P,
@@ -128,19 +126,13 @@ public class RobotContainer {
                                 () -> arm.setSpeed(0),
                                 arm));
         new JoystickButton(controller, Constants.Arm.PS_LOW_BTN).onTrue(Commands.runOnce(arm::reenable)).onTrue(
-                (Constants.Arm.TYPE == Constants.ArmMovement.PID)
-                        ? new ArmPID(arm, Constants.Arm.PS_LOW_POS, Constants.Arm.PID.P, Constants.Arm.PID.P_D,
-                                Constants.Arm.PID.I,
-                                Constants.Arm.PID.D, Constants.Arm.PID.I_TOLERANCE, Constants.Arm.LIMIT)
-                        : new ArmBangBang(arm, Constants.Arm.PS_LOW_POS, Constants.Arm.TOLERANCE, Constants.Arm.SPEED,
-                                Constants.Arm.REVERSE_SPEED, Constants.Arm.LIMIT));
+                new ArmPID(arm, Constants.Arm.PS_LOW_POS, Constants.Arm.PID.P, Constants.Arm.PID.P_D,
+                        Constants.Arm.PID.I,
+                        Constants.Arm.PID.D, Constants.Arm.PID.I_TOLERANCE, Constants.Arm.LIMIT));
         new JoystickButton(controller, Constants.Arm.PS_HIGH_BTN).onTrue(Commands.runOnce(arm::reenable)).onTrue(
-                (Constants.Arm.TYPE == Constants.ArmMovement.PID)
-                        ? new ArmPID(arm, Constants.Arm.PS_HIGH_POS, Constants.Arm.PID.P, Constants.Arm.PID.P_D,
-                                Constants.Arm.PID.I,
-                                Constants.Arm.PID.D, Constants.Arm.PID.I_TOLERANCE, Constants.Arm.LIMIT)
-                        : new ArmBangBang(arm, Constants.Arm.PS_HIGH_POS, Constants.Arm.TOLERANCE, Constants.Arm.SPEED,
-                                Constants.Arm.REVERSE_SPEED, Constants.Arm.LIMIT));
+                new ArmPID(arm, Constants.Arm.PS_HIGH_POS, Constants.Arm.PID.P, Constants.Arm.PID.P_D,
+                        Constants.Arm.PID.I,
+                        Constants.Arm.PID.D, Constants.Arm.PID.I_TOLERANCE, Constants.Arm.LIMIT));
     }
 
     public Command getAutonomousCommand() {

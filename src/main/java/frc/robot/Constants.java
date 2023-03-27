@@ -5,20 +5,6 @@
 package frc.robot;
 
 public final class Constants {
-public static enum AutonomousSequence { // Enum to use for different autonomous sequences
-    LEAVE, // Leave the community area, over the charging station (center pos)
-    LEAVE_STRAIGHT, // Leave the community area, by driving straight (side pos)
-    DOCK, // Dock with the charging station
-    LEAVE_DOCK, // Leave the community area, then dock. NOTE: Only designed for PID arm movement
-    ARM_LEAVE_DOCK, // Raise the arm, leave the community area, then dock. NOTE: Only designed for PID arm movement
-    NONE
-}
-
-public static enum ArmMovement { // Enum to use for types of arm movement
-    BANG_BANG,
-    PID
-}
-
 public final static class Buttons { // Button Name -> ID Mapping
     public static final int A = 2;
     public static final int B = 3;
@@ -62,7 +48,6 @@ public final static class Arm {
     final static double OVERRIDE_REVERSE_SPEED = -0.15; // Speed for arm movement when using manual override in reverse
     final static double PS_LOW_POS = 0; // Low position for arm (in encoder ticks)
     final static double PS_HIGH_POS = 19000; // High position for arm (in encoder ticks)
-    final static ArmMovement TYPE = ArmMovement.PID; // Whether to use bang bang or PID for arm movement
     public final class PID {
         final static double P = 0.000035; // Proportional constant for PID
         final static double P_D = 0; // Proportional constant for PID (when moving down)
