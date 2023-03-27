@@ -17,14 +17,13 @@ public class DriveForTime extends CommandBase {
      * @param drive   The drive subsystem
      * @param speed   The speed to drive at
      * @param time    The time to drive for (in seconds)
-     * @param maxTemp The maximum temperature before thermal failsafe kicks in
      */
-    public DriveForTime(DriveSubsystem drive, double speed, double time, double maxTemp) {
+    public DriveForTime(DriveSubsystem drive, double speed, double time) {
         addRequirements(drive);
         this.drive = drive;
         this.speed = speed;
         this.time = time;
-        this.maxTemp = maxTemp;
+        this.maxTemp = drive.getMaxTemp();
     }
 
     @Override

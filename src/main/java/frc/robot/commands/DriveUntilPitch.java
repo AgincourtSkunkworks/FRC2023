@@ -22,10 +22,9 @@ public class DriveUntilPitch extends CommandBase {
      * @param tolerance The tolerance for the pitch
      * @param not       True to drive until pitch is out of range, false to drive
      *                  until pitch is in range
-     * @param maxTemp   The maximum temperature before thermal failsafe kicks in
      */
     public DriveUntilPitch(DriveSubsystem drive, GyroSubsystem gyro, double speed, double target, double tolerance,
-            boolean not, double maxTemp) {
+            boolean not) {
         addRequirements(drive);
         this.drive = drive;
         this.speed = speed;
@@ -33,7 +32,7 @@ public class DriveUntilPitch extends CommandBase {
         this.target = target;
         this.tolerance = tolerance;
         this.not = not;
-        this.maxTemp = maxTemp;
+        this.maxTemp = drive.getMaxTemp();
     }
 
     @Override

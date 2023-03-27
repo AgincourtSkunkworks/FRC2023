@@ -12,7 +12,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 public class DriveSubsystem extends SubsystemBase {
     WPI_TalonFX leftMotor1, leftMotor2, rightMotor1, rightMotor2;
     WPI_TalonFX[] leftMotors, rightMotors, motors;
-    double lCorrect, rCorrect, brakeThreshold, thermalWarning;
+    double lCorrect, rCorrect, brakeThreshold, thermalWarning, maxTemp;
 
     /**
      * Creates a new DriveSubsystem.
@@ -27,11 +27,20 @@ public class DriveSubsystem extends SubsystemBase {
      * @param rCorrect Percent of speed to add to right motors (0-1)
      * @param brakeThreshold The speed at which it rounds down to 0 and brakes
      * @param thermalWarning The motor temperature in which a warning is sent to the driver station
+     * @param currentSupply Whether to enable supply current limiting
+     * @param currentSupplyLimit The maximum supply current limit
+     * @param currentSupplyTrigger The limit at which the current limit is activated
+     * @param currentSupplyTriggerTime The amount of time over the current limit trigger before the limit is activated
+     * @param currentStator Whether to enable stator current limiting
+     * @param currentStatorLimit The maximum stator current limit
+     * @param currentStatorTrigger The limit at which the current limit is activated
+     * @param currentStatorTriggerTime The amount of time over the current limit trigger before the limit is activated
+     * @param maxTemp Max temperature for autonomous mode, after which the robot will stop
      */
     public DriveSubsystem(int l1ID, int l2ID, int r1ID, int r2ID, boolean lInvert, boolean rInvert, double lCorrect,
             double rCorrect, double brakeThreshold, double thermalWarning, boolean currentSupply, double currentSupplyLimit,
             double currentSupplyTrigger, double currentSupplyTriggerTime, boolean currentStator, double currentStatorLimit,
-            double currentStatorTrigger, double currentStatorTriggerTime) {
+            double currentStatorTrigger, double currentStatorTriggerTime, double maxTemp) {
         leftMotor1 = new WPI_TalonFX(l1ID);
         leftMotor2 = new WPI_TalonFX(l2ID);
         rightMotor1 = new WPI_TalonFX(r1ID);
@@ -45,6 +54,7 @@ public class DriveSubsystem extends SubsystemBase {
         this.rCorrect = 1 + rCorrect;
         this.brakeThreshold = brakeThreshold;
         this.thermalWarning = thermalWarning;
+        this.maxTemp = maxTemp;
 
         for (WPI_TalonFX motor : motors) {
             motor.setNeutralMode(NeutralMode.Brake);
@@ -146,12 +156,22 @@ public class DriveSubsystem extends SubsystemBase {
         return rightMotor2.getTemperature();
     }
 
+    /** Get the highest temperature from all drive motors
+     * @return The highest temperature
+     */
     public double getHighestTemp() {
         double highest = 0;
         for (WPI_TalonFX motor : motors)
             if (motor.getTemperature() > highest)
                 highest = motor.getTemperature();
         return highest;
+    }
+
+    /** Get the max temperature allowed for autonomous mode
+     * @return The max temperature
+     */
+    public double getMaxTemp() {
+        return this.maxTemp;
     }
 
     @Override

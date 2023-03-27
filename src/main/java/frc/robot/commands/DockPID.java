@@ -25,9 +25,8 @@ public class DockPID extends CommandBase {
      * @param d          The D value of PID
      * @param iTolerance Under this tolerance, the errorSum will be increased. Set
      *                   to 0 to disable.
-     * @param maxTemp    The maximum temperature before thermal failsafe kicks in
      */
-    public DockPID(DriveSubsystem drive, GyroSubsystem gyro, double p, double i, double d, double iTolerance, double maxTemp) {
+    public DockPID(DriveSubsystem drive, GyroSubsystem gyro, double p, double i, double d, double iTolerance) {
         addRequirements(drive);
         this.drive = drive;
         this.gyro = gyro;
@@ -36,7 +35,7 @@ public class DockPID extends CommandBase {
         this.d = d;
         this.iTolerance = iTolerance;
         this.hasITolerance = iTolerance != 0;
-        this.maxTemp = maxTemp;
+        this.maxTemp = drive.getMaxTemp();
     }
 
     @Override
