@@ -26,10 +26,10 @@ public final static class Joystick { // Joystick Name -> ID Mapping
 }
 
 public final static class ID { // Motor Name -> ID Mapping
-    public static final int L1 = 14; // Left Motor 1 ID
-    public static final int L2 = 15; // Left Motor 2 ID
-    public static final int R1 = 12; // Right Motor 1 ID
-    public static final int R2 = 13; // Right Motor 2 ID
+    public static final int LM1 = 14; // Left Motor 1 ID
+    public static final int LM2 = 15; // Left Motor 2 ID
+    public static final int RM1 = 12; // Right Motor 1 ID
+    public static final int RM2 = 13; // Right Motor 2 ID
     public static final int ARM = 11; // Arm Motor ID
     public static final int JOYSTICK = 0; // Joystick ID
 }
@@ -64,15 +64,15 @@ public final static class Drive {
     final static double THERMAL_WARNING = 80; // Temperature (in degrees C) to warn the driver about
     final static boolean LM_INVERSE = false; // Whether the left motors are inverted
     final static boolean RM_INVERSE = true; // Whether the right motors are inverted
-    public final class CurrentLimit { // TODO: Test and tune current limits -- redo PID for new limits
-        final static boolean SUPPLY = true;
-        final static double SUPPLY_LIMIT = 100;
-        final static double SUPPLY_TRIGGER = 100;
-        final static double SUPPLY_TRIGGER_TIME = 0.15;
-        final static boolean STATOR = true;
-        final static double STATOR_LIMIT = 100;
-        final static double STATOR_TRIGGER = 100;
-        final static double STATOR_TRIGGER_TIME = 0.15;
+    public final class CurrentLimit {
+        final static boolean SUPPLY = true; // Whether to enable supply current limiting
+        final static double SUPPLY_LIMIT = 100; // Supply current limit
+        final static double SUPPLY_TRIGGER = 100; // Current in which to trigger the supply limit (lower to SUPPLY_LIMIT)
+        final static double SUPPLY_TRIGGER_TIME = 0.15; // Amount of time to go over SUPPLY_TRIGGER before triggering the limit
+        final static boolean STATOR = true; // Whether to enable stator current limiting
+        final static double STATOR_LIMIT = 100; // Stator current limit
+        final static double STATOR_TRIGGER = 100; // Current in which to trigger the stator limit (lower to STATOR_LIMIT)
+        final static double STATOR_TRIGGER_TIME = 0.15; // Amount of time to go over STATOR_TRIGGER before triggering the limit
     }
 }
 
@@ -92,13 +92,13 @@ public final static class Autonomous {
     final static double DOWN_SCALE = 0.85; // Amount to scale the speed of the drive when going down the charging station (for LEAVE_DOCK)
     final static double REV_SCALE = 1.134; // Amount to scale the speed of the drive when backing up into the charging station
     final static double MAX_TEMP = 60; // Maximum temperature (in degrees C) before autonomous stops
-    public final class DockPID { // Forwards docking // TODO: Retune PID for changed drive ratio
+    public final class DockPID { // Forwards docking // TODO: Retune PID for changed drive ratio & limits
         final static double P = 0.0125; // Proportional constant for PID
         final static double I = 0.0045; // Integral constant for PID
         final static double D = 0.0008; // Derivative constant for PID
         final static double I_TOLERANCE = 1; // Tolerance for integral constant for PID (0 to disable)
     }
-    public final class DockPIDReverse { // Backwards docking // TODO: Retune PID for changed drive ratio
+    public final class DockPIDReverse { // Backwards docking // TODO: Retune PID for changed drive ratio & limits
         final static double P = 0.0129; // Proportional constant for PID
         final static double I = 0.00413; // Integral constant for PID
         final static double D = 0.0018; // Derivative constant for PID

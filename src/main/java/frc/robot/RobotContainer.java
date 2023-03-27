@@ -18,7 +18,7 @@ public class RobotContainer {
     // Create required systems
     private final ArmSubsystem arm = new ArmSubsystem(Constants.ID.ARM);
     private final DriveSubsystem drive = new DriveSubsystem(
-            Constants.ID.L1, Constants.ID.L2, Constants.ID.R1, Constants.ID.R2, Constants.Drive.LM_INVERSE,
+            Constants.ID.LM1, Constants.ID.LM2, Constants.ID.RM1, Constants.ID.RM2, Constants.Drive.LM_INVERSE,
             Constants.Drive.RM_INVERSE, Constants.Drive.LM_SPEED_OFFSET, Constants.Drive.RM_SPEED_OFFSET,
             Constants.Drive.BRAKE_THRESHOLD, Constants.Drive.THERMAL_WARNING, Constants.Drive.CurrentLimit.SUPPLY,
             Constants.Drive.CurrentLimit.SUPPLY_LIMIT, Constants.Drive.CurrentLimit.SUPPLY_TRIGGER,
