@@ -34,7 +34,7 @@ public class TeleopDrive extends CommandBase {
 
     @Override
     public void initialize() {
-        SmartDashboard.putString("Command", "TeleopDrive");
+        SmartDashboard.putString("Command", "TeleOpDrive");
     }
 
     @Override
