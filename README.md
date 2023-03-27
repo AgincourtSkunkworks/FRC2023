@@ -8,7 +8,8 @@ Source code used for Team 1246's 2023 FRC robot, using command-based programming
 - Well commented (for the most part)
 
 ### Autonomous
-Combinations of most of the following can be used in autonomous -- the highest scoring mode would be Score, Leave (Center), and Dock & Engage:
+Combinations of most of the following can be used in autonomous, can be selected via SmartDashboard
+-- the highest scoring mode would be Score, Leave (Center), and Dock & Engage:
 - Scoring Cube (Low)
 - Leaving Community Zone (Sides)
 - Leaving Community Zone (Center)
